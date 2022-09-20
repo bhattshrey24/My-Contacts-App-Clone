@@ -7,14 +7,24 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.R
 
-class AllContactsListAdapter : RecyclerView.Adapter<AllContactsListAdapter.MyViewHolder>() {
+class AllContactsListAdapter(
+    var onContactClickListenerVariable: OnContactClickListener
+) : RecyclerView.Adapter<AllContactsListAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var contactName: TextView
 
         init {
             contactName = itemView.findViewById(R.id.contactNameTV)
+            itemView.setOnClickListener {
+                val pos = layoutPosition // use position if this doesn't work
+                onContactClickListenerVariable.onContactClick(pos)
+            }
         }
+    }
+
+    interface OnContactClickListener {
+        fun onContactClick(position: Int)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -30,4 +40,6 @@ class AllContactsListAdapter : RecyclerView.Adapter<AllContactsListAdapter.MyVie
     override fun getItemCount(): Int {
         return 20
     }
+
+
 }

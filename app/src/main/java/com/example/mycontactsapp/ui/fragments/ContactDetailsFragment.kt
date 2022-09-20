@@ -20,8 +20,16 @@ class ContactDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-
+        binding.editContactFloatingButton.setOnClickListener {
+            replaceFragment(CreateOrModifyContactFragment())
+        }
         return binding.root
+    }
+
+    fun replaceFragment(myFragment: Fragment) {
+        var fragmentManager = parentFragmentManager
+        var fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
+        fragmentTransaction.commit()
     }
 }

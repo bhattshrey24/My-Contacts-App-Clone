@@ -1,20 +1,11 @@
 package com.example.mycontactsapp
 
-import android.content.pm.PackageManager
-import android.database.Cursor
-import android.os.Build
+import android.R
 import android.os.Bundle
-import android.provider.ContactsContract
-import android.util.Log
-import android.widget.ArrayAdapter
-import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.mycontactsapp.databinding.ActivityMainBinding
 import com.example.mycontactsapp.ui.fragments.HomeFragment
-import java.util.jar.Manifest
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,4 +27,17 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.replace(binding.mainActivityFragmentContainer.id, myFragment)
         fragmentTransaction.commit()
     }
+
+//    override fun onBackPressed() { // Not working , maybe what we can do is add fragment to backstack before replacing
+//    and then remove it or maybe use navigation component
+//        var fragmentManager = supportFragmentManager
+//        var fragmentTransaction = fragmentManager.beginTransaction()
+//        var fragment = fragmentManager.findFragmentById(binding.mainActivityFragmentContainer.id)
+//        if (fragment != null) {
+//            fragmentTransaction.remove(fragment);
+//            fragmentTransaction.commit();
+//        } else {
+//            super.onBackPressed();
+//        }
+//    }
 }
