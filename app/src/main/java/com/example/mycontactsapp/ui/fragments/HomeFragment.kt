@@ -52,7 +52,11 @@ class HomeFragment() : Fragment(),
     ): View {
         setUpRecyclerView()
         binding.addNewContactFloatingButton.setOnClickListener {
-            replaceFragment(CreateOrModifyContactFragment())
+            var fragment = CreateOrModifyContactFragment()
+            var bundle = Bundle()
+            bundle.putBoolean(Constants.booleanIsEditKey, false)
+            fragment.arguments = bundle
+            replaceFragment(fragment)
         }
         return binding.root
     }

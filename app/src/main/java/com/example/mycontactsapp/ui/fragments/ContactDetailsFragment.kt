@@ -22,15 +22,20 @@ class ContactDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding.editContactFloatingButton.setOnClickListener {
-            replaceFragment(CreateOrModifyContactFragment())
-        }
-        var bundle = this.arguments
 
+        var bundle = this.arguments
         var contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
         binding.nameOfPersonTV.text = contactDetails?.name
         binding.numberOfPersonTV.text = contactDetails?.number
 
+        binding.editContactFloatingButton.setOnClickListener {
+            var fragment = CreateOrModifyContactFragment()
+            var bundle = Bundle()
+            bundle.putBoolean(Constants.booleanIsEditKey, true)
+            fragment.arguments = bundle
+            bundle.putParcelable(Constants.contactDetailsKey, contactDetails)
+            replaceFragment(fragment)
+        }
         return binding.root
     }
 
