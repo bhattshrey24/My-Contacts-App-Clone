@@ -80,8 +80,7 @@ class HomeFragment() : Fragment(),
         // Navigate to Contact Display Basically Change the fragment
         var fragment = ContactDetailsFragment()
         var bundle = Bundle()
-        bundle.putString(Constants.contactNameKey, listOfContacts[position].name)
-        bundle.putString(Constants.contactNumberKey, listOfContacts[position].number)
+        bundle.putParcelable(Constants.contactDetailsKey, listOfContacts[position])
         fragment.arguments = bundle
 
         replaceFragment(fragment)

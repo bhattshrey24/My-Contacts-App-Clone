@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.example.mycontactsapp.Constants
+import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
 
@@ -25,11 +26,10 @@ class ContactDetailsFragment : Fragment() {
             replaceFragment(CreateOrModifyContactFragment())
         }
         var bundle = this.arguments
-        var name = bundle?.getString(Constants.contactNameKey)
-        var number = bundle?.getString(Constants.contactNumberKey)
 
-        binding.nameOfPersonTV.text = name
-        binding.numberOfPersonTV.text = number
+        var contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
+        binding.nameOfPersonTV.text = contactDetails?.name
+        binding.numberOfPersonTV.text = contactDetails?.number
 
         return binding.root
     }
