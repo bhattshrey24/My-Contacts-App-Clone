@@ -15,6 +15,7 @@ import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mycontactsapp.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
@@ -28,7 +29,7 @@ class HomeFragment() : Fragment(),
     }
 
     var layoutManager: RecyclerView.LayoutManager? = null
-    var adapter: AllContactsListAdapter? = null
+    private var adapter: AllContactsListAdapter? = null
     var loadContactId = 10
 
     private var mColProjection: Array<String> = arrayOf(
@@ -36,10 +37,13 @@ class HomeFragment() : Fragment(),
         ContactsContract.CommonDataKinds.Phone.NUMBER,
     )
 
-    private var uri: Uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI// ContactsContract.Data.CONTENT_URI
+    private var uri: Uri =
+        ContactsContract.CommonDataKinds.Phone.CONTENT_URI// ContactsContract.Data.CONTENT_URI
 
     var isFirstTimeLoaded: Boolean = false
     var mSortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+
+    var listOfContacts = mutableListOf<Contact>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,10 +78,17 @@ class HomeFragment() : Fragment(),
     override fun onContactClick(position: Int) {
         Toast.makeText(context, "pressed $position", Toast.LENGTH_SHORT).show()
         // Navigate to Contact Display Basically Change the fragment
-        replaceFragment(ContactDetailsFragment())
+        var fragment = ContactDetailsFragment()
+        var bundle = Bundle()
+        bundle.putString(Constants.contactNameKey, listOfContacts[position].name)
+        bundle.putString(Constants.contactNumberKey, listOfContacts[position].number)
+        fragment.arguments = bundle
+
+        replaceFragment(fragment)
     }
 
     private fun replaceFragment(myFragment: Fragment) {
+
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
@@ -100,8 +111,7 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
-        var listOfContacts = mutableListOf<Contact>()
-
+        listOfContacts.clear()
         if (cursor != null && cursor.count > 0) {
             var contactsList = StringBuilder("")
             while (cursor.moveToNext()) {
@@ -117,6 +127,7 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
+
     }
 
 }

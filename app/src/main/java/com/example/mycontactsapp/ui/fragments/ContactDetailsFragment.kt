@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import com.example.mycontactsapp.Constants
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
 
@@ -22,10 +24,17 @@ class ContactDetailsFragment : Fragment() {
         binding.editContactFloatingButton.setOnClickListener {
             replaceFragment(CreateOrModifyContactFragment())
         }
+        var bundle = this.arguments
+        var name = bundle?.getString(Constants.contactNameKey)
+        var number = bundle?.getString(Constants.contactNumberKey)
+
+        binding.nameOfPersonTV.text = name
+        binding.numberOfPersonTV.text = number
+
         return binding.root
     }
 
-    fun replaceFragment(myFragment: Fragment) {
+    private fun replaceFragment(myFragment: Fragment) {
         var fragmentManager = parentFragmentManager
         var fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
