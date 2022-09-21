@@ -5,11 +5,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 
 class AllContactsListAdapter(
     var onContactClickListenerVariable: OnContactClickListener
 ) : RecyclerView.Adapter<AllContactsListAdapter.MyViewHolder>() {
+
+    private var contacts: List<Contact>? = listOf()
+    private var numOfContacts: Int? = 0
+
+    fun setContact(contacts: List<Contact>) {
+        this.contacts = contacts
+        this.numOfContacts = contacts.size
+        notifyDataSetChanged()
+    }
 
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var contactName: TextView
@@ -34,11 +44,12 @@ class AllContactsListAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.contactName.text = "Stuti"
+        holder.contactName.text = contacts?.get(position)?.name ?: "No Name"
+
     }
 
     override fun getItemCount(): Int {
-        return 20
+        return numOfContacts ?: 0
     }
 
 
