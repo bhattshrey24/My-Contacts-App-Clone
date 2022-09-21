@@ -1,6 +1,5 @@
 package com.example.mycontactsapp
 
-import android.R
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -9,6 +8,14 @@ import com.example.mycontactsapp.ui.fragments.HomeFragment
 
 
 class MainActivity : AppCompatActivity() {
+    //todo
+    //  Add home page functionality
+    //  Add contact detail screen functionality
+    //  Add new contact functionality
+    //  Add edit contact functionality
+    //  fix backstack problem ie. how we can maintain backstack in fragment
+    //  Add search contact feature for home page
+
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
     }

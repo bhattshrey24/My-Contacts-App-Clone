@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
-import com.example.mycontactsapp.databinding.FragmentCreateOrModifyContactBinding
 
 
 class ContactDetailsFragment : Fragment() {
