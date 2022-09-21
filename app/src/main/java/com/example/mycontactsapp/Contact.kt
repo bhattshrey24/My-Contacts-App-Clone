@@ -3,17 +3,18 @@ package com.example.mycontactsapp
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Contact(var name: String?, var number: String?) : Parcelable {
-
+data class Contact(var name: String?, var number: String?, var contactId: Int?) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString(),
-        parcel.readString()
+        parcel.readString(),
+        parcel.readValue(Int::class.java.classLoader) as? Int
     ) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
         parcel.writeString(number)
+        parcel.writeValue(contactId)
     }
 
     override fun describeContents(): Int {

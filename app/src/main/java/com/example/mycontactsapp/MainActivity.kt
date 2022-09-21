@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.mycontactsapp.databinding.ActivityMainBinding
 import com.example.mycontactsapp.ui.fragments.HomeFragment
@@ -23,7 +24,8 @@ class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
     }
-    private var requestCode = 101
+
+    private var myRequestCode = 101
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,21 +34,36 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             requestPermission()
         }
-        replaceFragment(HomeFragment())
-
+        if (hasReadPermission()){
+            replaceFragment(HomeFragment())
+        }
+        Log.i(Constants.debugTag,"Has Write pErmission? ${hasWritePermission()}")
     }
 
     private fun requestPermission() {
+        Log.i(Constants.debugTag, "Inside Request Permission")
+
         var permissionsToRequest = mutableListOf<String>()
+
         if (!hasReadPermission()) {
             permissionsToRequest.add(
                 android.Manifest.permission.READ_CONTACTS
             )
         }
-        ActivityCompat.requestPermissions(
-            this, permissionsToRequest.toTypedArray(),
-            requestCode
-        )
+        if (!hasWritePermission()) {
+            permissionsToRequest.add(
+                android.Manifest.permission.WRITE_CONTACTS
+            )
+        }
+
+
+        if (permissionsToRequest.isNotEmpty()) { // ie. if there are some permissions that
+            // user has not accepted so we will now ask user to accept them
+            ActivityCompat.requestPermissions(
+                this, permissionsToRequest.toTypedArray(),
+                myRequestCode
+            )
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -55,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == requestCode && grantResults.isNotEmpty()) {
+        if (requestCode == myRequestCode && grantResults.isNotEmpty()) {
             for (i in grantResults.indices) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     Log.i("PermissionRequests", "${permissions[i]} granted!!")
@@ -63,12 +80,19 @@ class MainActivity : AppCompatActivity() {
                     Log.i("PermissionRequests", "${permissions[i]} Not granted!!")
                 }
             }
+            replaceFragment(HomeFragment()) // ie. for the first time we will do this only if user accepted permission
         }
     }
 
     private fun hasReadPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
-            this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            this, android.Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun hasWritePermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this, android.Manifest.permission.WRITE_CONTACTS
         ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -79,7 +103,19 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.commit()
     }
 
-//    override fun onBackPressed() { // Not working , maybe what we can do is add fragment to backstack before replacing
+
+
+
+
+
+
+
+
+
+
+
+//    override fun onBackPressed() { // Not working , maybe what we
+//    can do is add fragment to backstack before replacing
 //    and then remove it or maybe use navigation component
 //        var fragmentManager = supportFragmentManager
 //        var fragmentTransaction = fragmentManager.beginTransaction()
@@ -91,4 +127,5 @@ class MainActivity : AppCompatActivity() {
 //            super.onBackPressed();
 //        }
 //    }
+
 }

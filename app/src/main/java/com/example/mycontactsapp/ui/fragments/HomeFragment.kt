@@ -35,6 +35,7 @@ class HomeFragment() : Fragment(),
     private var mColProjection: Array<String> = arrayOf(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
+        ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
     )
 
     private var uri: Uri =
@@ -91,7 +92,6 @@ class HomeFragment() : Fragment(),
     }
 
     private fun replaceFragment(myFragment: Fragment) {
-
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
@@ -120,11 +120,11 @@ class HomeFragment() : Fragment(),
             while (cursor.moveToNext()) {
                 var name = cursor.getString(0)
                 var number = cursor.getString(1)
+                var id = cursor.getString(2).toInt()
                 contactsList.append("$name,$number\n")
-
-                listOfContacts.add(Contact(name, number))
+                Log.i(Constants.debugTag, "name = $name and Id : $id")
+                listOfContacts.add(Contact(name, number,id))
             }
-
         }
         adapter?.setContact(listOfContacts)
     }
