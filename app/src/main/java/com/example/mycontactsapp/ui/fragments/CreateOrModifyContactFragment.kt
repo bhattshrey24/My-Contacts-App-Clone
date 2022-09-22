@@ -1,10 +1,7 @@
 package com.example.mycontactsapp.ui.fragments
 
 import android.content.ContentProviderOperation
-import android.content.ContentProviderResult
-import android.content.ContentValues
 import android.content.OperationApplicationException
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.RemoteException
 import android.provider.ContactsContract
@@ -66,21 +63,16 @@ class CreateOrModifyContactFragment : Fragment() {
 
         var cpbo = ArrayList<ContentProviderOperation>()
 
-
         Log.i(Constants.debugTag, "ID 1 : ${ContactsContract.RawContacts.CONTENT_URI}")
         Log.i(Constants.debugTag, "ID 2 : ${ContactsContract.CommonDataKinds.Phone.CONTENT_URI}")
         Log.i(Constants.debugTag, "ID 3 : ${ContactsContract.Data.CONTENT_URI}")
+        Log.i(Constants.debugTag, "ID 9 : ${ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME}")
 
-
-        cpbo.add(
-            ContentProviderOperation.newUpdate(ContactsContract.RawContacts.CONTENT_URI)
-                .withSelection(
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? ",
-                    arrayOf("${oldContactDetails?.contactId}")
-                )
-                .withValue(ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY, newName)
-                .build()
-        )
+        Log.i(Constants.debugTag, "ID 4 : ${ContactsContract.Data.DISPLAY_NAME}")
+        Log.i(Constants.debugTag, "ID 5 : ${ContactsContract.Data.DISPLAY_NAME_PRIMARY}")
+        Log.i(Constants.debugTag, "ID 6 : ${ContactsContract.Data.DISPLAY_NAME_SOURCE}")
+        Log.i(Constants.debugTag, "ID 7 : ${ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY}")
+        Log.i(Constants.debugTag, "ID 8 : ${ContactsContract.RawContacts.DISPLAY_NAME_SOURCE}")
 
         cpbo.add(
             ContentProviderOperation
@@ -95,6 +87,16 @@ class CreateOrModifyContactFragment : Fragment() {
                     )
                 )
                 .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, newNumber)
+                .build()
+        )
+
+        cpbo.add(
+            ContentProviderOperation.newUpdate(ContactsContract.RawContacts.CONTENT_URI)
+                .withSelection(
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? ",
+                    arrayOf("${oldContactDetails?.contactId}")
+                )
+                .withValue(ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY, newName)
                 .build()
         )
 
@@ -195,5 +197,6 @@ class CreateOrModifyContactFragment : Fragment() {
         }
 
     }
+
 
 }
