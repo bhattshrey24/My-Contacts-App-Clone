@@ -46,6 +46,7 @@ class ContactDetailsFragment : Fragment() {
         return binding.root
     }
 
+
     private fun deleteContact(contact: Contact?) {
         var whereClause =
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ${contact?.contactId}"
@@ -60,6 +61,7 @@ class ContactDetailsFragment : Fragment() {
         var fragmentManager = parentFragmentManager
         var fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
+        fragmentTransaction.addToBackStack(ContactDetailsFragment::class.java.name)
         fragmentTransaction.commit()
     }
 

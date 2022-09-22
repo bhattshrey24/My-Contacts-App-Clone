@@ -8,7 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.example.mycontactsapp.databinding.ActivityMainBinding
+import com.example.mycontactsapp.ui.fragments.ContactDetailsFragment
 import com.example.mycontactsapp.ui.fragments.HomeFragment
 
 
@@ -34,10 +36,10 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             requestPermission()
         }
-        if (hasReadPermission()){
+        if (hasReadPermission()) {
             replaceFragment(HomeFragment())
         }
-        Log.i(Constants.debugTag,"Has Write pErmission? ${hasWritePermission()}")
+        Log.i(Constants.debugTag, "Has Write pErmission? ${hasWritePermission()}")
     }
 
     private fun requestPermission() {
@@ -100,32 +102,23 @@ class MainActivity : AppCompatActivity() {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.replace(binding.mainActivityFragmentContainer.id, myFragment)
+        fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
     }
 
 
-
-
-
-
-
-
-
-
-
-
-//    override fun onBackPressed() { // Not working , maybe what we
-//    can do is add fragment to backstack before replacing
-//    and then remove it or maybe use navigation component
-//        var fragmentManager = supportFragmentManager
-//        var fragmentTransaction = fragmentManager.beginTransaction()
-//        var fragment = fragmentManager.findFragmentById(binding.mainActivityFragmentContainer.id)
-//        if (fragment != null) {
-//            fragmentTransaction.remove(fragment);
-//            fragmentTransaction.commit();
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
+    override fun onBackPressed() {
+        val count = supportFragmentManager.backStackEntryCount
+        Log.i(Constants.debugTag, "Count is ${count}")
+        if (count == 1) {
+            finish()
+            super.onBackPressed()
+        } else {
+            supportFragmentManager.popBackStack(
+                HomeFragment::class.java.name,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+        }
+    }
 
 }

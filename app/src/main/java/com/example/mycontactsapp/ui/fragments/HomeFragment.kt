@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.FragmentManager
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
@@ -52,7 +53,7 @@ class HomeFragment() : Fragment(),
         savedInstanceState: Bundle?
     ): View {
 
-        Log.i(Constants.debugTag," raw contact ${ContactsContract.Contacts.NAME_RAW_CONTACT_ID}")
+        Log.i(Constants.debugTag, " raw contact ${ContactsContract.Contacts.NAME_RAW_CONTACT_ID}")
 
         setUpRecyclerView()
         binding.addNewContactFloatingButton.setOnClickListener {
@@ -97,7 +98,12 @@ class HomeFragment() : Fragment(),
     private fun replaceFragment(myFragment: Fragment) {
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
+
         fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
+        fragmentTransaction.addToBackStack(HomeFragment::class.java.name)
+//     fragmentManager.popBackStack(Constants.rootFragmentTag, 0)
+//        fragmentTransaction.addToBackStack(Constants.rootFragmentTag)
+
         fragmentTransaction.commit()
     }
 
@@ -125,8 +131,7 @@ class HomeFragment() : Fragment(),
                 var number = cursor.getString(1)
                 var id = cursor.getString(2).toInt()
                 contactsList.append("$name,$number\n")
-                Log.i(Constants.debugTag, "name = $name and Id : $id")
-                listOfContacts.add(Contact(name, number,id))
+                listOfContacts.add(Contact(name, number, id))
             }
         }
         Log.i(Constants.debugTag, "Size!!!!!! : ${listOfContacts.size}")

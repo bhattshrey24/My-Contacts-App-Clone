@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import com.example.mycontactsapp.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.databinding.FragmentCreateOrModifyContactBinding
@@ -58,6 +59,7 @@ class CreateOrModifyContactFragment : Fragment() {
     }
 
     private fun updateValues(oldContactDetails: Contact?) {
+
         var newName: String = binding.nameOfPersonET.text.toString()
         var newNumber: String = binding.numberOfPersonET.text.toString()
 
@@ -66,7 +68,10 @@ class CreateOrModifyContactFragment : Fragment() {
         Log.i(Constants.debugTag, "ID 1 : ${ContactsContract.RawContacts.CONTENT_URI}")
         Log.i(Constants.debugTag, "ID 2 : ${ContactsContract.CommonDataKinds.Phone.CONTENT_URI}")
         Log.i(Constants.debugTag, "ID 3 : ${ContactsContract.Data.CONTENT_URI}")
-        Log.i(Constants.debugTag, "ID 9 : ${ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME}")
+        Log.i(
+            Constants.debugTag,
+            "ID 9 : ${ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME}"
+        )
 
         Log.i(Constants.debugTag, "ID 4 : ${ContactsContract.Data.DISPLAY_NAME}")
         Log.i(Constants.debugTag, "ID 5 : ${ContactsContract.Data.DISPLAY_NAME_PRIMARY}")
@@ -107,34 +112,6 @@ class CreateOrModifyContactFragment : Fragment() {
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught")
         }
-
-
-        // Below updates the name
-//        val whereClause =
-//            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ${oldContactDetails?.contactId} "
-//        val contentResolver = activity?.contentResolver
-//        val contentValues = ContentValues()
-//        contentValues.put(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY, newName)
-//        contentResolver?.update(
-//            ContactsContract.RawContacts.CONTENT_URI,
-//            contentValues,
-//            whereClause,
-//            null
-//        )
-
-//        val updateValues = ContentValues().apply {
-//            put(ContactsContract.CommonDataKinds.Phone.NUMBER, newNumber)
-//        }
-//
-//        val selectionClause: String = ContactsContract.RawContacts.CONTACT_ID + " = ? "
-//        val selectionArgs: Array<String> = arrayOf("${oldContactDetails?.contactId}")
-//
-//        activity?.contentResolver?.update(
-//            ContactsContract.RawContacts.CONTENT_URI,   // the user dictionary content URI
-//            updateValues,                      // the columns to update
-//            selectionClause,                   // the column to select on
-//            selectionArgs                      // the value to compare to
-//        )
 
     }
 
@@ -197,6 +174,33 @@ class CreateOrModifyContactFragment : Fragment() {
         }
 
     }
+
+    // Below updates the name
+//        val whereClause =
+//            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ${oldContactDetails?.contactId} "
+//        val contentResolver = activity?.contentResolver
+//        val contentValues = ContentValues()
+//        contentValues.put(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY, newName)
+//        contentResolver?.update(
+//            ContactsContract.RawContacts.CONTENT_URI,
+//            contentValues,
+//            whereClause,
+//            null
+//        )
+
+//        val updateValues = ContentValues().apply {
+//            put(ContactsContract.CommonDataKinds.Phone.NUMBER, newNumber)
+//        }
+//
+//        val selectionClause: String = ContactsContract.RawContacts.CONTACT_ID + " = ? "
+//        val selectionArgs: Array<String> = arrayOf("${oldContactDetails?.contactId}")
+//
+//        activity?.contentResolver?.update(
+//            ContactsContract.RawContacts.CONTENT_URI,   // the user dictionary content URI
+//            updateValues,                      // the columns to update
+//            selectionClause,                   // the column to select on
+//            selectionArgs                      // the value to compare to
+//        )
 
 
 }
