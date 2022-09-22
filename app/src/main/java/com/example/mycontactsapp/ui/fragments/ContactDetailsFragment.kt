@@ -62,4 +62,5 @@ class ContactDetailsFragment : Fragment() {
         fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
         fragmentTransaction.commit()
     }
+
 }

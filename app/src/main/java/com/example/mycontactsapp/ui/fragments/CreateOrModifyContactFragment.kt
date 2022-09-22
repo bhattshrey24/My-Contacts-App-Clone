@@ -47,7 +47,13 @@ class CreateOrModifyContactFragment : Fragment() {
             if (isEdit == true) {
                 updateValues(contactDetails)
             } else {
-                createNewContact()
+                createNewContact(
+                    Contact(
+                        binding.nameOfPersonET.text.toString(),
+                        binding.numberOfPersonET.text.toString(),
+                        0
+                    )
+                )
             }
         }
 
@@ -130,8 +136,63 @@ class CreateOrModifyContactFragment : Fragment() {
 
     }
 
-    private fun createNewContact() {
-        Log.i("DUMMMYY", "Inside create")
+    private fun createNewContact(newContact: Contact) {
+        Log.i(Constants.debugTag, "Inside create")
+        var cpbo = ArrayList<ContentProviderOperation>()
+
+        // This is mandatory to do even if you don't specify an account with it
+        cpbo.add(
+            ContentProviderOperation.newInsert(
+                ContactsContract.RawContacts.CONTENT_URI
+            )
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build()
+        )
+        // Adding Name
+        cpbo.add(
+            ContentProviderOperation.newInsert(
+                ContactsContract.Data.CONTENT_URI
+            )
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                .withValue(
+                    ContactsContract.Data.MIMETYPE,
+                    ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE
+                )
+                .withValue(
+                    ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                    newContact.name
+                )
+                .build()
+        )
+
+        // Adding Number
+        cpbo.add(
+            ContentProviderOperation.newInsert(
+                ContactsContract.Data.CONTENT_URI
+            )
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                .withValue(
+                    ContactsContract.Data.MIMETYPE,
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE
+                )
+                .withValue(
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    newContact.number
+                ).withValue(
+                    ContactsContract.CommonDataKinds.Phone.TYPE,
+                    ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE
+                )
+                .build()
+        )
+
+        try {
+            activity?.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
+        } catch (e: OperationApplicationException) {
+            Log.i(Constants.debugTag, "OperationApplicationException caught")
+        } catch (e: RemoteException) {
+            Log.i(Constants.debugTag, "Remote Exception caught")
+        }
 
     }
 

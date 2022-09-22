@@ -52,6 +52,8 @@ class HomeFragment() : Fragment(),
         savedInstanceState: Bundle?
     ): View {
 
+        Log.i(Constants.debugTag," raw contact ${ContactsContract.Contacts.NAME_RAW_CONTACT_ID}")
+
         setUpRecyclerView()
         binding.addNewContactFloatingButton.setOnClickListener {
             var fragment = CreateOrModifyContactFragment()
@@ -127,6 +129,7 @@ class HomeFragment() : Fragment(),
                 listOfContacts.add(Contact(name, number,id))
             }
         }
+        Log.i(Constants.debugTag, "Size!!!!!! : ${listOfContacts.size}")
         adapter?.setContact(listOfContacts)
     }
 
