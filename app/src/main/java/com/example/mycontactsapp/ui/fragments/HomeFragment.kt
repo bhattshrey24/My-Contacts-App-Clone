@@ -51,6 +51,7 @@ class HomeFragment() : Fragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         setUpRecyclerView()
         binding.addNewContactFloatingButton.setOnClickListener {
             var fragment = CreateOrModifyContactFragment()
