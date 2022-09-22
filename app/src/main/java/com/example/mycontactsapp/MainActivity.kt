@@ -16,12 +16,11 @@ import com.example.mycontactsapp.ui.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
     //todo
-    //  Add home page functionality
-    //  Add contact detail screen functionality
-    //  Add new contact functionality
-    //  Add edit contact functionality
-    //  fix backstack problem ie. how we can maintain backstack in fragment
+    //  Fix UI
+    //  clean code like refactor methods out of bigger methods, make it null safe properly etc.
+    //  Add proper comments for understanding
     //  Add search contact feature for home page
+    //  remove unnecessary debug tags
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
@@ -33,13 +32,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        Log.i(Constants.debugTag, "Has Write permission? ${hasWritePermission()}")
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             requestPermission()
         }
         if (hasReadPermission()) {
             replaceFragment(HomeFragment())
         }
-        Log.i(Constants.debugTag, "Has Write pErmission? ${hasWritePermission()}")
     }
 
     private fun requestPermission() {
@@ -57,7 +57,6 @@ class MainActivity : AppCompatActivity() {
                 android.Manifest.permission.WRITE_CONTACTS
             )
         }
-
 
         if (permissionsToRequest.isNotEmpty()) { // ie. if there are some permissions that
             // user has not accepted so we will now ask user to accept them
@@ -106,10 +105,8 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.commit()
     }
 
-
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
-        Log.i(Constants.debugTag, "Count is ${count}")
         if (count == 1) {
             finish()
             super.onBackPressed()

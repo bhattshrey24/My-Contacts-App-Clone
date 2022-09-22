@@ -31,21 +31,18 @@ class HomeFragment() : Fragment(),
 
     var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: AllContactsListAdapter? = null
-    var loadContactId = 10
 
+    var loadContactId = 10
     private var mColProjection: Array<String> = arrayOf(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
         ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
     )
-
     private var uri: Uri =
-        ContactsContract.CommonDataKinds.Phone.CONTENT_URI// ContactsContract.Data.CONTENT_URI
-
-    var isFirstTimeLoaded: Boolean = false
-    var mSortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
-
-    var listOfContacts = mutableListOf<Contact>()
+        ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+    private var isFirstTimeLoaded: Boolean = false
+    private var mSortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+    private var listOfContacts = mutableListOf<Contact>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,12 +50,10 @@ class HomeFragment() : Fragment(),
         savedInstanceState: Bundle?
     ): View {
 
-        Log.i(Constants.debugTag, " raw contact ${ContactsContract.Contacts.NAME_RAW_CONTACT_ID}")
-
         setUpRecyclerView()
         binding.addNewContactFloatingButton.setOnClickListener {
-            var fragment = CreateOrModifyContactFragment()
-            var bundle = Bundle()
+            val fragment = CreateOrModifyContactFragment()
+            val bundle = Bundle()
             bundle.putBoolean(Constants.booleanIsEditKey, false)
             fragment.arguments = bundle
             replaceFragment(fragment)
@@ -67,7 +62,7 @@ class HomeFragment() : Fragment(),
     }
 
 
-    override fun onResume() {
+    override fun onResume() { // So that we load it new every time user comes back to screen
         if (isFirstTimeLoaded) {
             LoaderManager.getInstance(requireActivity()).initLoader(loadContactId, null, this)
             isFirstTimeLoaded = true
@@ -85,25 +80,18 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onContactClick(position: Int) {
-        Toast.makeText(context, "pressed $position", Toast.LENGTH_SHORT).show()
-        // Navigate to Contact Display Basically Change the fragment
-        var fragment = ContactDetailsFragment()
-        var bundle = Bundle()
+        val fragment = ContactDetailsFragment()
+        val bundle = Bundle()
         bundle.putParcelable(Constants.contactDetailsKey, listOfContacts[position])
         fragment.arguments = bundle
-
         replaceFragment(fragment)
     }
 
     private fun replaceFragment(myFragment: Fragment) {
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-
         fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
         fragmentTransaction.addToBackStack(HomeFragment::class.java.name)
-//     fragmentManager.popBackStack(Constants.rootFragmentTag, 0)
-//        fragmentTransaction.addToBackStack(Constants.rootFragmentTag)
-
         fragmentTransaction.commit()
     }
 
@@ -118,7 +106,7 @@ class HomeFragment() : Fragment(),
                 mSortOrder
             )
         }
-        return CursorLoader(requireActivity()) // Might give error
+        return CursorLoader(requireActivity())
 
     }
 
@@ -127,14 +115,13 @@ class HomeFragment() : Fragment(),
         if (cursor != null && cursor.count > 0) {
             var contactsList = StringBuilder("")
             while (cursor.moveToNext()) {
-                var name = cursor.getString(0)
-                var number = cursor.getString(1)
-                var id = cursor.getString(2).toInt()
+                val name = cursor.getString(0)
+                val number = cursor.getString(1)
+                val id = cursor.getString(2).toInt()
                 contactsList.append("$name,$number\n")
                 listOfContacts.add(Contact(name, number, id))
             }
         }
-        Log.i(Constants.debugTag, "Size!!!!!! : ${listOfContacts.size}")
         adapter?.setContact(listOfContacts)
     }
 
