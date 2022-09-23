@@ -1,28 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_marginTop="10dp"
+    android:layout_height="wrap_content"
     android:layout_marginStart="5dp"
-    android:layout_height="wrap_content">
+    android:elevation="10dp"
+    android:layout_marginTop="10dp">
 
-    <ImageView
-        android:id="@+id/contactIV"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:foreground="@drawable/ic_launcher_foreground"
-        android:src="@drawable/ic_launcher_background"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/contactNameTV"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:text="Stuti"
-        android:textSize="22sp"
-        app:layout_constraintStart_toEndOf="@+id/contactIV"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/contactIV"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:foreground="@drawable/ic_person_icon"
+            android:src="@color/grey_light"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/contactNameTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="30dp"
+            android:text="Stuti"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/contactIV"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
+
+<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="wrap_content"-->
+<!--android:layout_marginStart="5dp"-->
+<!--android:layout_marginTop="10dp">-->
+
+<!--<View-->
+<!--    android:layout_marginStart="20dp"-->
+<!--    android:layout_marginEnd="20dp"-->
+<!--    android:id="@+id/view1"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="2dp"-->
+<!--    android:background="@color/grey_light"-->
+<!--    app:layout_constraintEnd_toEndOf="parent"-->
+<!--    app:layout_constraintStart_toStartOf="parent"-->
+<!--    app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--<de.hdodenhof.circleimageview.CircleImageView-->
+<!--    android:id="@+id/contactIV"-->
+<!--    android:layout_width="50dp"-->
+<!--    android:layout_height="50dp"-->
+
+<!--    android:layout_marginTop="8dp"-->
+<!--    android:layout_marginStart="8dp"-->
+<!--    android:foreground="@drawable/ic_person_icon"-->
+<!--    android:src="@color/grey"-->
+<!--    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--    app:layout_constraintStart_toStartOf="parent"-->
+<!--    app:layout_constraintTop_toBottomOf="@+id/view1" />-->
+
+<!--<TextView-->
+<!--    android:id="@+id/contactNameTV"-->
+<!--    android:layout_width="wrap_content"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:layout_marginStart="25dp"-->
+<!--    android:layout_marginTop="20dp"-->
+<!--    android:text="Stuti"-->
+<!--    android:textColor="@color/black"-->
+<!--    android:textSize="20sp"-->
+<!--    android:textStyle="bold"-->
+<!--    app:layout_constraintStart_toEndOf="@+id/contactIV"-->
+<!--    app:layout_constraintTop_toBottomOf="@+id/view1" />-->
+<!--</androidx.constraintlayout.widget.ConstraintLayout>-->

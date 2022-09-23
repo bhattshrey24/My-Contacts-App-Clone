@@ -38,8 +38,10 @@ class CreateOrModifyContactFragment : Fragment() {
             binding.createOrEditTV.text = "Edit Contact"
             binding.nameOfPersonET.setText(contactDetails?.name) // setText cause text does "Editable"
             binding.numberOfPersonET.setText(contactDetails?.number)
-        }else{
+            binding.eocSubmitButton.text = "Edit"
+        } else {
             binding.createOrEditTV.text = "Create New Contact"
+            binding.eocSubmitButton.text = "Add Contact"
         }
 
         binding.eocSubmitButton.setOnClickListener {
@@ -159,7 +161,8 @@ class CreateOrModifyContactFragment : Fragment() {
         try {
             val res = activity?.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
             if (res != null) {
-                Toast.makeText(context, "Successfully Added New Contact!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Successfully Added New Contact!", Toast.LENGTH_SHORT)
+                    .show()
             }
         } catch (e: OperationApplicationException) {
             Log.i(Constants.debugTag, "OperationApplicationException caught")

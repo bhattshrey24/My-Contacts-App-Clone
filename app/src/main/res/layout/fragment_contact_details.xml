@@ -6,14 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.ContactDetailsFragment">
 
-    <ImageView
+    <View
+        android:id="@+id/topView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@color/grey_light"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+    </View>
+
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/personImageIV"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="20dp"
-        android:foreground="@drawable/ic_launcher_foreground"
-        android:src="@drawable/ic_launcher_background"
+        android:layout_marginTop="90dp"
+        android:foreground="@drawable/ic_person_icon"
+        android:src="@color/grey"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,9 +36,11 @@
         android:layout_marginStart="40dp"
         android:layout_marginTop="40dp"
         android:text="Stuti Bhatt"
-        android:textSize="28sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/personImageIV" />
+        app:layout_constraintTop_toBottomOf="@+id/topView" />
 
     <TextView
         android:id="@+id/numberOfPersonTV"
@@ -60,3 +74,66 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--tools:context=".ui.fragments.ContactDetailsFragment">-->
+
+    <!--<de.hdodenhof.circleimageview.CircleImageView-->
+    <!--    android:id="@+id/personImageIV"-->
+    <!--    android:layout_width="80dp"-->
+    <!--    android:layout_height="80dp"-->
+    <!--    android:layout_marginStart="40dp"-->
+    <!--    android:layout_marginTop="20dp"-->
+    <!--    android:foreground="@drawable/ic_person_icon"-->
+    <!--    android:src="@color/grey_light"-->
+    <!--    app:layout_constraintStart_toStartOf="parent"-->
+    <!--    app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--<TextView-->
+    <!--    android:id="@+id/nameOfPersonTV"-->
+    <!--    android:layout_width="wrap_content"-->
+    <!--    android:layout_height="wrap_content"-->
+    <!--    android:layout_marginStart="40dp"-->
+    <!--    android:layout_marginTop="40dp"-->
+    <!--    android:text="Stuti Bhatt"-->
+    <!--    android:textSize="28sp"-->
+    <!--    app:layout_constraintStart_toStartOf="parent"-->
+    <!--    app:layout_constraintTop_toBottomOf="@+id/personImageIV" />-->
+
+    <!--<TextView-->
+    <!--    android:id="@+id/numberOfPersonTV"-->
+    <!--    android:layout_width="wrap_content"-->
+    <!--    android:layout_height="wrap_content"-->
+    <!--    android:layout_marginStart="40dp"-->
+    <!--    android:layout_marginTop="40dp"-->
+    <!--    android:text="9643217418"-->
+    <!--    android:textSize="20sp"-->
+    <!--    app:layout_constraintStart_toStartOf="parent"-->
+    <!--    app:layout_constraintTop_toBottomOf="@+id/nameOfPersonTV" />-->
+
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--    android:id="@+id/editContactFloatingButton"-->
+    <!--    android:layout_width="wrap_content"-->
+    <!--    android:layout_height="wrap_content"-->
+    <!--    android:layout_marginEnd="40dp"-->
+    <!--    android:layout_marginBottom="40dp"-->
+    <!--    android:src="@drawable/ic_edit"-->
+    <!--    app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--    app:layout_constraintEnd_toEndOf="parent" />-->
+
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--    android:id="@+id/deleteContactFloatingButton"-->
+    <!--    android:layout_width="wrap_content"-->
+    <!--    android:layout_height="wrap_content"-->
+    <!--    android:layout_marginStart="40dp"-->
+    <!--    android:layout_marginBottom="40dp"-->
+    <!--    android:src="@drawable/ic_delete"-->
+    <!--    app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--    app:layout_constraintStart_toStartOf="parent" />-->
+
+    <!--</androidx.constraintlayout.widget.ConstraintLayout>-->

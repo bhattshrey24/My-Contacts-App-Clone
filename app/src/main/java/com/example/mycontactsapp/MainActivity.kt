@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        supportActionBar?.hide()
+
         Log.i(Constants.debugTag, "Has Write permission? ${hasWritePermission()}")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
