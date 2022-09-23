@@ -31,22 +31,19 @@ class CreateOrModifyContactFragment : Fragment() {
         val bundle = this.arguments
         val isEdit = bundle?.getBoolean(Constants.booleanIsEditKey)
 
-        var contactDetails: Contact? = null
-
-        if (isEdit == true) {
-            contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
-            binding.createOrEditTV.text = "Edit Contact"
-            binding.nameOfPersonET.setText(contactDetails?.name) // setText cause text does "Editable"
-            binding.numberOfPersonET.setText(contactDetails?.number)
-            binding.eocSubmitButton.text = "Edit"
-        } else {
-            binding.createOrEditTV.text = "Create New Contact"
-            binding.eocSubmitButton.text = "Add Contact"
-        }
+        var contactDetails: Contact? = setUpUi(isEdit, bundle) // Will setup the Ui based
+        // on whether we reached here after clicking on add new contact button or edit button
 
         binding.eocSubmitButton.setOnClickListener {
             if (isEdit == true) {
-                updateValues(contactDetails)
+                updateValues(
+                    contactDetails,
+                    Contact(
+                        binding.nameOfPersonET.text.toString(),
+                        binding.numberOfPersonET.text.toString(),
+                        contactDetails?.contactId ?: 0 // passing the same Id
+                    )
+                )
             } else {
                 createNewContact(
                     Contact(
@@ -61,10 +58,26 @@ class CreateOrModifyContactFragment : Fragment() {
         return binding.root
     }
 
-    private fun updateValues(oldContactDetails: Contact?) {
-        val newName: String = binding.nameOfPersonET.text.toString()
-        val newNumber: String = binding.numberOfPersonET.text.toString()
+    private fun setUpUi(isEdit: Boolean?, bundle: Bundle?): Contact? {
+        if (isEdit == true) {
+            var contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
+            binding.createOrEditTV.text = "Edit Contact"
+            binding.nameOfPersonET.setText(contactDetails?.name)
+            binding.numberOfPersonET.setText(contactDetails?.number)
+            binding.eocSubmitButton.text = "Edit"
+            return contactDetails
+        } else {
+            binding.createOrEditTV.text = "Create New Contact"
+            binding.eocSubmitButton.text = "Add Contact"
+        }
+        return null
+    }
 
+
+    private fun updateValues(oldContactDetails: Contact?, updatedContactDetails: Contact) {
+        if (!isValidated()) {
+            return
+        }
         val cpbo = ArrayList<ContentProviderOperation>()
 
         cpbo.add(
@@ -73,13 +86,17 @@ class CreateOrModifyContactFragment : Fragment() {
                 .withSelection(
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND "
                             + ContactsContract.CommonDataKinds.Phone.MIMETYPE + " = ? AND "
-                            + ContactsContract.CommonDataKinds.Phone.NUMBER + " = ? ", arrayOf(
+                            + ContactsContract.CommonDataKinds.Phone.NUMBER + " = ? ",
+                    arrayOf(
                         "${oldContactDetails?.contactId}",
                         ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
                         oldContactDetails?.number
                     )
                 )
-                .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, newNumber)
+                .withValue(
+                    ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    updatedContactDetails.number
+                )
                 .build()
         )
 
@@ -89,27 +106,45 @@ class CreateOrModifyContactFragment : Fragment() {
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? ",
                     arrayOf("${oldContactDetails?.contactId}")
                 )
-                .withValue(ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY, newName)
+                .withValue(
+                    ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY,
+                    updatedContactDetails.name
+                )
                 .build()
         )
 
         try {
             val res = activity?.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
-
             if (res != null) {
                 Toast.makeText(context, "Successfully Edited!", Toast.LENGTH_SHORT).show()
             }
-
         } catch (e: OperationApplicationException) {
-            Log.i(Constants.debugTag, "OperationApplicationException caught")
+            Log.i(Constants.debugTag, "OperationApplicationException caught with message : ${e.message}")
         } catch (e: RemoteException) {
-            Log.i(Constants.debugTag, "Remote Exception caught")
+            Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
 
     }
 
+    private fun isValidated(): Boolean {
+        var nameEt = binding.nameOfPersonET
+        var numberEt = binding.numberOfPersonET
+        if (nameEt.text.isBlank()) {
+            nameEt.error = "Name cannot be empty"
+            return false
+        }
+        if (numberEt.text.isBlank()) {
+            numberEt.error = "Number cannot be empty"
+            return false
+        }
+        return true
+    }
+
     private fun createNewContact(newContact: Contact) {
-        Log.i(Constants.debugTag, "Inside create")
+        if (!isValidated()) {
+            return
+        }
+
         val cpbo = ArrayList<ContentProviderOperation>()
 
         // This is mandatory to do even if you don't specify an account with it
@@ -121,6 +156,7 @@ class CreateOrModifyContactFragment : Fragment() {
                 .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
                 .build()
         )
+
         // Adding Name
         cpbo.add(
             ContentProviderOperation.newInsert(
@@ -165,9 +201,9 @@ class CreateOrModifyContactFragment : Fragment() {
                     .show()
             }
         } catch (e: OperationApplicationException) {
-            Log.i(Constants.debugTag, "OperationApplicationException caught")
+            Log.i(Constants.debugTag, "OperationApplicationException caught with message : ${e.message}")
         } catch (e: RemoteException) {
-            Log.i(Constants.debugTag, "Remote Exception caught")
+            Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
     }
 

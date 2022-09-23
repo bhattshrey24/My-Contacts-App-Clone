@@ -15,12 +15,6 @@ import com.example.mycontactsapp.ui.fragments.HomeFragment
 
 
 class MainActivity : AppCompatActivity() {
-    //todo
-    //  Fix UI
-    //  clean code like refactor methods out of bigger methods, make it null safe properly etc.
-    //  Add proper comments for understanding
-    //  Add search contact feature for home page
-    //  remove unnecessary debug tags
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
@@ -34,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        Log.i(Constants.debugTag, "Has Write permission? ${hasWritePermission()}")
+        Log.i(Constants.debugTag, "Has write permission? ${hasWritePermission()}")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             requestPermission()

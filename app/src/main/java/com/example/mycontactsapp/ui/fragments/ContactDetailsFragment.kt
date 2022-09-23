@@ -57,6 +57,7 @@ class ContactDetailsFragment : Fragment() {
             whereClause,
             null
         )
+
         if (res != null) {
             if (res > 0) {
                 Toast.makeText(context, "Successfully deleted contact", Toast.LENGTH_SHORT).show()

@@ -38,8 +38,7 @@ class HomeFragment() : Fragment(),
         ContactsContract.CommonDataKinds.Phone.NUMBER,
         ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
     )
-    private var uri: Uri =
-        ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+    private var uri: Uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
     private var isFirstTimeLoaded: Boolean = false
     private var mSortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
     private var listOfContacts = mutableListOf<Contact>()
@@ -51,6 +50,7 @@ class HomeFragment() : Fragment(),
     ): View {
 
         setUpRecyclerView()
+
         binding.addNewContactFloatingButton.setOnClickListener {
             val fragment = CreateOrModifyContactFragment()
             val bundle = Bundle()
@@ -58,6 +58,7 @@ class HomeFragment() : Fragment(),
             fragment.arguments = bundle
             replaceFragment(fragment)
         }
+
         return binding.root
     }
 
@@ -68,6 +69,8 @@ class HomeFragment() : Fragment(),
             isFirstTimeLoaded = true
         } else {
             LoaderManager.getInstance(requireActivity()).restartLoader(loadContactId, null, this)
+            // We restart loader because after the first time the cursor would have reached end so this will
+            // again put cursor on top of records so that we can read again
         }
         super.onResume()
     }
@@ -96,7 +99,8 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        if (id == loadContactId) {
+        if (id == loadContactId) { // Since there can be many loaders working at a time so this
+            // loadContactId helps us to distinguish our loader .This can be any value that we want
             return CursorLoader(
                 requireActivity(),
                 uri,
@@ -107,11 +111,10 @@ class HomeFragment() : Fragment(),
             )
         }
         return CursorLoader(requireActivity())
-
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
-        listOfContacts.clear()
+        listOfContacts.clear() // clearing any previous data before loading new
         if (cursor != null && cursor.count > 0) {
             var contactsList = StringBuilder("")
             while (cursor.moveToNext()) {
