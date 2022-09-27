@@ -36,7 +36,7 @@ class HomeFragment() : Fragment(),
     private var mColProjection: Array<String> = arrayOf(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
-        ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
     )
     private var uri: Uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
     private var isFirstTimeLoaded: Boolean = false

@@ -1,6 +1,8 @@
 package com.example.mycontactsapp.ui.fragments
 
+import android.content.ContentProvider
 import android.content.ContentProviderOperation
+import android.content.ContentValues
 import android.content.OperationApplicationException
 import android.os.Bundle
 import android.os.RemoteException
@@ -79,7 +81,6 @@ class CreateOrModifyContactFragment : Fragment() {
             return
         }
         val cpbo = ArrayList<ContentProviderOperation>()
-
         cpbo.add(
             ContentProviderOperation
                 .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -125,6 +126,8 @@ class CreateOrModifyContactFragment : Fragment() {
         }
 
     }
+
+
 
     private fun isValidated(): Boolean {
         var nameEt = binding.nameOfPersonET

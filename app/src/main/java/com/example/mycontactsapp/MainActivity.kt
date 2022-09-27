@@ -1,8 +1,10 @@
 package com.example.mycontactsapp
 
+import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -16,6 +18,16 @@ import com.example.mycontactsapp.ui.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
+    //todo
+    // Disable dark mode
+    // Add search contact functionality
+    // Add all details that user has entered (Don't show data that user has not entered while
+    // adding the contact initially)
+    // Add MVVM structure and Room DB
+    // Initially when ROOM DB is empty load contact from Content
+    // Provider and store it in DB and then simply do all crud operations in that DB
+    // Add sync button using which user can again update Room DB by getting
+    // All new contents that user added using content provider
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
     }
@@ -36,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         if (hasReadPermission()) {
             replaceFragment(HomeFragment())
         }
+
     }
 
     private fun requestPermission() {
