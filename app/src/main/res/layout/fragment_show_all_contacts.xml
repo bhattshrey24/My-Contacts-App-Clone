@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragments.HomeFragment">
+    tools:context=".ui.fragments.ShowAllContactsFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/homePageRecyclerView"
@@ -16,14 +16,5 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/home_page_list_item" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addNewContactFloatingButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="40dp"
-        android:src="@drawable/ic_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 

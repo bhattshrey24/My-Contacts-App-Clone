@@ -1,27 +1,28 @@
 package com.example.mycontactsapp
 
-import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
+import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.example.mycontactsapp.databinding.ActivityMainBinding
-import com.example.mycontactsapp.ui.fragments.ContactDetailsFragment
-import com.example.mycontactsapp.ui.fragments.HomeFragment
+import com.example.mycontactsapp.ui.fragments.ShowAllContactsFragment
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 
 class MainActivity : AppCompatActivity() {
 
     //todo
-    // Disable dark mode
-    // Add search contact functionality
+    // Disable dark mode (D)
+    // Add search contact functionality (D)
     // Add all details that user has entered (Don't show data that user has not entered while
     // adding the contact initially)
     // Add MVVM structure and Room DB
@@ -29,11 +30,15 @@ class MainActivity : AppCompatActivity() {
     // Provider and store it in DB and then simply do all crud operations in that DB
     // Add sync button using which user can again update Room DB by getting
     // All new contents that user added using content provider
+
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
     }
 
     private var myRequestCode = 101
+    private lateinit var listOfContactsFilteredFromQuery: List<Contact>
+
+    private val showAllContactsFragment = ShowAllContactsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,9 +55,31 @@ class MainActivity : AppCompatActivity() {
             requestPermission()
         }
         if (hasReadPermission()) {
-            replaceFragment(HomeFragment())
+            replaceFragment(showAllContactsFragment)
         }
 
+        binding.addNewContactFloatingButton.setOnClickListener {
+            startActivity(
+                Intent(this, SecondActivity::class.java)
+                    .putExtra(Constants.booleanIsEditKey, false)
+            )
+        }
+
+        binding.searchContactEditText.addTextChangedListener {
+            var query = it.toString()
+            listOfContactsFilteredFromQuery = Constants.listOfAllContacts.filter { contact ->
+            contact.name?.contains(query,true)?:false
+            }
+            showAllContactsFragment.adapter?.setContact(listOfContactsFilteredFromQuery)
+            showAllContactsFragment.listOfContacts = listOfContactsFilteredFromQuery.toMutableList()
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.searchContactEditText.setText("") // clearing the query
+    // edit text when user navigates back to this screen
     }
 
     private fun requestPermission() {
@@ -86,6 +113,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         if (requestCode == myRequestCode && grantResults.isNotEmpty()) {
             for (i in grantResults.indices) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
@@ -94,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                     Log.i("PermissionRequests", "${permissions[i]} Not granted!!")
                 }
             }
-            replaceFragment(HomeFragment()) // ie. for the first time we will do this only if user accepted permission
+            replaceFragment(showAllContactsFragment) // ie. for the first time we will do this only if user accepted permission
         }
     }
 
@@ -119,16 +147,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val count = supportFragmentManager.backStackEntryCount
-        if (count == 1) {
-            finish()
-            super.onBackPressed()
-        } else {
-            supportFragmentManager.popBackStack(
-                HomeFragment::class.java.name,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-        }
+        showAllContactsFragment.adapter?.setContact(Constants.listOfAllContacts)
+        binding.searchContactEditText.setText("")
+        super.onBackPressed()
     }
 
 }

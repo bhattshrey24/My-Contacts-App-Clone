@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <EditText
+        android:drawablePadding="8dp"
+        android:padding="5dp"
+        android:hint="Search Contact"
+        android:drawableStart="@drawable/ic_search"
+        android:layout_margin="4dp"
+        android:id="@+id/searchContactEditText"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@drawable/edit_text_border"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/mainActivityFragmentContainer"
         android:layout_width="match_parent"
@@ -14,7 +28,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/searchContactEditText" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addNewContactFloatingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="40dp"
+        android:src="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

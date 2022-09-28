@@ -26,6 +26,7 @@ class ContactDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.i(Constants.debugTag, "Inside onCreate of createDeail")
 
         val bundle = this.arguments
         val contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
@@ -65,12 +66,13 @@ class ContactDetailsFragment : Fragment() {
                 Toast.makeText(context, "Unable to delete", Toast.LENGTH_SHORT).show()
             }
         }
+        requireActivity().finish()
     }
 
     private fun replaceFragment(myFragment: Fragment) {
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
+        fragmentTransaction.replace(R.id.secondActivityFragmentContainer, myFragment)
         fragmentTransaction.addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
         // can refer to it and pop later
         fragmentTransaction.commit()

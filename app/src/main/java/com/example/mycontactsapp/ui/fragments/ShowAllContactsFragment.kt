@@ -1,64 +1,53 @@
 package com.example.mycontactsapp.ui.fragments
 
+import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.fragment.app.FragmentManager
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mycontactsapp.SecondActivity
 import com.example.mycontactsapp.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
-import com.example.mycontactsapp.databinding.FragmentHomeBinding
+import com.example.mycontactsapp.databinding.FragmentShowAllContactsBinding
 
-class HomeFragment() : Fragment(),
+class ShowAllContactsFragment() : Fragment(),
     AllContactsListAdapter.OnContactClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private val binding: FragmentHomeBinding by lazy {
-        FragmentHomeBinding.inflate(layoutInflater, null, false)
+    private val binding: FragmentShowAllContactsBinding by lazy {
+        FragmentShowAllContactsBinding.inflate(layoutInflater, null, false)
     }
 
     var layoutManager: RecyclerView.LayoutManager? = null
-    private var adapter: AllContactsListAdapter? = null
+    var adapter: AllContactsListAdapter? = null
 
     var loadContactId = 10
     private var mColProjection: Array<String> = arrayOf(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
-            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+        ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
     )
     private var uri: Uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
     private var isFirstTimeLoaded: Boolean = false
     private var mSortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
-    private var listOfContacts = mutableListOf<Contact>()
+     var listOfContacts = mutableListOf<Contact>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         setUpRecyclerView()
-
-        binding.addNewContactFloatingButton.setOnClickListener {
-            val fragment = CreateOrModifyContactFragment()
-            val bundle = Bundle()
-            bundle.putBoolean(Constants.booleanIsEditKey, false)
-            fragment.arguments = bundle
-            replaceFragment(fragment)
-        }
-
         return binding.root
     }
 
@@ -83,19 +72,10 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onContactClick(position: Int) {
-        val fragment = ContactDetailsFragment()
-        val bundle = Bundle()
-        bundle.putParcelable(Constants.contactDetailsKey, listOfContacts[position])
-        fragment.arguments = bundle
-        replaceFragment(fragment)
-    }
-
-    private fun replaceFragment(myFragment: Fragment) {
-        val fragmentManager = parentFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
-        fragmentTransaction.addToBackStack(HomeFragment::class.java.name)
-        fragmentTransaction.commit()
+        requireActivity().startActivity(
+            Intent(activity, SecondActivity::class.java)
+                .putExtra(Constants.contactDetailsKey, listOfContacts[position])
+        )
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
@@ -126,6 +106,8 @@ class HomeFragment() : Fragment(),
             }
         }
         adapter?.setContact(listOfContacts)
+
+        Constants.listOfAllContacts=listOfContacts // Saving to Dummy DB
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {

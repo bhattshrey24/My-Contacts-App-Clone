@@ -75,7 +75,6 @@ class CreateOrModifyContactFragment : Fragment() {
         return null
     }
 
-
     private fun updateValues(oldContactDetails: Contact?, updatedContactDetails: Contact) {
         if (!isValidated()) {
             return
@@ -120,14 +119,16 @@ class CreateOrModifyContactFragment : Fragment() {
                 Toast.makeText(context, "Successfully Edited!", Toast.LENGTH_SHORT).show()
             }
         } catch (e: OperationApplicationException) {
-            Log.i(Constants.debugTag, "OperationApplicationException caught with message : ${e.message}")
+            Log.i(
+                Constants.debugTag,
+                "OperationApplicationException caught with message : ${e.message}"
+            )
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
+        requireActivity().finish()
 
     }
-
-
 
     private fun isValidated(): Boolean {
         var nameEt = binding.nameOfPersonET
@@ -204,10 +205,15 @@ class CreateOrModifyContactFragment : Fragment() {
                     .show()
             }
         } catch (e: OperationApplicationException) {
-            Log.i(Constants.debugTag, "OperationApplicationException caught with message : ${e.message}")
+            Log.i(
+                Constants.debugTag,
+                "OperationApplicationException caught with message : ${e.message}"
+            )
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
+
+        requireActivity().finish()
     }
 
 }
