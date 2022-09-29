@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
@@ -21,16 +22,21 @@ import java.util.regex.Pattern
 
 class MainActivity : AppCompatActivity() {
 
-    //todo
-    // Disable dark mode (D)
-    // Add search contact functionality (D)
-    // Add all details that user has entered (Don't show data that user has not entered while
-    // adding the contact initially)
-    // Add MVVM structure and Room DB
-    // Initially when ROOM DB is empty load contact from Content
-    // Provider and store it in DB and then simply do all crud operations in that DB
+    //Todo
+    // Add all important details(like work email and contact , home email and contact etc)
+    // that user has entered (Don't show data that user has not entered while adding the contact initially)
+    // Add MVVM structure, jetpack navigation component
+    // Learn how to pass data from activity A to B and vice versa and same for fragment
+    // Learn about on activity result
+    // Use scope functions wherever you can
+    // Try to remove unnecessary if - else (try using ENUM instead)
+    // And handle the case of unnecessary loading ie. only update the tile that user updated in recycler view and not whole list and when user comes back without editing then don't load data again just show previous data
+    // Handle the case when user doesn't grant permission like show user a dialog box showing that it's necessary to accept the permission and if he she again rejects then close app
+    // Change the architecture to single activity ie. main activity and in that simply change call different fragments based on user clicks
+    // Integrate Room DB and when ROOM DB is empty load contact from Content Provider and store it in DB and then simply do all crud operations in that DB
     // Add sync button using which user can again update Room DB by getting
     // All new contents that user added using content provider
+
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
@@ -55,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             requestPermission()
         }
+
         if (hasReadPermission()) {
             replaceFragment(showAllContactsFragment)
         }

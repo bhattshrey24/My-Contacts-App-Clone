@@ -36,6 +36,9 @@ class ShowAllContactsFragment() : Fragment(),
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
         ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+//        ContactsContract.CommonDataKinds.Phone.ACCOUNT_TYPE_AND_DATA_SET,
+//        ContactsContract.RawContacts.ACCOUNT_TYPE,
+//        ContactsContract.RawContacts.ACCOUNT_NAME,
     )
     private var uri: Uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
     private var isFirstTimeLoaded: Boolean = false
@@ -51,7 +54,7 @@ class ShowAllContactsFragment() : Fragment(),
         return binding.root
     }
 
-
+     // Don't update unecessary
     override fun onResume() { // So that we load it new every time user comes back to screen
         if (isFirstTimeLoaded) {
             LoaderManager.getInstance(requireActivity()).initLoader(loadContactId, null, this)
@@ -64,7 +67,7 @@ class ShowAllContactsFragment() : Fragment(),
         super.onResume()
     }
 
-    private fun setUpRecyclerView() {
+    private fun setUpRecyclerView() { // add .apply
         layoutManager = LinearLayoutManager(context)
         binding.homePageRecyclerView.layoutManager = layoutManager
         adapter = AllContactsListAdapter(this)
@@ -96,18 +99,19 @@ class ShowAllContactsFragment() : Fragment(),
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
         listOfContacts.clear() // clearing any previous data before loading new
         if (cursor != null && cursor.count > 0) {
-            var contactsList = StringBuilder("")
+           // var contactsList = StringBuilder("")
             while (cursor.moveToNext()) {
                 val name = cursor.getString(0)
                 val number = cursor.getString(1)
                 val id = cursor.getString(2).toInt()
-                contactsList.append("$name,$number\n")
+             //   contactsList.append("$name,$number\n")
                 listOfContacts.add(Contact(name, number, id))
             }
         }
         adapter?.setContact(listOfContacts)
 
         Constants.listOfAllContacts=listOfContacts // Saving to Dummy DB
+        // change to interface method
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {
