@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.example.mycontactsapp.databinding.ActivityMainBinding
 import com.example.mycontactsapp.ui.fragments.ShowAllContactsFragment
 import java.util.regex.Matcher
@@ -68,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         binding.searchContactEditText.addTextChangedListener {
             var query = it.toString()
             listOfContactsFilteredFromQuery = Constants.listOfAllContacts.filter { contact ->
-            contact.name?.contains(query,true)?:false
+                contact.name?.contains(query, true) ?: false
             }
             showAllContactsFragment.adapter?.setContact(listOfContactsFilteredFromQuery)
             showAllContactsFragment.listOfContacts = listOfContactsFilteredFromQuery.toMutableList()
@@ -79,7 +80,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         binding.searchContactEditText.setText("") // clearing the query
-    // edit text when user navigates back to this screen
+        // edit text when user navigates back to this screen
     }
 
     private fun requestPermission() {
@@ -149,7 +150,12 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         showAllContactsFragment.adapter?.setContact(Constants.listOfAllContacts)
         binding.searchContactEditText.setText("")
-        super.onBackPressed()
+        val count = supportFragmentManager.backStackEntryCount
+        if (count == 1) { // This will close the app if we have just 1 fragment
+            // displayed on screen because that fragment will be show all contact
+            // fragment
+            finish()
+        }
+        super.onBackPressed() // else simply follow normal back button behavior
     }
-
 }
