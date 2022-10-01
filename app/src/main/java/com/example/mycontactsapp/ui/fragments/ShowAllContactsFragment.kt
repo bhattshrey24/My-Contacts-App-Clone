@@ -34,13 +34,15 @@ class ShowAllContactsFragment() : Fragment(),
 
     private var loadContactId = 10
     private var mColProjection: Array<String> = arrayOf(
-        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-        ContactsContract.CommonDataKinds.Phone.NUMBER,
-        ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+        ContactsContract.Data.CONTACT_ID,
+        ContactsContract.Data.DISPLAY_NAME,
+        ContactsContract.Data.DATA1, // Number or email
+        ContactsContract.Data.DATA2, // Type
+        ContactsContract.Data.MIMETYPE, // MimeType
     )
-    private var uri: Uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+    private var uri: Uri = ContactsContract.Data.CONTENT_URI
     private var isFirstTimeLoaded: Boolean = false
-    private var mSortOrder = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+    private var mSortOrder = ContactsContract.Data.DISPLAY_NAME
     var listOfContacts = mutableListOf<Contact>()
 
     override fun onCreateView(
@@ -86,7 +88,8 @@ class ShowAllContactsFragment() : Fragment(),
                 requireActivity(),
                 uri,
                 mColProjection,
-                null,
+                null, // Maybe change selection arg so that it
+                // removes rows with unnecessary mimetype
                 null,
                 mSortOrder
             )
@@ -95,26 +98,80 @@ class ShowAllContactsFragment() : Fragment(),
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
-        Log.i(Constants.debugTag, "Inside OnLoad")
         listOfContacts.clear() // clearing any previous data before loading new
+
+        var dummyListOfContact = mutableListOf<DummyContact>()
+        var hmOfCiAndIndex = hashMapOf<String, Int>()
+
         if (cursor != null && cursor.count > 0) {
             var contactsList = StringBuilder("")
 
             while (cursor.moveToNext()) {
-                var nameIdx =
-                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-                var numberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                var cIdIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+                var nameIdx = cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)
+                var numberOrEmailIdx = cursor.getColumnIndex(ContactsContract.Data.DATA1)
+                var cIdIdx = cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)
+                var typeIdx = cursor.getColumnIndex(ContactsContract.Data.DATA2)
+                var mimeTypeIdx = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)
 
                 var name = cursor.getString(nameIdx)
-                var number = cursor.getString(numberIdx)
-                var cId = cursor.getString(cIdIdx).toInt()
+                var numberOrEmail = cursor.getString(numberOrEmailIdx)
+                var cId = cursor.getString(cIdIdx)
+                var type = cursor.getString(typeIdx)
+                var mimeType = cursor.getString(mimeTypeIdx)
 
-           //     contactsList.append("name : $name, num $number, AT $accountType ,T $type,MT $mimeType , L : $lookUp , ci : $cId \n ")
-                listOfContacts.add(Contact(name, number, cId))
+                if (mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
+                    // Log.i(Constants.debugTag,"Inside Phone $name")
+                    if (hmOfCiAndIndex.containsKey(cId.toString())) {
+                        var idxOfContact = hmOfCiAndIndex.get(cId)
+                        var contact = dummyListOfContact.get(idxOfContact!!)
+                        var hmForNum = contact.number ?: mutableMapOf<String, String>()
+
+                        hmForNum.put(type, numberOrEmail)
+
+                        dummyListOfContact.set(
+                            idxOfContact,
+                            DummyContact(contact.name, contact.cid, hmForNum, contact.email)
+                        )
+                    } else {
+                        var hmOfPhoneNumbers = mutableMapOf<String, String>()
+                        hmOfPhoneNumbers.put(type, numberOrEmail)
+                        dummyListOfContact.add(DummyContact(name, cId, hmOfPhoneNumbers, null))
+
+                        hmOfCiAndIndex.put(cId, dummyListOfContact.lastIndex)
+                    }
+                }
+
+                if (mimeType == ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE) {
+                    //   Log.i(Constants.debugTag,"Inside Email $name")
+                    if (hmOfCiAndIndex.containsKey(cId.toString())) {
+                        var idxOfContact = hmOfCiAndIndex.get(cId)
+                        var contact = dummyListOfContact.get(idxOfContact!!)
+                        var hmForEmail = contact.email?:mutableMapOf<String, String>()
+
+                        hmForEmail.put(type, numberOrEmail)
+
+                        dummyListOfContact.set(
+                            idxOfContact,
+                            DummyContact(contact.name, contact.cid, contact.number, hmForEmail)
+                        )
+                    } else {
+                        var hmOfEmail = mutableMapOf<String, String>()
+                        hmOfEmail.put(type, numberOrEmail)
+                        dummyListOfContact.add(DummyContact(name, cId, null, hmOfEmail))
+
+                        hmOfCiAndIndex.put(cId, dummyListOfContact.lastIndex)
+                    }
+                }
+
+                contactsList.append("Cid : $cId , name : $name, number:  $numberOrEmail , type: $type , mimeType: $mimeType  \n ")
+                listOfContacts.add(Contact(name, numberOrEmail, cId.toInt()))
             }
-//            Log.i(Constants.debugTag, "$contactsList")
+          //  Log.i(Constants.debugTag, "$contactsList")
         }
+        for(ele in dummyListOfContact){
+            Log.i(Constants.debugTag, "$ele \n")
+        }
+
         adapter?.setContact(listOfContacts)
         Constants.listOfAllContacts = listOfContacts // Saving to Dummy DB
 
@@ -124,6 +181,13 @@ class ShowAllContactsFragment() : Fragment(),
     override fun onLoaderReset(loader: Loader<Cursor>) {
 
     }
+
+    data class DummyContact(
+        var name: String,
+        var cid: String,
+        var number: MutableMap<String, String>?, // Type - value
+        var email: MutableMap<String, String>? // Type - value
+    )
 
 }
 
