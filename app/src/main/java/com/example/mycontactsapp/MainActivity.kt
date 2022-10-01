@@ -37,7 +37,13 @@ class MainActivity : AppCompatActivity() {
     // Add sync button using which user can again update Room DB by getting
     // All new contents that user added using content provider
 
-
+    //todo fix
+    // Get Work and home email from ContactsContract.CommonDataKinds.Email
+    // Get Work and Home and Other Number
+    // Or maybe use multiple initLoader and start 2 loaders at a time and
+    // differentiate using loadContactId
+    // and meanwhile show circular progress spinner
+    // Or Try using Coroutine and with async await
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
     }
@@ -50,7 +56,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
+        Log.i(Constants.debugTag, "1 ${ContactsContract.Contacts.CONTENT_URI}")
+        Log.i(Constants.debugTag, "2 ${ContactsContract.Data.CONTENT_URI}")
+        Log.i(Constants.debugTag, "3 ${ContactsContract.RawContacts.CONTENT_URI}")
+        Log.i(Constants.debugTag, "4 ${ContactsContract.CommonDataKinds.Phone.CONTENT_URI}")
+        Log.i(Constants.debugTag, "5 ${ContactsContract.CommonDataKinds.Email.CONTENT_URI}")
+        Log.i(Constants.debugTag, "6 ${ContactsContract.CommonDataKinds.Phone.CONTENT_URI}")
+        Log.i(Constants.debugTag, "7 ${ContactsContract.CommonDataKinds.Phone.NUMBER}")
+        Log.i(Constants.debugTag, "8 ${ContactsContract.CommonDataKinds.Phone.TYPE}")
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // This
         // forces the app to stay in Light mode even if user switched to dark mode
 
