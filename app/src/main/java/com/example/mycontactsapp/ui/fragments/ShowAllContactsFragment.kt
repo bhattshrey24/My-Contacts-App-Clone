@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.SecondActivity
 import com.example.mycontactsapp.Constants
 import com.example.mycontactsapp.Contact
-import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
 import com.example.mycontactsapp.databinding.FragmentShowAllContactsBinding
 
@@ -54,7 +53,7 @@ class ShowAllContactsFragment() : Fragment(),
         return binding.root
     }
 
-    // Don't update unecessary
+    // todo fix Don't update unecessary
     override fun onResume() { // So that we load it new every time user comes back to screen
         if (isFirstTimeLoaded) {
             LoaderManager.getInstance(requireActivity()).initLoader(loadContactId, null, this)
@@ -67,7 +66,7 @@ class ShowAllContactsFragment() : Fragment(),
         super.onResume()
     }
 
-    private fun setUpRecyclerView() { // add .apply
+    private fun setUpRecyclerView() { // todo fix add .apply
         layoutManager = LinearLayoutManager(context)
         binding.homePageRecyclerView.layoutManager = layoutManager
         adapter = AllContactsListAdapter(this)
@@ -99,8 +98,6 @@ class ShowAllContactsFragment() : Fragment(),
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
         listOfContacts.clear() // clearing any previous data before loading new
-
-        var dummyListOfContact = mutableListOf<DummyContact>()
         var hmOfCiAndIndex = hashMapOf<String, Int>()
 
         if (cursor != null && cursor.count > 0) {
@@ -123,21 +120,33 @@ class ShowAllContactsFragment() : Fragment(),
                     // Log.i(Constants.debugTag,"Inside Phone $name")
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
-                        var contact = dummyListOfContact.get(idxOfContact!!)
-                        var hmForNum = contact.number ?: mutableMapOf<String, String>()
+                        var contact = listOfContacts.get(idxOfContact!!)
+                        var hmForNum = contact.numbers ?: mutableMapOf<String, String>()
 
                         hmForNum.put(type, numberOrEmail)
 
-                        dummyListOfContact.set(
+                        listOfContacts.set(
                             idxOfContact,
-                            DummyContact(contact.name, contact.cid, hmForNum, contact.email)
+                            Contact(
+                                name = contact.name,
+                                contactId = contact.contactId,
+                                numbers = hmForNum,
+                                emails = contact.emails
+                            )
                         )
                     } else {
                         var hmOfPhoneNumbers = mutableMapOf<String, String>()
                         hmOfPhoneNumbers.put(type, numberOrEmail)
-                        dummyListOfContact.add(DummyContact(name, cId, hmOfPhoneNumbers, null))
+                        listOfContacts.add(
+                            Contact(
+                                name = name,
+                                contactId = cId.toInt(),
+                                numbers = hmOfPhoneNumbers,
+                                emails = null
+                            )
+                        )
 
-                        hmOfCiAndIndex.put(cId, dummyListOfContact.lastIndex)
+                        hmOfCiAndIndex.put(cId, listOfContacts.lastIndex)
                     }
                 }
 
@@ -145,49 +154,52 @@ class ShowAllContactsFragment() : Fragment(),
                     //   Log.i(Constants.debugTag,"Inside Email $name")
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
-                        var contact = dummyListOfContact.get(idxOfContact!!)
-                        var hmForEmail = contact.email?:mutableMapOf<String, String>()
+                        var contact = listOfContacts.get(idxOfContact!!)
+                        var hmForEmail = contact.emails ?: mutableMapOf<String, String>()
 
                         hmForEmail.put(type, numberOrEmail)
 
-                        dummyListOfContact.set(
+                        listOfContacts.set(
                             idxOfContact,
-                            DummyContact(contact.name, contact.cid, contact.number, hmForEmail)
+                            Contact(
+                                name = contact.name,
+                                contactId = contact.contactId,
+                                numbers = contact.numbers,
+                                emails = hmForEmail
+                            )
                         )
                     } else {
                         var hmOfEmail = mutableMapOf<String, String>()
                         hmOfEmail.put(type, numberOrEmail)
-                        dummyListOfContact.add(DummyContact(name, cId, null, hmOfEmail))
+                        listOfContacts.add(
+                            Contact(
+                                name = name,
+                                contactId = cId.toInt(),
+                                numbers = null,
+                                emails = hmOfEmail
+                            )
+                        )
 
-                        hmOfCiAndIndex.put(cId, dummyListOfContact.lastIndex)
+                        hmOfCiAndIndex.put(cId, listOfContacts.lastIndex)
                     }
                 }
 
-                contactsList.append("Cid : $cId , name : $name, number:  $numberOrEmail , type: $type , mimeType: $mimeType  \n ")
-                listOfContacts.add(Contact(name, numberOrEmail, cId.toInt()))
+                //  contactsList.append("Cid : $cId , name : $name, number:  $numberOrEmail , type: $type , mimeType: $mimeType  \n ")
+              //  listOfContacts.add(Contact(name = name, numbers = numberOrEmail, contactId =  cid = cId.toInt() , emails = ))
             }
-          //  Log.i(Constants.debugTag, "$contactsList")
         }
-        for(ele in dummyListOfContact){
-            Log.i(Constants.debugTag, "$ele \n")
-        }
+
+//        for(ele in listOfContacts){
+//            Log.i(Constants.debugTag, "Element $ele \n")
+//        }
 
         adapter?.setContact(listOfContacts)
         Constants.listOfAllContacts = listOfContacts // Saving to Dummy DB
-
         // change to interface method
     }
 
-    override fun onLoaderReset(loader: Loader<Cursor>) {
+    override fun onLoaderReset(loader: Loader<Cursor>) {}
 
-    }
-
-    data class DummyContact(
-        var name: String,
-        var cid: String,
-        var number: MutableMap<String, String>?, // Type - value
-        var email: MutableMap<String, String>? // Type - value
-    )
 
 }
 

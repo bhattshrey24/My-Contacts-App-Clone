@@ -9,9 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
+import com.example.mycontactsapp.adapters.AllContactsListAdapter
+import com.example.mycontactsapp.adapters.ContactDetailsListAdapter
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
 
 
@@ -30,8 +34,10 @@ class ContactDetailsFragment : Fragment() {
 
         val bundle = this.arguments
         val contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
+
         binding.nameOfPersonTV.text = contactDetails?.name
-        binding.numberOfPersonTV.text = contactDetails?.number
+
+        setUpRecyclerView(convertNumAndEmailToList(contactDetails))
 
         binding.editContactFloatingButton.setOnClickListener {
             val fragment = CreateOrModifyContactFragment()
@@ -49,6 +55,33 @@ class ContactDetailsFragment : Fragment() {
         return binding.root
     }
 
+    private fun convertNumAndEmailToList(contactDetails: Contact?): MutableList<Pair<String, String>> {
+        var numbers = contactDetails?.numbers
+        var emails = contactDetails?.emails
+        var list = mutableListOf<Pair<String, String>>()
+        if (numbers != null) {
+            for (number in numbers) {
+                list.add(number.key to number.value)
+            }
+        }
+        if (emails != null) {
+            for (email in emails) {
+                list.add(email.key to email.value)
+            }
+        }
+        return list
+    }
+
+    private fun setUpRecyclerView(list: List<Pair<String, String>>) {
+        layoutManager = LinearLayoutManager(context)
+        binding.contactDetailRV.layoutManager = layoutManager
+        adapter = ContactDetailsListAdapter()
+        binding.contactDetailRV.adapter = adapter
+        adapter?.setListItem(list)
+    }
+
+    private var layoutManager: RecyclerView.LayoutManager? = null
+    var adapter: ContactDetailsListAdapter? = null
 
     private fun deleteContact(contact: Contact?) {
         val whereClause =

@@ -2,19 +2,27 @@ package com.example.mycontactsapp
 
 import android.os.Parcel
 import android.os.Parcelable
+import java.util.ArrayList
 
-data class Contact(var name: String?, var number: String?, var contactId: Int?) : Parcelable {
+data class Contact(
+    var contactId: Int?,
+    var name: String?,
+    var numbers: MutableMap<String, String>?,
+    var emails: MutableMap<String, String>?,
+) : Parcelable {
     constructor(parcel: Parcel) : this(
+        parcel.readValue(Int::class.java.classLoader) as? Int,
         parcel.readString(),
-        parcel.readString(),
-        parcel.readValue(Int::class.java.classLoader) as? Int
+        parcel.readValue(MutableMap::class.java.classLoader) as? MutableMap<String, String>,
+        parcel.readValue (MutableMap::class.java.classLoader) as? MutableMap<String, String>
     ) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(name)
-        parcel.writeString(number)
         parcel.writeValue(contactId)
+        parcel.writeString(name)
+        parcel.writeValue(numbers)
+        parcel.writeValue(emails)
     }
 
     override fun describeContents(): Int {
