@@ -117,7 +117,7 @@ class ShowAllContactsFragment() : Fragment(),
                 var mimeType = cursor.getString(mimeTypeIdx)
 
                 if (mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
-                    // Log.i(Constants.debugTag,"Inside Phone $name")
+
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
                         var contact = listOfContacts.get(idxOfContact!!)
