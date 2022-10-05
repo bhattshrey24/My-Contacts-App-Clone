@@ -41,9 +41,9 @@ class MainActivity : AppCompatActivity() {
     // Or Try using Coroutine and with async await
 
     //Todo(Today's todo)
-    // change architecture to single activity and multiple fragment (D)
-    // fix search feature (D)
-    // Apply kotlin specific features like .apply etc to some extent
+    // change architecture to single activity and multiple fragment(D)
+    // fix search feature(D)
+    // Apply kotlin specific features like .apply etc to some extent(D)
     // Apply MVVM pattern
     // Add nav  graph implementation
     // Integrate Room but not implement yet
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // This
+          AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // This
         // forces the app to stay in Light mode even if user switched to dark mode
 
         supportActionBar?.hide()
@@ -136,9 +136,14 @@ class MainActivity : AppCompatActivity() {
     private fun replaceFragment(myFragment: Fragment) {
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(binding.mainActivityFragmentContainer.id, myFragment)
-        fragmentTransaction.addToBackStack(null)
-        fragmentTransaction.commit()
+            fragmentTransaction.apply {
+            replace(binding.mainActivityFragmentContainer.id, myFragment)
+            addToBackStack(null)
+            commit()
+        }
+//        fragmentTransaction.replace(binding.mainActivityFragmentContainer.id, myFragment)
+//        fragmentTransaction.addToBackStack(null)
+//        fragmentTransaction.commit()
     }
 
 //    override fun onBackPressed() {

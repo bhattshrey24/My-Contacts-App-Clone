@@ -77,9 +77,11 @@ class ContactDetailsFragment : Fragment() {
 
     private fun setUpRecyclerView(list: List<Pair<String, String>>) {
         layoutManager = LinearLayoutManager(context)
-        binding.contactDetailRV.layoutManager = layoutManager
         adapter = ContactDetailsListAdapter()
-        binding.contactDetailRV.adapter = adapter
+        binding.contactDetailRV.apply {
+            this.layoutManager = this@ContactDetailsFragment.layoutManager
+            this.adapter = this@ContactDetailsFragment.adapter
+        }
         adapter?.setListItem(list)
     }
 
@@ -108,10 +110,13 @@ class ContactDetailsFragment : Fragment() {
     private fun replaceFragment(myFragment: Fragment) {
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
-        fragmentTransaction.addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
-        // can refer to it and pop later
-        fragmentTransaction.commit()
+        fragmentTransaction.apply {
+            replace(R.id.mainActivityFragmentContainer, myFragment)
+            addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
+            // can refer to it and pop later
+            commit()
+        }
+
     }
 
 }

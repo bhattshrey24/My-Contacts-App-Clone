@@ -74,25 +74,22 @@ class HomeFragment() : Fragment(),
 
     private fun setUpRecyclerView() { // todo fix add .apply
         layoutManager = LinearLayoutManager(context)
-        binding.homePageRecyclerView.layoutManager = layoutManager
         adapter = AllContactsListAdapter(this)
-        binding.homePageRecyclerView.adapter = adapter
+        binding.homePageRecyclerView.apply {
+            this.layoutManager = this@HomeFragment.layoutManager // using
+            // "@" we can distinguish between properties of recyclerView and HomeFragment
+            this.adapter = this@HomeFragment.adapter
+        }
     }
 
     override fun onContactClick(position: Int) {
-//        requireActivity().startActivity(
-//            Intent(activity, SecondActivity::class.java)
-//                .putExtra(Constants.contactDetailsKey, listOfContacts[position])
-//        )
         val fragment = ContactDetailsFragment()
         val bundle = Bundle()
         Log.i(
             Constants.debugTag,
             " Sending Data  : ${listOfContacts[position]} becaus of position $position"
         )
-
         val filteredListFromAdapter = adapter?.getFilteredListOfContacts()
-
         bundle.putParcelable(
             Constants.contactDetailsKey,
             filteredListFromAdapter?.get(position)
@@ -104,9 +101,11 @@ class HomeFragment() : Fragment(),
     fun replaceFragment(myFragment: Fragment) {
         val fm = parentFragmentManager
         val ft = fm.beginTransaction()
-        ft.replace(R.id.mainActivityFragmentContainer, myFragment)
-        ft.addToBackStack(HomeFragment::class.java.name)
-        ft.commit()
+        ft.apply {
+            replace(R.id.mainActivityFragmentContainer, myFragment)
+            addToBackStack(HomeFragment::class.java.name)
+            commit()
+        }
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
@@ -231,71 +230,3 @@ class HomeFragment() : Fragment(),
 
 
 }
-
-// Below is for debug purpose
-//ContactsContract.Data.DISPLAY_NAME,
-//ContactsContract.Data.DATA1,
-//ContactsContract.Data.DATA2,
-//ContactsContract.Data.DATA3,
-//ContactsContract.Data.DATA4,
-//ContactsContract.Data.DATA5,
-//ContactsContract.Data.DATA6,
-//ContactsContract.Data.DATA7,
-//ContactsContract.Data.DATA8,
-//ContactsContract.Data.DATA9,
-//ContactsContract.Data.DATA10,
-//ContactsContract.Data.DATA11,
-//ContactsContract.Data.DATA12,
-//ContactsContract.Data.DATA13,
-//ContactsContract.Data.DATA14,
-//ContactsContract.Data.DATA15,
-//ContactsContract.Data.CONTACT_ID,
-//ContactsContract.Data.LOOKUP_KEY,
-//ContactsContract.Data.MIMETYPE,
-
-//var d1Idx = cursor.getColumnIndex(ContactsContract.Data.DATA1)
-//var d2Idx = cursor.getColumnIndex(ContactsContract.Data.DATA2)
-//var d3Idx = cursor.getColumnIndex(ContactsContract.Data.DATA3)
-//var d4Idx = cursor.getColumnIndex(ContactsContract.Data.DATA4)
-//var d5Idx = cursor.getColumnIndex(ContactsContract.Data.DATA5)
-//var d6Idx = cursor.getColumnIndex(ContactsContract.Data.DATA6)
-//var d7Idx = cursor.getColumnIndex(ContactsContract.Data.DATA7)
-//var d8Idx = cursor.getColumnIndex(ContactsContract.Data.DATA8)
-//var d9Idx = cursor.getColumnIndex(ContactsContract.Data.DATA9)
-//var d10Idx = cursor.getColumnIndex(ContactsContract.Data.DATA10)
-//var d11Idx = cursor.getColumnIndex(ContactsContract.Data.DATA11)
-//var d12Idx = cursor.getColumnIndex(ContactsContract.Data.DATA12)
-//var d13Idx = cursor.getColumnIndex(ContactsContract.Data.DATA13)
-//var d14Idx = cursor.getColumnIndex(ContactsContract.Data.DATA14)
-//var d15Idx = cursor.getColumnIndex(ContactsContract.Data.DATA15)
-//var ciIdx = cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)
-//var lkIdx = cursor.getColumnIndex(ContactsContract.Data.LOOKUP_KEY)
-//var mtIdx = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)
-//var nameIdx = cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)
-//
-//// var atIdx = cursor.getColumnIndex(ContactsContract.RawContacts.ACCOUNT_TYPE)
-//
-//var d1 = cursor.getString(d1Idx)
-//var d2 = cursor.getString(d2Idx)
-//var d3 = cursor.getString(d3Idx)
-//var d4 = cursor.getString(d4Idx)
-//var d5 = cursor.getString(d5Idx)
-//var d6 = cursor.getString(d6Idx)
-//var d7 = cursor.getString(d7Idx)
-//var d8 = cursor.getString(d8Idx)
-//var d9 = cursor.getString(d9Idx)
-//var d10 = cursor.getString(d10Idx)
-//var d11 = cursor.getString(d11Idx)
-//var d12 = cursor.getString(d12Idx)
-//var d13 = cursor.getString(d13Idx)
-//var d14 = cursor.getString(d14Idx)
-//var d15 = cursor.getString(d15Idx)
-//var ci = cursor.getString(ciIdx)
-//var lk = cursor.getString(lkIdx)
-//var mt = cursor.getString(mtIdx)
-//var name = cursor.getString(nameIdx)
-//
-//
-//// var at = cursor.getString(atIdx)
-//
-//contactsList.append("name : $name, d1: $d1 , d2: $d2 ,d3: $d3 ,d4: $d4 ,d5: $d5, ci: $ci, lk: $lk, mt: $mt,d6: $d6 ,d7: $d7 ,d8: $d8 ,d9: $d9 ,d10: $d10,d11: $d11,d12: $d12,d13: $d13,d14: $d14,d15: $d15\n ")

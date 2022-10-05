@@ -73,24 +73,26 @@ class CreateOrModifyContactFragment : Fragment() {
     }
     private fun makeEditText(hint: String, fetchedData: String): EditText {
         var editText = EditText(requireContext())
-        editText.setHint(hint)
-        editText.layoutParams = ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,// width
-            200// height
-        ).also {
-            it.setMargins(30)
+        editText.apply {
+            setHint(hint)
+            layoutParams = ConstraintLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,// width
+                200// height
+            ).also {
+                it.setMargins(30)
+            }
+            setPadding(20, 20, 20, 0)
+            setBackgroundResource(R.drawable.edit_text_border)
+            setText(fetchedData)
         }
-        editText.setPadding(20, 20, 20, 0)
-        editText.setBackgroundResource(R.drawable.edit_text_border)
-        editText.setText(fetchedData)
         return editText
     }
+
     private fun setUpUi(isEdit: Boolean?, bundle: Bundle?): Contact? {
         if (isEdit == true) {
             var contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
             binding.createOrEditTV.text = "Edit Contact"
             binding.nameOfPersonET.setText(contactDetails?.name)
-            //binding.numberOfPersonET.setText(contactDetails?.number)
             binding.eocSubmitButton.text = "Edit"
 
             if (contactDetails?.numbers != null) { // Todo fix , make it concise
@@ -232,7 +234,7 @@ class CreateOrModifyContactFragment : Fragment() {
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
-       // requireActivity().finish()
+        //requireActivity().finish()
 
     }
     private fun isValidated(): Boolean { // todo fix not working
