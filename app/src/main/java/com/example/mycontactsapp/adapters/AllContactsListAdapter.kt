@@ -8,7 +8,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mycontactsapp.Constants
+import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 

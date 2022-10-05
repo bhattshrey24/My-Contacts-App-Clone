@@ -1,7 +1,6 @@
 package com.example.mycontactsapp.ui.fragments
 
 import android.database.Cursor
-import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
@@ -9,16 +8,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mycontactsapp.Constants
+import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
 import com.example.mycontactsapp.databinding.FragmentHomeBinding
+import com.example.mycontactsapp.ui.viewmodels.HomePageViewModel
 
 class HomeFragment() : Fragment(),
     AllContactsListAdapter.OnContactClickListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -27,28 +28,19 @@ class HomeFragment() : Fragment(),
         FragmentHomeBinding.inflate(layoutInflater, null, false)
     }
 
+    private lateinit var viewModel: HomePageViewModel
+
     private var layoutManager: RecyclerView.LayoutManager? = null
     var adapter: AllContactsListAdapter? = null
-
-    private var loadContactId = 10
-    private var mColProjection: Array<String> = arrayOf(
-        ContactsContract.Data.CONTACT_ID,
-        ContactsContract.Data.DISPLAY_NAME,
-        ContactsContract.Data.DATA1, // Number or email
-        ContactsContract.Data.DATA2, // Type
-        ContactsContract.Data.MIMETYPE, // MimeType
-    )
-    private var uri: Uri = ContactsContract.Data.CONTENT_URI
-    private var isFirstTimeLoaded: Boolean = false
-    private var mSortOrder = ContactsContract.Data.DISPLAY_NAME
-    var listOfContacts = mutableListOf<Contact>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setUpViewModel()
         setUpRecyclerView()
+
         binding.addNewContactFloatingButton.setOnClickListener {
             val fragment = CreateOrModifyContactFragment()
             val bundle = Bundle()
@@ -59,13 +51,19 @@ class HomeFragment() : Fragment(),
         return binding.root
     }
 
+    private fun setUpViewModel() {
+        viewModel = ViewModelProvider(requireActivity())[HomePageViewModel::class.java]
+    }
+
     // todo fix Don't update unecessary
     override fun onResume() { // So that we load it new every time user comes back to screen
-        if (isFirstTimeLoaded) {
-            LoaderManager.getInstance(requireActivity()).initLoader(loadContactId, null, this)
-            isFirstTimeLoaded = true
+        if (viewModel.isFirstTimeLoaded) {
+            LoaderManager.getInstance(requireActivity())
+                .initLoader(viewModel.loadContactId, null, this)
+            viewModel.isFirstTimeLoaded = true
         } else {
-            LoaderManager.getInstance(requireActivity()).restartLoader(loadContactId, null, this)
+            LoaderManager.getInstance(requireActivity())
+                .restartLoader(viewModel.loadContactId, null, this)
             // We restart loader because after the first time the cursor would have reached end so this will
             // again put cursor on top of records so that we can read again
         }
@@ -87,7 +85,7 @@ class HomeFragment() : Fragment(),
         val bundle = Bundle()
         Log.i(
             Constants.debugTag,
-            " Sending Data  : ${listOfContacts[position]} becaus of position $position"
+            " Sending Data  : ${viewModel.listOfContacts[position]} becaus of position $position"
         )
         val filteredListFromAdapter = adapter?.getFilteredListOfContacts()
         bundle.putParcelable(
@@ -109,23 +107,23 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        if (id == loadContactId) { // Since there can be many loaders working at a time so this
+        if (id == viewModel.loadContactId) { // Since there can be many loaders working at a time so this
             // loadContactId helps us to distinguish our loader .This can be any value that we want
             return CursorLoader(
                 requireActivity(),
-                uri,
-                mColProjection,
+                viewModel.uri,
+                viewModel.mColProjection,
                 null, // Maybe change selection arg so that it
                 // removes rows with unnecessary mimetype
                 null,
-                mSortOrder
+                viewModel.mSortOrder
             )
         }
         return CursorLoader(requireActivity())
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
-        listOfContacts.clear() // clearing any previous data before loading new
+        viewModel.listOfContacts.clear() // clearing any previous data before loading new
         var hmOfCiAndIndex = hashMapOf<String, Int>()
 
         if (cursor != null && cursor.count > 0) {
@@ -148,12 +146,12 @@ class HomeFragment() : Fragment(),
 
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
-                        var contact = listOfContacts.get(idxOfContact!!)
+                        var contact = viewModel.listOfContacts.get(idxOfContact!!)
                         var hmForNum = contact.numbers ?: mutableMapOf<String, String>()
 
                         hmForNum.put(type, numberOrEmail)
 
-                        listOfContacts.set(
+                        viewModel.listOfContacts.set(
                             idxOfContact,
                             Contact(
                                 name = contact.name,
@@ -165,7 +163,7 @@ class HomeFragment() : Fragment(),
                     } else {
                         var hmOfPhoneNumbers = mutableMapOf<String, String>()
                         hmOfPhoneNumbers.put(type, numberOrEmail)
-                        listOfContacts.add(
+                        viewModel.listOfContacts.add(
                             Contact(
                                 name = name,
                                 contactId = cId.toInt(),
@@ -174,7 +172,7 @@ class HomeFragment() : Fragment(),
                             )
                         )
 
-                        hmOfCiAndIndex.put(cId, listOfContacts.lastIndex)
+                        hmOfCiAndIndex.put(cId, viewModel.listOfContacts.lastIndex)
                     }
                 }
 
@@ -182,12 +180,12 @@ class HomeFragment() : Fragment(),
                     //   Log.i(Constants.debugTag,"Inside Email $name")
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
-                        var contact = listOfContacts.get(idxOfContact!!)
+                        var contact = viewModel.listOfContacts.get(idxOfContact!!)
                         var hmForEmail = contact.emails ?: mutableMapOf<String, String>()
 
                         hmForEmail.put(type, numberOrEmail)
 
-                        listOfContacts.set(
+                        viewModel.listOfContacts.set(
                             idxOfContact,
                             Contact(
                                 name = contact.name,
@@ -199,7 +197,7 @@ class HomeFragment() : Fragment(),
                     } else {
                         var hmOfEmail = mutableMapOf<String, String>()
                         hmOfEmail.put(type, numberOrEmail)
-                        listOfContacts.add(
+                        viewModel.listOfContacts.add(
                             Contact(
                                 name = name,
                                 contactId = cId.toInt(),
@@ -208,7 +206,7 @@ class HomeFragment() : Fragment(),
                             )
                         )
 
-                        hmOfCiAndIndex.put(cId, listOfContacts.lastIndex)
+                        hmOfCiAndIndex.put(cId, viewModel.listOfContacts.lastIndex)
                     }
                 }
 
@@ -221,12 +219,11 @@ class HomeFragment() : Fragment(),
 //            Log.i(Constants.debugTag, "Element $ele \n")
 //        }
 
-        adapter?.setContact(listOfContacts)
-        Constants.listOfAllContacts = listOfContacts // Saving to Dummy DB
+        adapter?.setContact(viewModel.listOfContacts)
+        Constants.listOfAllContacts = viewModel.listOfContacts // Saving to Dummy DB
         // change to interface method
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {}
-
 
 }

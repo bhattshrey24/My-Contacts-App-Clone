@@ -7,10 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mycontactsapp.Constants
-import com.example.mycontactsapp.Contact
+import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.R
 
 class ContactDetailsListAdapter() : RecyclerView.Adapter<ContactDetailsListAdapter.MyViewHolder>() {

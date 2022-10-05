@@ -1,10 +1,8 @@
 package com.example.mycontactsapp
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -12,6 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.mycontactsapp.databinding.ActivityMainBinding
+import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.ui.fragments.HomeFragment
 
 
@@ -45,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     // fix search feature(D)
     // Apply kotlin specific features like .apply etc to some extent(D)
     // Apply MVVM pattern
-    // Add nav  graph implementation
+    // Add nav graph implementation
     // Integrate Room but not implement yet
     // Fix app like add enum etc
 

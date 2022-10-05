@@ -5,8 +5,6 @@ import android.content.OperationApplicationException
 import android.os.Bundle
 import android.os.RemoteException
 import android.provider.ContactsContract
-import android.service.controls.Control
-import android.text.InputType
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,29 +13,24 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.view.marginLeft
 import androidx.core.view.setMargins
-import androidx.core.widget.addTextChangedListener
-import com.example.mycontactsapp.Constants
+import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.databinding.FragmentCreateOrModifyContactBinding
+import com.example.mycontactsapp.other.EmailTypes
+import com.example.mycontactsapp.other.PhoneTypes
 
 
 class CreateOrModifyContactFragment : Fragment() {
-    enum class Types {
-        Home,
-        Work,
-        Mobile,
-    }
 
     private val binding: FragmentCreateOrModifyContactBinding by lazy {
         FragmentCreateOrModifyContactBinding.inflate(layoutInflater, null, false)
     }
 
-    var hmOfNumbers = mutableMapOf<Types, EditText>()
-    var hmOfEmails = mutableMapOf<Types, EditText>()
+    var hmOfNumbers = mutableMapOf<PhoneTypes, EditText>()
+    var hmOfEmails = mutableMapOf<EmailTypes, EditText>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,6 +64,7 @@ class CreateOrModifyContactFragment : Fragment() {
 
         return binding.root
     }
+
     private fun makeEditText(hint: String, fetchedData: String): EditText {
         var editText = EditText(requireContext())
         editText.apply {
@@ -98,16 +92,16 @@ class CreateOrModifyContactFragment : Fragment() {
             if (contactDetails?.numbers != null) { // Todo fix , make it concise
                 for (number in contactDetails?.numbers!!) {
                     var hint: String
-                    var type: Types
-                    if (number.key.toInt() == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) {
-                        hint = "Mobile"
-                        type = Types.Mobile
-                    } else if (number.key.toInt() == ContactsContract.CommonDataKinds.Phone.TYPE_HOME) {
-                        hint = "Home"
-                        type = Types.Home
+                    var type: PhoneTypes
+                    if (number.key.toInt() == PhoneTypes.Mobile.codeOfType) {
+                        hint = PhoneTypes.Mobile.nameOfType
+                        type = PhoneTypes.Mobile
+                    } else if (number.key.toInt() == PhoneTypes.Home.codeOfType) {
+                        hint = PhoneTypes.Home.nameOfType
+                        type = PhoneTypes.Home
                     } else {
-                        hint = "Work"
-                        type = Types.Work
+                        hint = PhoneTypes.Work.nameOfType
+                        type = PhoneTypes.Work
                     }
                     var et = makeEditText(hint, number.value)
                     binding.linearLayoutCoM.addView(et)
@@ -117,13 +111,13 @@ class CreateOrModifyContactFragment : Fragment() {
             if (contactDetails?.emails != null) { // todo put it in setUpUI
                 for (email in contactDetails?.emails!!) {
                     var hint: String
-                    var type: Types
-                    if (email.key.toInt() == ContactsContract.CommonDataKinds.Email.TYPE_WORK) {
-                        hint = "Work"
-                        type = Types.Work
+                    var type: EmailTypes
+                    if (email.key.toInt() == EmailTypes.Work.codeOfType) {
+                        hint = EmailTypes.Work.nameOfType
+                        type = EmailTypes.Work
                     } else { // Home
-                        hint = "Home"
-                        type = Types.Home
+                        hint = EmailTypes.Home.nameOfType
+                        type = EmailTypes.Home
                     }
 
                     var et = makeEditText(hint, email.value)
@@ -137,11 +131,12 @@ class CreateOrModifyContactFragment : Fragment() {
             binding.eocSubmitButton.text = "Add Contact"
             var et = makeEditText("Mobile", "")
 
-            hmOfNumbers.put(Types.Mobile, et)
+            hmOfNumbers.put(PhoneTypes.Mobile, et)
             binding.linearLayoutCoM.addView(et)
         }
         return null
     }
+
     private fun updateValues(oldContactDetails: Contact?, updatedContactDetails: Contact) {
         if (!isValidated()) {
             return
@@ -150,12 +145,12 @@ class CreateOrModifyContactFragment : Fragment() {
 
         for (num in hmOfNumbers) {
             var type: String
-            if (num.key == Types.Mobile) {
-                type = ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE.toString()
-            } else if (num.key == Types.Home) {
-                type = ContactsContract.CommonDataKinds.Phone.TYPE_HOME.toString()
+            if (num.key == PhoneTypes.Mobile) {
+                type = PhoneTypes.Mobile.codeOfType.toString()
+            } else if (num.key == PhoneTypes.Home) {
+                type = PhoneTypes.Home.codeOfType.toString()
             } else {
-                type = ContactsContract.CommonDataKinds.Phone.TYPE_WORK.toString()
+                type = PhoneTypes.Work.codeOfType.toString()
             }
 
             cpbo.add(
@@ -181,10 +176,10 @@ class CreateOrModifyContactFragment : Fragment() {
 
         for (email in hmOfEmails) {
             var type: String
-            if (email.key == Types.Home) {
-                type = ContactsContract.CommonDataKinds.Email.TYPE_HOME.toString()
+            if (email.key == EmailTypes.Home) {
+                type = EmailTypes.Home.codeOfType.toString()
             } else {
-                type = ContactsContract.CommonDataKinds.Email.TYPE_WORK.toString()
+                type =  EmailTypes.Work.codeOfType.toString()
             }
             cpbo.add(
                 ContentProviderOperation
@@ -237,6 +232,7 @@ class CreateOrModifyContactFragment : Fragment() {
         //requireActivity().finish()
 
     }
+
     private fun isValidated(): Boolean { // todo fix not working
         var nameEt = binding.nameOfPersonET
         //   var numberEt = binding.numberOfPersonET
@@ -267,7 +263,7 @@ class CreateOrModifyContactFragment : Fragment() {
         if (!isValidated()) {
             return
         }
-        val number = hmOfNumbers.get(Types.Mobile)?.text.toString().trim()
+        val number = hmOfNumbers.get(PhoneTypes.Mobile)?.text.toString().trim()
 
         Log.i(Constants.debugTag, " Number passed : $number")
 
@@ -315,7 +311,7 @@ class CreateOrModifyContactFragment : Fragment() {
                 ).withValue(
                     ContactsContract.CommonDataKinds.Phone.TYPE,
                     ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE // Hard coding number type
-                // later change it to user preference by showing a drop down menu
+                    // later change it to user preference by showing a drop down menu
                 )
                 .build()
         )
@@ -335,7 +331,7 @@ class CreateOrModifyContactFragment : Fragment() {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
 
-      //  requireActivity().finish()
+        //  requireActivity().finish()
     }
 }
 

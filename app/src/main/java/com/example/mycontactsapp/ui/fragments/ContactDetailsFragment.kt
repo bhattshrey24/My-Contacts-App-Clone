@@ -7,15 +7,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mycontactsapp.Constants
+import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
-import com.example.mycontactsapp.adapters.AllContactsListAdapter
 import com.example.mycontactsapp.adapters.ContactDetailsListAdapter
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
 
@@ -25,6 +22,8 @@ class ContactDetailsFragment : Fragment() {
     private val binding: FragmentContactDetailsBinding by lazy {
         FragmentContactDetailsBinding.inflate(layoutInflater, null, false)
     }
+    private var layoutManager: RecyclerView.LayoutManager? = null
+    var adapter: ContactDetailsListAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,8 +38,6 @@ class ContactDetailsFragment : Fragment() {
         binding.nameOfPersonTV.text = contactDetails?.name
 
         setUpRecyclerView(convertNumAndEmailToList(contactDetails))
-
-
 
         binding.editContactFloatingButton.setOnClickListener {
             val fragment = CreateOrModifyContactFragment()
@@ -74,7 +71,6 @@ class ContactDetailsFragment : Fragment() {
         }
         return list
     }
-
     private fun setUpRecyclerView(list: List<Pair<String, String>>) {
         layoutManager = LinearLayoutManager(context)
         adapter = ContactDetailsListAdapter()
@@ -84,10 +80,6 @@ class ContactDetailsFragment : Fragment() {
         }
         adapter?.setListItem(list)
     }
-
-    private var layoutManager: RecyclerView.LayoutManager? = null
-    var adapter: ContactDetailsListAdapter? = null
-
     private fun deleteContact(contact: Contact?) {
         val whereClause =
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ${contact?.contactId}"
@@ -106,7 +98,6 @@ class ContactDetailsFragment : Fragment() {
         }
         //requireActivity().finish()
     }
-
     private fun replaceFragment(myFragment: Fragment) {
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
