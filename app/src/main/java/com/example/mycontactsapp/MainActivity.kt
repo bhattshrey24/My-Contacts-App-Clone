@@ -44,6 +44,16 @@ class MainActivity : AppCompatActivity() {
     // differentiate using loadContactId
     // and meanwhile show circular progress spinner
     // Or Try using Coroutine and with async await
+
+    //Todo(Today's todo)
+    // change architecture to single activity and multiple fragment
+    // fix search feature
+    // Apply kotlin specific features like .apply etc to some extent
+    // Apply MVVM pattern
+    // Add nav  graph implementation
+    // Integrate Room but not implement yet
+    // Fix app like add enum etc
+
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
     }
@@ -87,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.searchContactEditText.addTextChangedListener {
-            var query = it.toString()
+            var query = it.toString().trim()
             listOfContactsFilteredFromQuery = Constants.listOfAllContacts.filter { contact ->
                 contact.name?.contains(query, true) ?: false
             }
