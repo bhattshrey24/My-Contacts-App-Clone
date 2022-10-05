@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var myRequestCode = 101
-    private lateinit var listOfContactsFilteredFromQuery: List<Contact>
+//    private lateinit var listOfContactsFilteredFromQuery: List<Contact>
 
     private val showAllContactsFragment = ShowAllContactsFragment()
 
@@ -96,22 +96,14 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        binding.searchContactEditText.addTextChangedListener {
-            var query = it.toString().trim()
-            listOfContactsFilteredFromQuery = Constants.listOfAllContacts.filter { contact ->
-                contact.name?.contains(query, true) ?: false
-            }
-            showAllContactsFragment.adapter?.setContact(listOfContactsFilteredFromQuery)
-            showAllContactsFragment.listOfContacts = listOfContactsFilteredFromQuery.toMutableList()
-        }
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        binding.searchContactEditText.setText("") // clearing the query
-        // edit text when user navigates back to this screen
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        //  binding.searchContactEditText.setText("") // clearing the query
+//        // edit text when user navigates back to this screen
+//    }
 
     private fun requestPermission() {
         Log.i(Constants.debugTag, "Inside Request Permission")
@@ -179,7 +171,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         showAllContactsFragment.adapter?.setContact(Constants.listOfAllContacts)
-        binding.searchContactEditText.setText("")
+      //  binding.searchContactEditText.setText("")
         val count = supportFragmentManager.backStackEntryCount
         if (count == 1) { // This will close the app if we have just 1 fragment
             // displayed on screen because that fragment will be show all contact
@@ -188,4 +180,14 @@ class MainActivity : AppCompatActivity() {
         }
         super.onBackPressed() // else simply follow normal back button behavior
     }
+
 }
+
+//binding.searchContactEditText.addTextChangedListener {
+//    var query = it.toString().trim()
+//    listOfContactsFilteredFromQuery = Constants.listOfAllContacts.filter { contact ->
+//        contact.name?.contains(query, true) ?: false
+//    }
+//    showAllContactsFragment.adapter?.setContact(listOfContactsFilteredFromQuery)
+//    showAllContactsFragment.listOfContacts = listOfContactsFilteredFromQuery.toMutableList()
+//}
