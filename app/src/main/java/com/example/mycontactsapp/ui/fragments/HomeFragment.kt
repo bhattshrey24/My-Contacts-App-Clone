@@ -1,6 +1,5 @@
 package com.example.mycontactsapp.ui.fragments
 
-import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -15,17 +14,17 @@ import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mycontactsapp.SecondActivity
 import com.example.mycontactsapp.Constants
 import com.example.mycontactsapp.Contact
+import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
-import com.example.mycontactsapp.databinding.FragmentShowAllContactsBinding
+import com.example.mycontactsapp.databinding.FragmentHomeBinding
 
-class ShowAllContactsFragment() : Fragment(),
+class HomeFragment() : Fragment(),
     AllContactsListAdapter.OnContactClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private val binding: FragmentShowAllContactsBinding by lazy {
-        FragmentShowAllContactsBinding.inflate(layoutInflater, null, false)
+    private val binding: FragmentHomeBinding by lazy {
+        FragmentHomeBinding.inflate(layoutInflater, null, false)
     }
 
     private var layoutManager: RecyclerView.LayoutManager? = null
@@ -50,6 +49,13 @@ class ShowAllContactsFragment() : Fragment(),
         savedInstanceState: Bundle?
     ): View {
         setUpRecyclerView()
+        binding.addNewContactFloatingButton.setOnClickListener {
+            val fragment = CreateOrModifyContactFragment()
+            val bundle = Bundle()
+            bundle.putBoolean(Constants.booleanIsEditKey, false)
+            fragment.arguments = bundle
+            replaceFragment(fragment)
+        }
         return binding.root
     }
 
@@ -74,10 +80,33 @@ class ShowAllContactsFragment() : Fragment(),
     }
 
     override fun onContactClick(position: Int) {
-        requireActivity().startActivity(
-            Intent(activity, SecondActivity::class.java)
-                .putExtra(Constants.contactDetailsKey, listOfContacts[position])
+//        requireActivity().startActivity(
+//            Intent(activity, SecondActivity::class.java)
+//                .putExtra(Constants.contactDetailsKey, listOfContacts[position])
+//        )
+        val fragment = ContactDetailsFragment()
+        val bundle = Bundle()
+        Log.i(
+            Constants.debugTag,
+            " Sending Data  : ${listOfContacts[position]} becaus of position $position"
         )
+
+        val filteredListFromAdapter = adapter?.getFilteredListOfContacts()
+
+        bundle.putParcelable(
+            Constants.contactDetailsKey,
+            filteredListFromAdapter?.get(position)
+        )
+        fragment.arguments = bundle
+        replaceFragment(fragment)
+    }
+
+    fun replaceFragment(myFragment: Fragment) {
+        val fm = parentFragmentManager
+        val ft = fm.beginTransaction()
+        ft.replace(R.id.mainActivityFragmentContainer, myFragment)
+        ft.addToBackStack(HomeFragment::class.java.name)
+        ft.commit()
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
@@ -185,7 +214,7 @@ class ShowAllContactsFragment() : Fragment(),
                 }
 
                 //  contactsList.append("Cid : $cId , name : $name, number:  $numberOrEmail , type: $type , mimeType: $mimeType  \n ")
-              //  listOfContacts.add(Contact(name = name, numbers = numberOrEmail, contactId =  cid = cId.toInt() , emails = ))
+                //  listOfContacts.add(Contact(name = name, numbers = numberOrEmail, contactId =  cid = cId.toInt() , emails = ))
             }
         }
 

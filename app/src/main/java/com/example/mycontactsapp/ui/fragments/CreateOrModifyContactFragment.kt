@@ -232,7 +232,7 @@ class CreateOrModifyContactFragment : Fragment() {
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
-        requireActivity().finish()
+       // requireActivity().finish()
 
     }
     private fun isValidated(): Boolean { // todo fix not working
@@ -333,7 +333,7 @@ class CreateOrModifyContactFragment : Fragment() {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
 
-        requireActivity().finish()
+      //  requireActivity().finish()
     }
 }
 

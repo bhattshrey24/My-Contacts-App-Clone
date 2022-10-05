@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/my_nav_graph">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav_graph"
+    app:startDestination="@id/contactDetailsFragment">
 
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.mycontactsapp.ui.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_contactDetailsFragment"
+            app:destination="@id/contactDetailsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_createOrModifyContactFragment"
+            app:destination="@id/createOrModifyContactFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/contactDetailsFragment"
+        android:name="com.example.mycontactsapp.ui.fragments.ContactDetailsFragment"
+        android:label="fragment_contact_details"
+        tools:layout="@layout/fragment_contact_details" >
+        <action
+            android:id="@+id/action_contactDetailsFragment_to_createOrModifyContactFragment"
+            app:destination="@id/createOrModifyContactFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createOrModifyContactFragment"
+        android:name="com.example.mycontactsapp.ui.fragments.CreateOrModifyContactFragment"
+        android:label="fragment_create_or_modify_contact"
+        tools:layout="@layout/fragment_create_or_modify_contact" />
 </navigation>

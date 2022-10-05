@@ -102,13 +102,13 @@ class ContactDetailsFragment : Fragment() {
                 Toast.makeText(context, "Unable to delete", Toast.LENGTH_SHORT).show()
             }
         }
-        requireActivity().finish()
+        //requireActivity().finish()
     }
 
     private fun replaceFragment(myFragment: Fragment) {
         val fragmentManager = parentFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.secondActivityFragmentContainer, myFragment)
+        fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
         fragmentTransaction.addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
         // can refer to it and pop later
         fragmentTransaction.commit()

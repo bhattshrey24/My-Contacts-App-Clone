@@ -21,6 +21,8 @@ class AllContactsListAdapter(
 
     private var listOfContacts: List<Contact> = listOf()
 
+    fun getFilteredListOfContacts() = listOfContacts
+
     fun setContact(filteredContactList: List<Contact>) { // Updates the recyclerview
         this.listOfContacts = filteredContactList
         notifyDataSetChanged() // We are changing whole data set
@@ -51,10 +53,14 @@ class AllContactsListAdapter(
         init {
             contactName = itemView.findViewById(R.id.contactNameTV)
             itemView.setOnClickListener {
-                val pos = layoutPosition - 1 // gives the position of
+                val pos = layoutPosition - 1  // gives the position of
                 // the holder that is clicked . We doing -1 cause 1st item in recycler view
                 // will always be
                 // search bar so our contacts starts from pos 2
+                Log.i(
+                    Constants.debugTag,
+                    "Position in Adapter is  $pos and list is  : ${listOfContacts}"
+                )
                 onContactClickListenerVariable.onContactClick(pos)
             }
         }
@@ -79,7 +85,6 @@ class AllContactsListAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        //    holder.contactName.text = contacts?.get(position)?.name ?: "No Name"
         if (getItemViewType(position) == CONTACTS_LIST_ITEM) {
             var contactHolder =
                 holder as MyViewHolderForContacts // type casting holder to correct ViewHolder

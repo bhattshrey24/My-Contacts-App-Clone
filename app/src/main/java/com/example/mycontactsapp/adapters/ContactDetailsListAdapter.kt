@@ -34,10 +34,6 @@ class ContactDetailsListAdapter() : RecyclerView.Adapter<ContactDetailsListAdapt
             iconImageView = itemView.findViewById(R.id.contactDetailRVIconIV)
             typeTextView = itemView.findViewById(R.id.contactDetailTypeRVTV)
 
-            //            itemView.setOnClickListener {
-//                val pos = layoutPosition // gives the position of the holder that is clicked
-//                onContactClickListenerVariable.onContactClick(pos)
-//            }
         }
     }
 

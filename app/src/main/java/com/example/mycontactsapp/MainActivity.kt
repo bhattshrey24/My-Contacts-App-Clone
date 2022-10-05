@@ -6,18 +6,13 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
-import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import com.example.mycontactsapp.databinding.ActivityMainBinding
-import com.example.mycontactsapp.ui.fragments.ShowAllContactsFragment
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import com.example.mycontactsapp.ui.fragments.HomeFragment
 
 
 class MainActivity : AppCompatActivity() {
@@ -46,8 +41,8 @@ class MainActivity : AppCompatActivity() {
     // Or Try using Coroutine and with async await
 
     //Todo(Today's todo)
-    // change architecture to single activity and multiple fragment
-    // fix search feature
+    // change architecture to single activity and multiple fragment (D)
+    // fix search feature (D)
     // Apply kotlin specific features like .apply etc to some extent
     // Apply MVVM pattern
     // Add nav  graph implementation
@@ -59,21 +54,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var myRequestCode = 101
-//    private lateinit var listOfContactsFilteredFromQuery: List<Contact>
 
-    private val showAllContactsFragment = ShowAllContactsFragment()
+    private val homeFragment = HomeFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        Log.i(Constants.debugTag, "1 ${ContactsContract.Contacts.CONTENT_URI}")
-        Log.i(Constants.debugTag, "2 ${ContactsContract.Data.CONTENT_URI}")
-        Log.i(Constants.debugTag, "3 ${ContactsContract.RawContacts.CONTENT_URI}")
-        Log.i(Constants.debugTag, "4 ${ContactsContract.CommonDataKinds.Phone.CONTENT_URI}")
-        Log.i(Constants.debugTag, "5 ${ContactsContract.CommonDataKinds.Email.CONTENT_URI}")
-        Log.i(Constants.debugTag, "6 ${ContactsContract.CommonDataKinds.Phone.CONTENT_URI}")
-        Log.i(Constants.debugTag, "7 ${ContactsContract.CommonDataKinds.Phone.NUMBER}")
-        Log.i(Constants.debugTag, "8 ${ContactsContract.CommonDataKinds.Phone.TYPE}")
+
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // This
         // forces the app to stay in Light mode even if user switched to dark mode
 
@@ -86,24 +73,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (hasReadPermission()) {
-            replaceFragment(showAllContactsFragment)
+            replaceFragment(homeFragment)
         }
-
-        binding.addNewContactFloatingButton.setOnClickListener {
-            startActivity(
-                Intent(this, SecondActivity::class.java)
-                    .putExtra(Constants.booleanIsEditKey, false)
-            )
-        }
-
-
     }
-
-//    override fun onResume() {
-//        super.onResume()
-//        //  binding.searchContactEditText.setText("") // clearing the query
-//        // edit text when user navigates back to this screen
-//    }
 
     private fun requestPermission() {
         Log.i(Constants.debugTag, "Inside Request Permission")
@@ -145,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                     Log.i("PermissionRequests", "${permissions[i]} Not granted!!")
                 }
             }
-            replaceFragment(showAllContactsFragment) // ie. for the first time we will do this only if user accepted permission
+            replaceFragment(homeFragment) // ie. for the first time we will do this only if user accepted permission
         }
     }
 
@@ -169,25 +141,15 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.commit()
     }
 
-    override fun onBackPressed() {
-        showAllContactsFragment.adapter?.setContact(Constants.listOfAllContacts)
-      //  binding.searchContactEditText.setText("")
-        val count = supportFragmentManager.backStackEntryCount
-        if (count == 1) { // This will close the app if we have just 1 fragment
-            // displayed on screen because that fragment will be show all contact
-            // fragment
-            finish()
-        }
-        super.onBackPressed() // else simply follow normal back button behavior
-    }
+//    override fun onBackPressed() {
+//        homeFragment.adapter?.setContact(Constants.listOfAllContacts)
+//        val count = supportFragmentManager.backStackEntryCount
+//        if (count == 1) { // This will close the app if we have just 1 fragment
+//            // displayed on screen because that fragment will be show all contact
+//            // fragment
+//            finish()
+//        }
+//        super.onBackPressed() // else simply follow normal back button behavior
+//    }
 
 }
-
-//binding.searchContactEditText.addTextChangedListener {
-//    var query = it.toString().trim()
-//    listOfContactsFilteredFromQuery = Constants.listOfAllContacts.filter { contact ->
-//        contact.name?.contains(query, true) ?: false
-//    }
-//    showAllContactsFragment.adapter?.setContact(listOfContactsFilteredFromQuery)
-//    showAllContactsFragment.listOfContacts = listOfContactsFilteredFromQuery.toMutableList()
-//}
