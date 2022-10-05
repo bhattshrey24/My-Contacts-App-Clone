@@ -40,10 +40,6 @@ class MainActivity : AppCompatActivity() {
     // Or Try using Coroutine and with async await
 
     //Todo(Today's todo)
-    // change architecture to single activity and multiple fragment(D)
-    // fix search feature(D)
-    // Apply kotlin specific features like .apply etc to some extent(D)
-    // Apply MVVM pattern
     // Add nav graph implementation
     // Integrate Room but not implement yet
     // Fix app like add enum etc
