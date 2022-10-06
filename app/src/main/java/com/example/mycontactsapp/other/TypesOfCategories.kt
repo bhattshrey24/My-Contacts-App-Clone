@@ -13,3 +13,4 @@ enum class EmailTypes(var nameOfType: String, var codeOfType: Int) {
     Home("Home", ContactsContract.CommonDataKinds.Email.TYPE_HOME),
     Work("Work", ContactsContract.CommonDataKinds.Email.TYPE_WORK),
 }
+

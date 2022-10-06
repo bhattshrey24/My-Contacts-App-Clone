@@ -3,7 +3,7 @@ package com.example.mycontactsapp.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.mycontactsapp.Contact
+import com.example.mycontactsapp.data.models.Contact
 
 class ListOfContactsViewModel() : ViewModel() { // It's a Shared View Model
 

@@ -17,9 +17,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.other.Constants
-import com.example.mycontactsapp.Contact
-import com.example.mycontactsapp.R
+import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
+import com.example.mycontactsapp.data.models.CursorData
 import com.example.mycontactsapp.databinding.FragmentHomeBinding
 import com.example.mycontactsapp.other.EmailTypes
 import com.example.mycontactsapp.other.PhoneTypes
@@ -36,7 +36,6 @@ class HomeFragment() : Fragment(),
     private lateinit var viewModel: HomePageViewModel
     private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
 
-
     private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: AllContactsListAdapter? = null
 
@@ -48,15 +47,7 @@ class HomeFragment() : Fragment(),
 
         setUpViewModel()
         setUpRecyclerView()
-
-        if (!viewModel.isFirstTimeLoaded) {
-            LoaderManager.getInstance(requireActivity())
-                .initLoader(viewModel.loadContactId, null, this)
-            viewModel.isFirstTimeLoaded = true
-        } else {
-            listOfContactsViewModel.listOfContact.value?.let { adapter?.setContact(it) }
-        }
-
+        fetchAndLoadDataInRecyclerView()
 
         binding.addNewContactFloatingButton.setOnClickListener {
             var action = HomeFragmentDirections.actionHomeFragmentToCreateOrModifyContactFragment(
@@ -65,7 +56,18 @@ class HomeFragment() : Fragment(),
             )
             findNavController().navigate(action)
         }
+
         return binding.root
+    }
+
+    private fun fetchAndLoadDataInRecyclerView() {
+        if (!viewModel.isFirstTimeLoaded) {
+            LoaderManager.getInstance(requireActivity())
+                .initLoader(viewModel.loadContactId, null, this)
+            viewModel.isFirstTimeLoaded = true
+        } else {
+            listOfContactsViewModel.listOfContact.value?.let { adapter?.setContact(it) }
+        }
     }
 
     private fun setUpViewModel() {
@@ -97,8 +99,8 @@ class HomeFragment() : Fragment(),
                 requireActivity(),
                 viewModel.uri,
                 viewModel.mColProjection,
-                null,
-                null,
+                viewModel.mSelection,
+                viewModel.mSelectionArgs,
                 viewModel.mSortOrder
             )
         }
@@ -107,65 +109,84 @@ class HomeFragment() : Fragment(),
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
         var tempListOfContacts = mutableListOf<Contact>()
-        var hmOfCiAndIndex = hashMapOf<String, Int>()
+        var hmOfCiAndIndex = hashMapOf<String, Int>() // ie. hashMap For ContactId and Index
+        // this will tell the index at which the contact is saved in the tempListOfContacts so that
+        // I could retrieve it fast and then update email or number of that contact and then again
+        // put it in that index
 
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
-                var nameIdx = cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)
-                var numberOrEmailIdx = cursor.getColumnIndex(ContactsContract.Data.DATA1)
-                var cIdIdx = cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)
-                var typeIdx = cursor.getColumnIndex(ContactsContract.Data.DATA2)
-                var mimeTypeIdx = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)
+                var cursorData = retrieveDataFromCursor(cursor)
+                if (cursorData.mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
+                    var typeEnum = when (cursorData.type) {
+                        PhoneTypes.Home.codeOfType.toString() -> {
+                            PhoneTypes.Home
+                        }
+                        PhoneTypes.Work.codeOfType.toString() -> {
+                            PhoneTypes.Work
 
-                var name = cursor.getString(nameIdx)
-                var numberOrEmail = cursor.getString(numberOrEmailIdx)
-                var cId = cursor.getString(cIdIdx)
-                var type = cursor.getString(typeIdx)
-                var mimeType = cursor.getString(mimeTypeIdx)
+                        }
+                        PhoneTypes.Mobile.codeOfType.toString() -> {
+                            PhoneTypes.Mobile
 
+                        }
+                        else -> {
+                            PhoneTypes.Home
+                        }
+                    }
+                    if (hmOfCiAndIndex.containsKey(cursorData.cId)) {
 
-                if (mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
-                    Log.i(Constants.debugTag, "Type inside phone  :$type")
-                    if (hmOfCiAndIndex.containsKey(cId.toString())) {
-                        var idxOfContact = hmOfCiAndIndex.get(cId)
-                        var contact = tempListOfContacts.get(idxOfContact!!)
-                        var hmForNum = contact.numbers ?: mutableMapOf<String, String>()
+                        var idxOfContact = hmOfCiAndIndex.get(cursorData.cId)
+                        var retrievedContact = tempListOfContacts.get(idxOfContact!!)
+                        var hmForNum = retrievedContact.numbers ?: mutableMapOf()
 
-                        hmForNum.put(type, numberOrEmail)
+                        hmForNum.put(typeEnum, cursorData.numberOrEmail)
 
                         tempListOfContacts.set(
                             idxOfContact,
                             Contact(
-                                name = contact.name,
-                                contactId = contact.contactId,
+                                name = retrievedContact.name,
+                                contactId = retrievedContact.contactId,
                                 numbers = hmForNum,
-                                emails = contact.emails
+                                emails = retrievedContact.emails
                             )
                         )
                     } else {
-                        var hmOfPhoneNumbers = mutableMapOf<String, String>()
-                        hmOfPhoneNumbers.put(type, numberOrEmail)
+                        var hmOfPhoneNumbers = mutableMapOf<PhoneTypes, String>()
+                        hmOfPhoneNumbers.put(typeEnum, cursorData.numberOrEmail)
+
                         tempListOfContacts.add(
                             Contact(
-                                name = name,
-                                contactId = cId.toInt(),
+                                name = cursorData.name,
+                                contactId = cursorData.cId.toInt(),
                                 numbers = hmOfPhoneNumbers,
                                 emails = null
                             )
                         )
-
-                        hmOfCiAndIndex.put(cId, tempListOfContacts.lastIndex)
+                        hmOfCiAndIndex.put(cursorData.cId, tempListOfContacts.lastIndex)
                     }
                 }
+                if (cursorData.mimeType == ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE) {
 
-                if (mimeType == ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE) {
-                    Log.i(Constants.debugTag, "Type inside email  :$type")
-                    if (hmOfCiAndIndex.containsKey(cId.toString())) {
-                        var idxOfContact = hmOfCiAndIndex.get(cId)
+                    var typeEnum = when (cursorData.type) {
+                        EmailTypes.Home.codeOfType.toString() -> {
+                            EmailTypes.Home
+                        }
+                        EmailTypes.Work.codeOfType.toString() -> {
+                            EmailTypes.Work
+
+                        }
+                        else -> {
+                            EmailTypes.Home
+                        }
+                    }
+
+                    if (hmOfCiAndIndex.containsKey(cursorData.cId)) {
+                        var idxOfContact = hmOfCiAndIndex.get(cursorData.cId)
                         var contact = tempListOfContacts.get(idxOfContact!!)
-                        var hmForEmail = contact.emails ?: mutableMapOf<String, String>()
+                        var hmForEmail = contact.emails ?: mutableMapOf<EmailTypes, String>()
 
-                        hmForEmail.put(type, numberOrEmail)
+                        hmForEmail.put(typeEnum, cursorData.numberOrEmail)
 
                         tempListOfContacts.set(
                             idxOfContact,
@@ -177,25 +198,49 @@ class HomeFragment() : Fragment(),
                             )
                         )
                     } else {
-                        var hmOfEmail = mutableMapOf<String, String>()
-                        hmOfEmail.put(type, numberOrEmail)
+                        var hmOfEmail = mutableMapOf<EmailTypes, String>()
+                        hmOfEmail.put(typeEnum, cursorData.numberOrEmail)
                         tempListOfContacts.add(
                             Contact(
-                                name = name,
-                                contactId = cId.toInt(),
+                                name = cursorData.name,
+                                contactId = cursorData.cId.toInt(),
                                 numbers = null,
                                 emails = hmOfEmail
                             )
                         )
-                        hmOfCiAndIndex.put(cId, tempListOfContacts.lastIndex)
+                        hmOfCiAndIndex.put(cursorData.cId, tempListOfContacts.lastIndex)
                     }
                 }
             }
         }
+
         listOfContactsViewModel.setListOfContact(tempListOfContacts)
         listOfContactsViewModel.listOfContact.value?.let { adapter?.setContact(it) }
 
         Constants.listOfAllContacts = tempListOfContacts // Saving to Dummy DB
+    }
+
+    private fun retrieveDataFromCursor(cursor: Cursor): CursorData {
+        var nameIdx = cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)
+        var numberOrEmailIdx = cursor.getColumnIndex(ContactsContract.Data.DATA1)
+        var cIdIdx = cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)
+        var typeIdx = cursor.getColumnIndex(ContactsContract.Data.DATA2)
+        var mimeTypeIdx = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)
+
+        var name = cursor.getString(nameIdx)
+        var numberOrEmail =
+            cursor.getString(numberOrEmailIdx) // it could hold either number
+        // or email it depends on mimetype of that row
+        var cId = cursor.getString(cIdIdx)
+        var type = cursor.getString(typeIdx)
+        var mimeType = cursor.getString(mimeTypeIdx)
+        return CursorData(
+            name = name,
+            numberOrEmail = numberOrEmail,
+            cId = cId,
+            type = type,
+            mimeType = mimeType
+        )
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {}

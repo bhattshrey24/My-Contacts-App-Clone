@@ -2,7 +2,6 @@ package com.example.mycontactsapp.ui.fragments
 
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mycontactsapp.other.Constants
-import com.example.mycontactsapp.Contact
-import com.example.mycontactsapp.R
+import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.adapters.ContactDetailsListAdapter
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
 import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
@@ -26,8 +23,6 @@ class ContactDetailsFragment : Fragment() {
     private val binding: FragmentContactDetailsBinding by lazy {
         FragmentContactDetailsBinding.inflate(layoutInflater, null, false)
     }
-    private var layoutManager: RecyclerView.LayoutManager? = null
-    var adapter: ContactDetailsListAdapter? = null
     private val args: ContactDetailsFragmentArgs by navArgs()
     private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
 
@@ -42,10 +37,9 @@ class ContactDetailsFragment : Fragment() {
             it.contactId == contactId
         }
 
-        binding.nameOfPersonTV.text = contactDetails?.name
+        binding.nameOfPersonTV.text = contactDetails?.name ?: "No Name"
 
         setUpRecyclerView(convertNumAndEmailToList(contactDetails))
-
         binding.editContactFloatingButton.setOnClickListener {
             val action =
                 ContactDetailsFragmentDirections.actionContactDetailsFragmentToCreateOrModifyContactFragment(
@@ -54,7 +48,6 @@ class ContactDetailsFragment : Fragment() {
                 )
             findNavController().navigate(action)
         }
-
         binding.deleteContactFloatingButton.setOnClickListener {
             deleteContact(contactDetails)
         }
@@ -63,28 +56,30 @@ class ContactDetailsFragment : Fragment() {
     }
 
     private fun convertNumAndEmailToList(contactDetails: Contact?): MutableList<Pair<String, String>> {
+        // combining numbers and emails in a single list so that recycler view can show it
         var numbers = contactDetails?.numbers
         var emails = contactDetails?.emails
         var list = mutableListOf<Pair<String, String>>()
+
         if (numbers != null) {
             for (number in numbers) {
-                list.add(number.key to number.value)
+                list.add(number.key.codeOfType.toString() to number.value)
             }
         }
         if (emails != null) {
             for (email in emails) {
-                list.add(email.key to email.value)
+                list.add(email.key.codeOfType.toString() to email.value)
             }
         }
         return list
     }
 
     private fun setUpRecyclerView(list: List<Pair<String, String>>) {
-        layoutManager = LinearLayoutManager(context)
-        adapter = ContactDetailsListAdapter()
+        var layoutManager = LinearLayoutManager(context)
+        var adapter = ContactDetailsListAdapter()
         binding.contactDetailRV.apply {
-            this.layoutManager = this@ContactDetailsFragment.layoutManager
-            this.adapter = this@ContactDetailsFragment.adapter
+            this.layoutManager = layoutManager
+            this.adapter = adapter
         }
         adapter?.setListItem(list)
     }
@@ -105,7 +100,7 @@ class ContactDetailsFragment : Fragment() {
                 Toast.makeText(context, "Unable to delete", Toast.LENGTH_SHORT).show()
             }
         }
-        //requireActivity().finish()
+        findNavController().popBackStack()
     }
 
 }

@@ -15,11 +15,10 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.setMargins
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.mycontactsapp.other.Constants
-import com.example.mycontactsapp.Contact
+import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.databinding.FragmentCreateOrModifyContactBinding
 import com.example.mycontactsapp.other.EmailTypes
@@ -33,8 +32,11 @@ class CreateOrModifyContactFragment : Fragment() {
         FragmentCreateOrModifyContactBinding.inflate(layoutInflater, null, false)
     }
 
-    private var hmOfNumbers = mutableMapOf<PhoneTypes, EditText>()
-    private var hmOfEmails = mutableMapOf<EmailTypes, EditText>()
+    private var hmOfNumbersEditTexts = mutableMapOf<PhoneTypes, EditText>() // This will hold the
+
+    // reference to edit texts since I'm programmatically making them based on number of emails or phone numbers
+    // user has for a particular contact
+    private var hmOfEmailsEditTexts = mutableMapOf<EmailTypes, EditText>()
 
     private val args: CreateOrModifyContactFragmentArgs by navArgs()
     private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
@@ -85,71 +87,93 @@ class CreateOrModifyContactFragment : Fragment() {
 
     private fun setUpUi(isEdit: Boolean?): Contact? {
         if (isEdit == true) {
-            var contactDetails =
-                listOfContactsViewModel.listOfContact.value?.find {
-                    it.contactId == args.contactID
-                }
-            binding.createOrEditTV.text = "Edit Contact"
-            binding.nameOfPersonET.setText(contactDetails?.name)
-            binding.eocSubmitButton.text = "Edit"
+            var contactDetails = listOfContactsViewModel.listOfContact.value?.find {
+                it.contactId == args.contactID
+            }
+            setUpUiForShowingEditScreen(contactDetails)
+            return contactDetails
+        } else {
+            setUpUiForCreateNewContact()
+        }
+        return null
+    }
 
-            if (contactDetails?.numbers != null) { // Todo fix , make it concise
-                for (number in contactDetails?.numbers!!) {
-                    var hint: String
-                    var type: PhoneTypes
-                    if (number.key.toInt() == PhoneTypes.Mobile.codeOfType) {
+    private fun setUpUiForShowingEditScreen(contactDetails: Contact?) {
+        binding.createOrEditTV.text = "Edit Contact"
+        binding.nameOfPersonET.setText(contactDetails?.name)
+        binding.eocSubmitButton.text = "Edit"
+        if (contactDetails?.numbers != null) {
+            for (number in contactDetails?.numbers!!) {
+                var hint: String
+                var type: PhoneTypes
+                when (number.key.codeOfType) {
+                    PhoneTypes.Mobile.codeOfType -> {
                         hint = PhoneTypes.Mobile.nameOfType
                         type = PhoneTypes.Mobile
-                    } else if (number.key.toInt() == PhoneTypes.Home.codeOfType) {
+                    }
+                    PhoneTypes.Home.codeOfType -> {
                         hint = PhoneTypes.Home.nameOfType
                         type = PhoneTypes.Home
-                    } else {
+                    }
+                    PhoneTypes.Work.codeOfType -> {
                         hint = PhoneTypes.Work.nameOfType
                         type = PhoneTypes.Work
                     }
-                    var et = makeEditText(hint, number.value)
-                    binding.linearLayoutCoM.addView(et)
-                    hmOfNumbers.put(type, et)
+                    else -> {
+                        hint = PhoneTypes.Mobile.nameOfType
+                        type = PhoneTypes.Mobile
+                    }
                 }
+                var et = makeEditText(hint, number.value)
+                binding.linearLayoutCoM.addView(et)
+
+                hmOfNumbersEditTexts.put(type, et)
             }
-            if (contactDetails?.emails != null) { // todo put it in setUpUI
-                for (email in contactDetails?.emails!!) {
-                    var hint: String
-                    var type: EmailTypes
-                    if (email.key.toInt() == EmailTypes.Work.codeOfType) {
+        }
+        if (contactDetails?.emails != null) {
+            for (email in contactDetails?.emails!!) {
+                var hint: String
+                var type: EmailTypes
+                when (email.key.codeOfType) {
+                    EmailTypes.Work.codeOfType -> {
                         hint = EmailTypes.Work.nameOfType
                         type = EmailTypes.Work
-                    } else { // Home
+                    }
+                    EmailTypes.Home.codeOfType -> {
                         hint = EmailTypes.Home.nameOfType
                         type = EmailTypes.Home
                     }
-
-                    var et = makeEditText(hint, email.value)
-                    binding.linearLayoutCoM.addView(et)
-                    hmOfEmails.put(type, et)
+                    else -> {
+                        hint = EmailTypes.Home.nameOfType
+                        type = EmailTypes.Home
+                    }
                 }
+                var et = makeEditText(hint, email.value)
+                binding.linearLayoutCoM.addView(et)
+                hmOfEmailsEditTexts.put(type, et)
             }
-            return contactDetails
-        } else {
-            binding.createOrEditTV.text = "Create New Contact"
-            binding.eocSubmitButton.text = "Add Contact"
-            var et = makeEditText("Mobile", "")
-
-            hmOfNumbers.put(PhoneTypes.Mobile, et)
-            binding.linearLayoutCoM.addView(et)
         }
-        return null
+    }
+
+    private fun setUpUiForCreateNewContact() {
+        binding.createOrEditTV.text = "Create New Contact"
+        binding.eocSubmitButton.text = "Add Contact"
+        var et = makeEditText("Mobile", "")
+        hmOfNumbersEditTexts.put(PhoneTypes.Mobile, et)
+        binding.linearLayoutCoM.addView(et)
     }
 
     private fun updateValues(oldContactDetails: Contact?, updatedContactName: String) {
         if (!isValidated()) {
             return
         }
-        var updatedHashMapForNum = mutableMapOf<String, String>()
-        var updatedHashMapForEmail = mutableMapOf<String, String>()
+
+        var updatedHashMapForNum = mutableMapOf<PhoneTypes, String>()
+        var updatedHashMapForEmail = mutableMapOf<EmailTypes, String>()
+
         val cpbo = ArrayList<ContentProviderOperation>()
 
-        for (num in hmOfNumbers) {
+        for (num in hmOfNumbersEditTexts) {
             var type: String
             if (num.key == PhoneTypes.Mobile) {
                 type = PhoneTypes.Mobile.codeOfType.toString()
@@ -158,7 +182,7 @@ class CreateOrModifyContactFragment : Fragment() {
             } else {
                 type = PhoneTypes.Work.codeOfType.toString()
             }
-            updatedHashMapForNum.put(type, num.value.text.trim().toString())
+            updatedHashMapForNum.put(num.key, num.value.text.trim().toString())
             cpbo.add(
                 ContentProviderOperation
                     .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -179,14 +203,14 @@ class CreateOrModifyContactFragment : Fragment() {
                     .build()
             )
         }
-        for (email in hmOfEmails) {
+        for (email in hmOfEmailsEditTexts) {
             var type: String
             if (email.key == EmailTypes.Home) {
                 type = EmailTypes.Home.codeOfType.toString()
             } else {
                 type = EmailTypes.Work.codeOfType.toString()
             }
-            updatedHashMapForEmail.put(type, email.value.text.trim().toString())
+            updatedHashMapForEmail.put(email.key, email.value.text.trim().toString())
             cpbo.add(
                 ContentProviderOperation
                     .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -207,7 +231,6 @@ class CreateOrModifyContactFragment : Fragment() {
                     .build()
             )
         }
-
 
         cpbo.add(
             ContentProviderOperation.newUpdate(ContactsContract.RawContacts.CONTENT_URI)
@@ -236,9 +259,25 @@ class CreateOrModifyContactFragment : Fragment() {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
 
-        // todo fix update the list
-        var list = listOfContactsViewModel.listOfContact.value?.toMutableList() ?: mutableListOf()
+        // updating the list in shared viewModel
+        updateContactList(
+            oldContactDetails,
+            updatedContactName,
+            updatedHashMapForNum,
+            updatedHashMapForEmail
+        )
 
+        findNavController().popBackStack()
+    }
+
+    private fun updateContactList(
+        oldContactDetails: Contact?,
+        updatedContactName: String,
+        updatedHashMapForNum: MutableMap<PhoneTypes, String>,
+        updatedHashMapForEmail: MutableMap<EmailTypes, String>
+    ) {
+
+        var list = listOfContactsViewModel.listOfContact.value?.toMutableList() ?: mutableListOf()
         var updatedContact = Contact(
             name = updatedContactName,
             contactId = oldContactDetails?.contactId,
@@ -251,27 +290,25 @@ class CreateOrModifyContactFragment : Fragment() {
         list.set(idxOfOldEle, updatedContact)
         listOfContactsViewModel.setListOfContact(list)
 
-        findNavController().popBackStack()
     }
 
-    private fun isValidated(): Boolean { // todo fix not working
+    private fun isValidated(): Boolean {
         var nameEt = binding.nameOfPersonET
-        //   var numberEt = binding.numberOfPersonET
         if (nameEt.text.isBlank()) {
             nameEt.error = "Name cannot be empty"
             return false
         }
-        if (hmOfNumbers.isNullOrEmpty()) {
-            for (numbersEt in hmOfNumbers) {
-                if (numbersEt.value.text.toString().isNullOrEmpty()) {
+        if (hmOfNumbersEditTexts.isNullOrEmpty()) {
+            for (numbersEt in hmOfNumbersEditTexts) {
+                if (numbersEt.value.text.toString().isBlank()) {
                     numbersEt.value.error = "Number cannot be empty"
                     return false
                 }
             }
         }
-        if (hmOfEmails.isNullOrEmpty()) {
-            for (emailsEt in hmOfEmails) {
-                if (emailsEt.value.text.toString().isNullOrEmpty()) {
+        if (hmOfEmailsEditTexts.isNullOrEmpty()) {
+            for (emailsEt in hmOfEmailsEditTexts) {
+                if (emailsEt.value.text.toString().isBlank()) {
                     emailsEt.value.error = "Email address cannot be empty"
                     return false
                 }
@@ -284,7 +321,7 @@ class CreateOrModifyContactFragment : Fragment() {
         if (!isValidated()) {
             return
         }
-        val number = hmOfNumbers.get(PhoneTypes.Mobile)?.text.toString().trim()
+        val number = hmOfNumbersEditTexts.get(PhoneTypes.Mobile)?.text.toString().trim()
 
         Log.i(Constants.debugTag, " Number passed : $number")
 

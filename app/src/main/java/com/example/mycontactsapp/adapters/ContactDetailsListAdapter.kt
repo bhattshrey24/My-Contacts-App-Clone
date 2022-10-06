@@ -10,10 +10,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.R
+import com.example.mycontactsapp.other.EmailTypes
+import com.example.mycontactsapp.other.PhoneTypes
 
 class ContactDetailsListAdapter() : RecyclerView.Adapter<ContactDetailsListAdapter.MyViewHolder>() {
-    var listOfListItems: List<Pair<String, String>> = listOf()
-    var sizeOfListItemMap:Int? = 0
+    var listOfListItems: List<Pair<String, String>> =
+        listOf() // First is the Type Code and 2nd is the value
+    var sizeOfListItemMap: Int? = 0
+
+    var isFirstNum = true
+    var isFirstEmail = true
 
     fun setListItem(listItems: List<Pair<String, String>>) { // Updates the recyclerview
         this.listOfListItems = listItems
@@ -45,29 +51,47 @@ class ContactDetailsListAdapter() : RecyclerView.Adapter<ContactDetailsListAdapt
         var listItem = listOfListItems.get(position)
 
         if (listItem.second.contains(Regex("@"))) { // email
-            holder.iconImageView.setImageResource(R.drawable.ic_email)
-            if (listItem.first.toInt() == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE) { // todo change it to when
-                holder.typeTextView.text = "Mobile"
-            } else if (listItem.first.toInt() == ContactsContract.CommonDataKinds.Phone.TYPE_HOME) {
-                holder.typeTextView.text = "Home"
-            } else {// work
-                holder.typeTextView.text = "Work"
+
+            if (isFirstEmail) { // This makes sure that we show symbol only on start of 1st email
+                holder.iconImageView.setImageResource(R.drawable.ic_email)
+                isFirstEmail = false
+            }
+
+            when (listItem.first.toInt()) {
+                EmailTypes.Work.codeOfType -> {
+                    holder.typeTextView.text = EmailTypes.Work.nameOfType
+                }
+                EmailTypes.Home.codeOfType -> {
+                    holder.typeTextView.text = EmailTypes.Home.nameOfType
+                }
+                else -> {
+                    holder.typeTextView.text = EmailTypes.Home.nameOfType
+                }
             }
         } else { // number
-            holder.iconImageView.setImageResource(R.drawable.ic_phone)
-            if (listItem.first.toInt() == ContactsContract.CommonDataKinds.Email.TYPE_MOBILE) { // todo change it to when
-                holder.typeTextView.text = "Mobile"
-            } else if (listItem.first.toInt() == ContactsContract.CommonDataKinds.Email.TYPE_HOME) {
-                holder.typeTextView.text = "Home"
-            } else {// work
-                holder.typeTextView.text = "Work"
+            if (isFirstNum) {
+                holder.iconImageView.setImageResource(R.drawable.ic_phone)
+                isFirstNum = false
+            }
+            when (listItem.first.toInt()) {
+                PhoneTypes.Mobile.codeOfType -> {
+                    holder.typeTextView.text = PhoneTypes.Mobile.nameOfType
+                }
+                PhoneTypes.Home.codeOfType -> {
+                    holder.typeTextView.text = PhoneTypes.Home.nameOfType
+                }
+                PhoneTypes.Work.codeOfType -> {
+                    holder.typeTextView.text = PhoneTypes.Work.nameOfType
+                }
+                else -> {
+                    holder.typeTextView.text = PhoneTypes.Mobile.nameOfType
+                }
             }
         }
-
         holder.nOETextView.text = listItem.second
     }
 
     override fun getItemCount(): Int {
-        return sizeOfListItemMap?:0
+        return sizeOfListItemMap ?: 0
     }
 }

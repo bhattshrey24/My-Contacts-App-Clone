@@ -1,6 +1,5 @@
 package com.example.mycontactsapp.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,7 @@ import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.other.Constants
-import com.example.mycontactsapp.Contact
+import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.R
 
 private const val SEARCH_BAR_LIST_ITEM = 1
@@ -57,7 +56,6 @@ class AllContactsListAdapter(
                 // the holder that is clicked . We doing -1 cause 1st item in recycler view
                 // will always be
                 // search bar so our contacts starts from pos 2
-
                 onContactClickListenerVariable.onContactClick(pos)
             }
         }
@@ -93,7 +91,7 @@ class AllContactsListAdapter(
 
         } else {
             // var searchBarHolder = holder as MyViewHolderForSearchBar // we do nothing
-            // right now but we could have binded something
+            // right now but we could have bound something
         }
 
     }

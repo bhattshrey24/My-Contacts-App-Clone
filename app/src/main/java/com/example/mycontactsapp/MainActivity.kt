@@ -18,32 +18,11 @@ import com.example.mycontactsapp.ui.fragments.HomeFragment
 class MainActivity : AppCompatActivity() {
 
     //Todo
-    // Add all important details(like work email and contact , home email and contact etc)
-    // that user has entered (Don't show data that user has not entered while adding the contact initially)
-    // Add MVVM structure, jetpack navigation component
-    // Learn how to pass data from activity A to B and vice versa and same for fragment
-    // Learn about on activity result
-    // Use scope functions wherever you can
-    // Try to remove unnecessary if - else (try using ENUM instead)
-    // And handle the case of unnecessary loading ie. only update the tile that user updated in recycler view and not whole list and when user comes back without editing then don't load data again just show previous data
-    // Handle the case when user doesn't grant permission like show user a dialog box showing that it's necessary to accept the permission and if he she again rejects then close app
-    // Change the architecture to single activity ie. main activity and in that simply change call different fragments based on user clicks
     // Integrate Room DB and when ROOM DB is empty load contact from Content Provider and store it in DB and then simply do all crud operations in that DB
     // Add sync button using which user can again update Room DB by getting
-    // All new contents that user added using content provider
+    // all new contents that user added using content provider
+    // Handle the case when user doesn't grant permission like show user a dialog box showing that it's necessary to accept the permission and if he she again rejects then close app
 
-    //todo fix
-    // Get Work and home email from ContactsContract.CommonDataKinds.Email
-    // Get Work and Home and Other Number
-    // Or maybe use multiple initLoader and start 2 loaders at a time and
-    // differentiate using loadContactId
-    // and meanwhile show circular progress spinner
-    // Or Try using Coroutine and with async await
-
-    //Todo(Today's todo)
-    // Add nav graph implementation
-    // Integrate Room but not implement yet
-    // Fix app like add enum etc
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
