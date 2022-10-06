@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,6 +18,7 @@ import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.ContactDetailsListAdapter
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
+import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 
 
 class ContactDetailsFragment : Fragment() {
@@ -27,32 +29,29 @@ class ContactDetailsFragment : Fragment() {
     private var layoutManager: RecyclerView.LayoutManager? = null
     var adapter: ContactDetailsListAdapter? = null
     private val args: ContactDetailsFragmentArgs by navArgs()
+    private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.i(Constants.debugTag, "Inside onCreate of createDeail")
 
-        val contactDetails = args.contactDetails
+        val contactId = args.contactID
+        val contactDetails = listOfContactsViewModel.listOfContact.value?.find {
+            it.contactId == contactId
+        }
 
         binding.nameOfPersonTV.text = contactDetails?.name
 
         setUpRecyclerView(convertNumAndEmailToList(contactDetails))
 
         binding.editContactFloatingButton.setOnClickListener {
-            val fragment = CreateOrModifyContactFragment()
-            val bundle = Bundle()
-            bundle.putBoolean(Constants.booleanIsEditKey, true)
-            fragment.arguments = bundle
-            bundle.putParcelable(Constants.contactDetailsKey, contactDetails)
             val action =
                 ContactDetailsFragmentDirections.actionContactDetailsFragmentToCreateOrModifyContactFragment(
                     true,
-                    contactDetails
+                    contactId
                 )
-
             findNavController().navigate(action)
         }
 
@@ -107,17 +106,6 @@ class ContactDetailsFragment : Fragment() {
             }
         }
         //requireActivity().finish()
-    }
-
-    private fun replaceFragment(myFragment: Fragment) {
-//        val fragmentManager = parentFragmentManager
-//        val fragmentTransaction = fragmentManager.beginTransaction()
-//        fragmentTransaction.apply {
-//            replace(R.id.mainActivityFragmentContainer, myFragment)
-//            addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
-//            // can refer to it and pop later
-//            commit()
-//        }
     }
 
 }

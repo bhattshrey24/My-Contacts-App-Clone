@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.setMargins
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.Contact
@@ -21,6 +22,7 @@ import com.example.mycontactsapp.R
 import com.example.mycontactsapp.databinding.FragmentCreateOrModifyContactBinding
 import com.example.mycontactsapp.other.EmailTypes
 import com.example.mycontactsapp.other.PhoneTypes
+import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 
 
 class CreateOrModifyContactFragment : Fragment() {
@@ -33,6 +35,7 @@ class CreateOrModifyContactFragment : Fragment() {
     private var hmOfEmails = mutableMapOf<EmailTypes, EditText>()
 
     private val args: CreateOrModifyContactFragmentArgs by navArgs()
+    private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,7 +88,10 @@ class CreateOrModifyContactFragment : Fragment() {
 
     private fun setUpUi(isEdit: Boolean?): Contact? {
         if (isEdit == true) {
-            var contactDetails = args.contactDetails
+            var contactDetails =
+                listOfContactsViewModel.listOfContact.value?.find {
+                    it.contactId == args.contactID
+                }
             binding.createOrEditTV.text = "Edit Contact"
             binding.nameOfPersonET.setText(contactDetails?.name)
             binding.eocSubmitButton.text = "Edit"
@@ -334,5 +340,6 @@ class CreateOrModifyContactFragment : Fragment() {
 
         //  requireActivity().finish()
     }
+
 }
 

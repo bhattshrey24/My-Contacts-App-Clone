@@ -18,5 +18,4 @@ class HomePageViewModel() : ViewModel() {
     )
     val uri: Uri = ContactsContract.Data.CONTENT_URI
     val mSortOrder = ContactsContract.Data.DISPLAY_NAME
-    var listOfContacts = mutableListOf<Contact>()
 }

@@ -26,8 +26,9 @@
             android:id="@+id/action_contactDetailsFragment_to_createOrModifyContactFragment"
             app:destination="@id/createOrModifyContactFragment" />
         <argument
-            android:name="contactDetails"
-            app:argType="com.example.mycontactsapp.Contact" />
+            android:name="contactID"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/createOrModifyContactFragment"
@@ -39,10 +40,9 @@
             app:argType="boolean"
             android:defaultValue="true" />
         <argument
-            android:name="contactDetails"
-            app:argType="com.example.mycontactsapp.Contact"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            android:name="contactID"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <activity
         android:id="@+id/mainActivity"

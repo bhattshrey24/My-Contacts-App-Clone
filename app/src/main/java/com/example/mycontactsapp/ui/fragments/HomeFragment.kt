@@ -50,17 +50,17 @@ class HomeFragment() : Fragment(),
         binding.addNewContactFloatingButton.setOnClickListener {
             var action = HomeFragmentDirections.actionHomeFragmentToCreateOrModifyContactFragment(
                 false,
-                null
+                -1
             )
             findNavController().navigate(action)
         }
 
         return binding.root
     }
+
     private fun setUpViewModel() {
         viewModel = ViewModelProvider(requireActivity())[HomePageViewModel::class.java]
     }
-
     // todo fix Don't update unecessary
     override fun onResume() { // So that we load it new every time user comes back to screen
         if (viewModel.isFirstTimeLoaded) {
@@ -89,7 +89,7 @@ class HomeFragment() : Fragment(),
     override fun onContactClick(position: Int) {
         val filteredListFromAdapter = adapter?.getFilteredListOfContacts() ?: listOf<Contact>()
         var action = HomeFragmentDirections.actionHomeFragmentToContactDetailsFragment(
-            filteredListFromAdapter[position]
+            filteredListFromAdapter[position].contactId ?: -1
         )
         findNavController().navigate(action)
     }
@@ -101,8 +101,7 @@ class HomeFragment() : Fragment(),
                 requireActivity(),
                 viewModel.uri,
                 viewModel.mColProjection,
-                null, // Maybe change selection arg so that it
-                // removes rows with unnecessary mimetype
+                null,
                 null,
                 viewModel.mSortOrder
             )
@@ -111,12 +110,10 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor?) {
-        viewModel.listOfContacts.clear() // clearing any previous data before loading new
+        var tempListOfContacts = mutableListOf<Contact>()
         var hmOfCiAndIndex = hashMapOf<String, Int>()
 
         if (cursor != null && cursor.count > 0) {
-            var contactsList = StringBuilder("")
-
             while (cursor.moveToNext()) {
                 var nameIdx = cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)
                 var numberOrEmailIdx = cursor.getColumnIndex(ContactsContract.Data.DATA1)
@@ -134,12 +131,12 @@ class HomeFragment() : Fragment(),
 
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
-                        var contact = viewModel.listOfContacts.get(idxOfContact!!)
+                        var contact = tempListOfContacts.get(idxOfContact!!)
                         var hmForNum = contact.numbers ?: mutableMapOf<String, String>()
 
                         hmForNum.put(type, numberOrEmail)
 
-                        viewModel.listOfContacts.set(
+                        tempListOfContacts.set(
                             idxOfContact,
                             Contact(
                                 name = contact.name,
@@ -151,7 +148,7 @@ class HomeFragment() : Fragment(),
                     } else {
                         var hmOfPhoneNumbers = mutableMapOf<String, String>()
                         hmOfPhoneNumbers.put(type, numberOrEmail)
-                        viewModel.listOfContacts.add(
+                        tempListOfContacts.add(
                             Contact(
                                 name = name,
                                 contactId = cId.toInt(),
@@ -160,7 +157,7 @@ class HomeFragment() : Fragment(),
                             )
                         )
 
-                        hmOfCiAndIndex.put(cId, viewModel.listOfContacts.lastIndex)
+                        hmOfCiAndIndex.put(cId, tempListOfContacts.lastIndex)
                     }
                 }
 
@@ -168,12 +165,12 @@ class HomeFragment() : Fragment(),
                     //   Log.i(Constants.debugTag,"Inside Email $name")
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
-                        var contact = viewModel.listOfContacts.get(idxOfContact!!)
+                        var contact = tempListOfContacts.get(idxOfContact!!)
                         var hmForEmail = contact.emails ?: mutableMapOf<String, String>()
 
                         hmForEmail.put(type, numberOrEmail)
 
-                        viewModel.listOfContacts.set(
+                        tempListOfContacts.set(
                             idxOfContact,
                             Contact(
                                 name = contact.name,
@@ -185,7 +182,7 @@ class HomeFragment() : Fragment(),
                     } else {
                         var hmOfEmail = mutableMapOf<String, String>()
                         hmOfEmail.put(type, numberOrEmail)
-                        viewModel.listOfContacts.add(
+                        tempListOfContacts.add(
                             Contact(
                                 name = name,
                                 contactId = cId.toInt(),
@@ -193,15 +190,15 @@ class HomeFragment() : Fragment(),
                                 emails = hmOfEmail
                             )
                         )
-
-                        hmOfCiAndIndex.put(cId, viewModel.listOfContacts.lastIndex)
+                        hmOfCiAndIndex.put(cId, tempListOfContacts.lastIndex)
                     }
                 }
-              }
+            }
         }
+        listOfContactsViewModel.setListOfContact(tempListOfContacts)
+        listOfContactsViewModel.listOfContact.value?.let { adapter?.setContact(it) }
 
-        adapter?.setContact(viewModel.listOfContacts)
-        Constants.listOfAllContacts = viewModel.listOfContacts // Saving to Dummy DB
+        Constants.listOfAllContacts = tempListOfContacts // Saving to Dummy DB
         // change to interface method
     }
 
