@@ -21,6 +21,8 @@ import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
 import com.example.mycontactsapp.databinding.FragmentHomeBinding
+import com.example.mycontactsapp.other.EmailTypes
+import com.example.mycontactsapp.other.PhoneTypes
 import com.example.mycontactsapp.ui.viewmodels.HomePageViewModel
 import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 
@@ -36,7 +38,7 @@ class HomeFragment() : Fragment(),
 
 
     private var layoutManager: RecyclerView.LayoutManager? = null
-    var adapter: AllContactsListAdapter? = null
+    private var adapter: AllContactsListAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +49,15 @@ class HomeFragment() : Fragment(),
         setUpViewModel()
         setUpRecyclerView()
 
+        if (!viewModel.isFirstTimeLoaded) {
+            LoaderManager.getInstance(requireActivity())
+                .initLoader(viewModel.loadContactId, null, this)
+            viewModel.isFirstTimeLoaded = true
+        } else {
+            listOfContactsViewModel.listOfContact.value?.let { adapter?.setContact(it) }
+        }
+
+
         binding.addNewContactFloatingButton.setOnClickListener {
             var action = HomeFragmentDirections.actionHomeFragmentToCreateOrModifyContactFragment(
                 false,
@@ -54,26 +65,11 @@ class HomeFragment() : Fragment(),
             )
             findNavController().navigate(action)
         }
-
         return binding.root
     }
 
     private fun setUpViewModel() {
         viewModel = ViewModelProvider(requireActivity())[HomePageViewModel::class.java]
-    }
-    // todo fix Don't update unecessary
-    override fun onResume() { // So that we load it new every time user comes back to screen
-        if (viewModel.isFirstTimeLoaded) {
-            LoaderManager.getInstance(requireActivity())
-                .initLoader(viewModel.loadContactId, null, this)
-            viewModel.isFirstTimeLoaded = true
-        } else {
-            LoaderManager.getInstance(requireActivity())
-                .restartLoader(viewModel.loadContactId, null, this)
-            // We restart loader because after the first time the cursor would have reached end so this will
-            // again put cursor on top of records so that we can read again
-        }
-        super.onResume()
     }
 
     private fun setUpRecyclerView() {
@@ -127,8 +123,9 @@ class HomeFragment() : Fragment(),
                 var type = cursor.getString(typeIdx)
                 var mimeType = cursor.getString(mimeTypeIdx)
 
-                if (mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
 
+                if (mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
+                    Log.i(Constants.debugTag, "Type inside phone  :$type")
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
                         var contact = tempListOfContacts.get(idxOfContact!!)
@@ -162,7 +159,7 @@ class HomeFragment() : Fragment(),
                 }
 
                 if (mimeType == ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE) {
-                    //   Log.i(Constants.debugTag,"Inside Email $name")
+                    Log.i(Constants.debugTag, "Type inside email  :$type")
                     if (hmOfCiAndIndex.containsKey(cId.toString())) {
                         var idxOfContact = hmOfCiAndIndex.get(cId)
                         var contact = tempListOfContacts.get(idxOfContact!!)
@@ -199,7 +196,6 @@ class HomeFragment() : Fragment(),
         listOfContactsViewModel.listOfContact.value?.let { adapter?.setContact(it) }
 
         Constants.listOfAllContacts = tempListOfContacts // Saving to Dummy DB
-        // change to interface method
     }
 
     override fun onLoaderReset(loader: Loader<Cursor>) {}

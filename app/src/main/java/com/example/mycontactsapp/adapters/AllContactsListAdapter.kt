@@ -57,10 +57,7 @@ class AllContactsListAdapter(
                 // the holder that is clicked . We doing -1 cause 1st item in recycler view
                 // will always be
                 // search bar so our contacts starts from pos 2
-                Log.i(
-                    Constants.debugTag,
-                    "Position in Adapter is  $pos and list is  : ${listOfContacts}"
-                )
+
                 onContactClickListenerVariable.onContactClick(pos)
             }
         }

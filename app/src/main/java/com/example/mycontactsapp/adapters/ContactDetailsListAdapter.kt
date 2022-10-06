@@ -16,7 +16,6 @@ class ContactDetailsListAdapter() : RecyclerView.Adapter<ContactDetailsListAdapt
     var sizeOfListItemMap:Int? = 0
 
     fun setListItem(listItems: List<Pair<String, String>>) { // Updates the recyclerview
-        Log.i(Constants.debugTag , "Inside SetListItem $listItems")
         this.listOfListItems = listItems
         this.sizeOfListItemMap = listItems.size
         notifyDataSetChanged()

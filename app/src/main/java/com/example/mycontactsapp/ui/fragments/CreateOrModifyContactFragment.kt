@@ -15,6 +15,8 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.setMargins
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.Contact
@@ -52,12 +54,7 @@ class CreateOrModifyContactFragment : Fragment() {
             if (isEdit == true) {
                 updateValues(
                     contactDetails,
-                    Contact( // Just acting as a data holder
-                        name = binding.nameOfPersonET.text.toString().trim(),
-                        numbers = null, // Just Dummy Useless Data
-                        contactId = contactDetails?.contactId ?: 0, // passing the same Id
-                        emails = null
-                    )
+                    binding.nameOfPersonET.text.toString().trim()
                 )
             } else {
                 createNewContact(
@@ -144,10 +141,12 @@ class CreateOrModifyContactFragment : Fragment() {
         return null
     }
 
-    private fun updateValues(oldContactDetails: Contact?, updatedContactDetails: Contact) {
+    private fun updateValues(oldContactDetails: Contact?, updatedContactName: String) {
         if (!isValidated()) {
             return
         }
+        var updatedHashMapForNum = mutableMapOf<String, String>()
+        var updatedHashMapForEmail = mutableMapOf<String, String>()
         val cpbo = ArrayList<ContentProviderOperation>()
 
         for (num in hmOfNumbers) {
@@ -159,7 +158,7 @@ class CreateOrModifyContactFragment : Fragment() {
             } else {
                 type = PhoneTypes.Work.codeOfType.toString()
             }
-
+            updatedHashMapForNum.put(type, num.value.text.trim().toString())
             cpbo.add(
                 ContentProviderOperation
                     .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -180,7 +179,6 @@ class CreateOrModifyContactFragment : Fragment() {
                     .build()
             )
         }
-
         for (email in hmOfEmails) {
             var type: String
             if (email.key == EmailTypes.Home) {
@@ -188,6 +186,7 @@ class CreateOrModifyContactFragment : Fragment() {
             } else {
                 type = EmailTypes.Work.codeOfType.toString()
             }
+            updatedHashMapForEmail.put(type, email.value.text.trim().toString())
             cpbo.add(
                 ContentProviderOperation
                     .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -218,7 +217,7 @@ class CreateOrModifyContactFragment : Fragment() {
                 )
                 .withValue(
                     ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY,
-                    updatedContactDetails.name
+                    updatedContactName
                 )
                 .build()
         )
@@ -236,8 +235,23 @@ class CreateOrModifyContactFragment : Fragment() {
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
-        //requireActivity().finish()
 
+        // todo fix update the list
+        var list = listOfContactsViewModel.listOfContact.value?.toMutableList() ?: mutableListOf()
+
+        var updatedContact = Contact(
+            name = updatedContactName,
+            contactId = oldContactDetails?.contactId,
+            numbers = updatedHashMapForNum,
+            emails = updatedHashMapForEmail
+        )
+        var idxOfOldEle = list.indexOfFirst {
+            it.contactId == oldContactDetails?.contactId
+        }
+        list.set(idxOfOldEle, updatedContact)
+        listOfContactsViewModel.setListOfContact(list)
+
+        findNavController().popBackStack()
     }
 
     private fun isValidated(): Boolean { // todo fix not working
@@ -337,8 +351,7 @@ class CreateOrModifyContactFragment : Fragment() {
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         }
-
-        //  requireActivity().finish()
+        findNavController().popBackStack()
     }
 
 }
