@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.setMargins
+import androidx.navigation.fragment.navArgs
 import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.Contact
 import com.example.mycontactsapp.R
@@ -28,9 +29,10 @@ class CreateOrModifyContactFragment : Fragment() {
         FragmentCreateOrModifyContactBinding.inflate(layoutInflater, null, false)
     }
 
-    var hmOfNumbers = mutableMapOf<PhoneTypes, EditText>()
-    var hmOfEmails = mutableMapOf<EmailTypes, EditText>()
+    private var hmOfNumbers = mutableMapOf<PhoneTypes, EditText>()
+    private var hmOfEmails = mutableMapOf<EmailTypes, EditText>()
 
+    private val args: CreateOrModifyContactFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,10 +41,9 @@ class CreateOrModifyContactFragment : Fragment() {
     ): View {
         // we reached here after clicking on add new contact button or edit button
 
-        val bundle = this.arguments
-        val isEdit = bundle?.getBoolean(Constants.booleanIsEditKey)
+        val isEdit = args.isEdit
 
-        var contactDetails: Contact? = setUpUi(isEdit, bundle) // Will setup the Ui based
+        var contactDetails: Contact? = setUpUi(isEdit) // Will setup the Ui based
 
         binding.eocSubmitButton.setOnClickListener {
             if (isEdit == true) {
@@ -82,9 +83,9 @@ class CreateOrModifyContactFragment : Fragment() {
         return editText
     }
 
-    private fun setUpUi(isEdit: Boolean?, bundle: Bundle?): Contact? {
+    private fun setUpUi(isEdit: Boolean?): Contact? {
         if (isEdit == true) {
-            var contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
+            var contactDetails = args.contactDetails
             binding.createOrEditTV.text = "Edit Contact"
             binding.nameOfPersonET.setText(contactDetails?.name)
             binding.eocSubmitButton.text = "Edit"
@@ -179,7 +180,7 @@ class CreateOrModifyContactFragment : Fragment() {
             if (email.key == EmailTypes.Home) {
                 type = EmailTypes.Home.codeOfType.toString()
             } else {
-                type =  EmailTypes.Work.codeOfType.toString()
+                type = EmailTypes.Work.codeOfType.toString()
             }
             cpbo.add(
                 ContentProviderOperation

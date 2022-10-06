@@ -8,10 +8,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.other.Constants
@@ -20,6 +22,7 @@ import com.example.mycontactsapp.R
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
 import com.example.mycontactsapp.databinding.FragmentHomeBinding
 import com.example.mycontactsapp.ui.viewmodels.HomePageViewModel
+import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 
 class HomeFragment() : Fragment(),
     AllContactsListAdapter.OnContactClickListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -29,6 +32,8 @@ class HomeFragment() : Fragment(),
     }
 
     private lateinit var viewModel: HomePageViewModel
+    private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
+
 
     private var layoutManager: RecyclerView.LayoutManager? = null
     var adapter: AllContactsListAdapter? = null
@@ -38,19 +43,20 @@ class HomeFragment() : Fragment(),
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         setUpViewModel()
         setUpRecyclerView()
 
         binding.addNewContactFloatingButton.setOnClickListener {
-            val fragment = CreateOrModifyContactFragment()
-            val bundle = Bundle()
-            bundle.putBoolean(Constants.booleanIsEditKey, false)
-            fragment.arguments = bundle
-            replaceFragment(fragment)
+            var action = HomeFragmentDirections.actionHomeFragmentToCreateOrModifyContactFragment(
+                false,
+                null
+            )
+            findNavController().navigate(action)
         }
+
         return binding.root
     }
-
     private fun setUpViewModel() {
         viewModel = ViewModelProvider(requireActivity())[HomePageViewModel::class.java]
     }
@@ -70,7 +76,7 @@ class HomeFragment() : Fragment(),
         super.onResume()
     }
 
-    private fun setUpRecyclerView() { // todo fix add .apply
+    private fun setUpRecyclerView() {
         layoutManager = LinearLayoutManager(context)
         adapter = AllContactsListAdapter(this)
         binding.homePageRecyclerView.apply {
@@ -81,29 +87,11 @@ class HomeFragment() : Fragment(),
     }
 
     override fun onContactClick(position: Int) {
-        val fragment = ContactDetailsFragment()
-        val bundle = Bundle()
-        Log.i(
-            Constants.debugTag,
-            " Sending Data  : ${viewModel.listOfContacts[position]} becaus of position $position"
+        val filteredListFromAdapter = adapter?.getFilteredListOfContacts() ?: listOf<Contact>()
+        var action = HomeFragmentDirections.actionHomeFragmentToContactDetailsFragment(
+            filteredListFromAdapter[position]
         )
-        val filteredListFromAdapter = adapter?.getFilteredListOfContacts()
-        bundle.putParcelable(
-            Constants.contactDetailsKey,
-            filteredListFromAdapter?.get(position)
-        )
-        fragment.arguments = bundle
-        replaceFragment(fragment)
-    }
-
-    fun replaceFragment(myFragment: Fragment) {
-        val fm = parentFragmentManager
-        val ft = fm.beginTransaction()
-        ft.apply {
-            replace(R.id.mainActivityFragmentContainer, myFragment)
-            addToBackStack(HomeFragment::class.java.name)
-            commit()
-        }
+        findNavController().navigate(action)
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
@@ -209,15 +197,8 @@ class HomeFragment() : Fragment(),
                         hmOfCiAndIndex.put(cId, viewModel.listOfContacts.lastIndex)
                     }
                 }
-
-                //  contactsList.append("Cid : $cId , name : $name, number:  $numberOrEmail , type: $type , mimeType: $mimeType  \n ")
-                //  listOfContacts.add(Contact(name = name, numbers = numberOrEmail, contactId =  cid = cId.toInt() , emails = ))
-            }
+              }
         }
-
-//        for(ele in listOfContacts){
-//            Log.i(Constants.debugTag, "Element $ele \n")
-//        }
 
         adapter?.setContact(viewModel.listOfContacts)
         Constants.listOfAllContacts = viewModel.listOfContacts // Saving to Dummy DB

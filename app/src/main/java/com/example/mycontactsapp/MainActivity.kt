@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.example.mycontactsapp.databinding.ActivityMainBinding
 import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.ui.fragments.HomeFragment
@@ -50,16 +51,13 @@ class MainActivity : AppCompatActivity() {
 
     private var myRequestCode = 101
 
-    private val homeFragment = HomeFragment()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-          AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // This
-        // forces the app to stay in Light mode even if user switched to dark mode
-
         supportActionBar?.hide()
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // This
+        // forces the app to stay in Light mode even if user switched to dark mode
 
         Log.i(Constants.debugTag, "Has write permission? ${hasWritePermission()}")
 
@@ -67,9 +65,6 @@ class MainActivity : AppCompatActivity() {
             requestPermission()
         }
 
-        if (hasReadPermission()) {
-            replaceFragment(homeFragment)
-        }
     }
 
     private fun requestPermission() {
@@ -112,7 +107,6 @@ class MainActivity : AppCompatActivity() {
                     Log.i("PermissionRequests", "${permissions[i]} Not granted!!")
                 }
             }
-            replaceFragment(homeFragment) // ie. for the first time we will do this only if user accepted permission
         }
     }
 
@@ -128,28 +122,5 @@ class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun replaceFragment(myFragment: Fragment) {
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.apply {
-            replace(binding.mainActivityFragmentContainer.id, myFragment)
-            addToBackStack(null)
-            commit()
-        }
-//        fragmentTransaction.replace(binding.mainActivityFragmentContainer.id, myFragment)
-//        fragmentTransaction.addToBackStack(null)
-//        fragmentTransaction.commit()
-    }
-
-//    override fun onBackPressed() {
-//        homeFragment.adapter?.setContact(Constants.listOfAllContacts)
-//        val count = supportFragmentManager.backStackEntryCount
-//        if (count == 1) { // This will close the app if we have just 1 fragment
-//            // displayed on screen because that fragment will be show all contact
-//            // fragment
-//            finish()
-//        }
-//        super.onBackPressed() // else simply follow normal back button behavior
-//    }
 
 }

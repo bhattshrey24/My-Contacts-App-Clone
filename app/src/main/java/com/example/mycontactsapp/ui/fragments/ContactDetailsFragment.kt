@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.other.Constants
@@ -24,6 +26,7 @@ class ContactDetailsFragment : Fragment() {
     }
     private var layoutManager: RecyclerView.LayoutManager? = null
     var adapter: ContactDetailsListAdapter? = null
+    private val args: ContactDetailsFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,8 +35,7 @@ class ContactDetailsFragment : Fragment() {
     ): View {
         Log.i(Constants.debugTag, "Inside onCreate of createDeail")
 
-        val bundle = this.arguments
-        val contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
+        val contactDetails = args.contactDetails
 
         binding.nameOfPersonTV.text = contactDetails?.name
 
@@ -45,7 +47,13 @@ class ContactDetailsFragment : Fragment() {
             bundle.putBoolean(Constants.booleanIsEditKey, true)
             fragment.arguments = bundle
             bundle.putParcelable(Constants.contactDetailsKey, contactDetails)
-            replaceFragment(fragment)
+            val action =
+                ContactDetailsFragmentDirections.actionContactDetailsFragmentToCreateOrModifyContactFragment(
+                    true,
+                    contactDetails
+                )
+
+            findNavController().navigate(action)
         }
 
         binding.deleteContactFloatingButton.setOnClickListener {
@@ -71,6 +79,7 @@ class ContactDetailsFragment : Fragment() {
         }
         return list
     }
+
     private fun setUpRecyclerView(list: List<Pair<String, String>>) {
         layoutManager = LinearLayoutManager(context)
         adapter = ContactDetailsListAdapter()
@@ -80,6 +89,7 @@ class ContactDetailsFragment : Fragment() {
         }
         adapter?.setListItem(list)
     }
+
     private fun deleteContact(contact: Contact?) {
         val whereClause =
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ${contact?.contactId}"
@@ -98,16 +108,16 @@ class ContactDetailsFragment : Fragment() {
         }
         //requireActivity().finish()
     }
-    private fun replaceFragment(myFragment: Fragment) {
-        val fragmentManager = parentFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.apply {
-            replace(R.id.mainActivityFragmentContainer, myFragment)
-            addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
-            // can refer to it and pop later
-            commit()
-        }
 
+    private fun replaceFragment(myFragment: Fragment) {
+//        val fragmentManager = parentFragmentManager
+//        val fragmentTransaction = fragmentManager.beginTransaction()
+//        fragmentTransaction.apply {
+//            replace(R.id.mainActivityFragmentContainer, myFragment)
+//            addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
+//            // can refer to it and pop later
+//            commit()
+//        }
     }
 
 }

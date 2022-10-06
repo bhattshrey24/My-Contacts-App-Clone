@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/my_nav_graph"
-    app:startDestination="@id/contactDetailsFragment">
+    app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/homeFragment"
@@ -25,10 +25,28 @@
         <action
             android:id="@+id/action_contactDetailsFragment_to_createOrModifyContactFragment"
             app:destination="@id/createOrModifyContactFragment" />
+        <argument
+            android:name="contactDetails"
+            app:argType="com.example.mycontactsapp.Contact" />
     </fragment>
     <fragment
         android:id="@+id/createOrModifyContactFragment"
         android:name="com.example.mycontactsapp.ui.fragments.CreateOrModifyContactFragment"
         android:label="fragment_create_or_modify_contact"
-        tools:layout="@layout/fragment_create_or_modify_contact" />
+        tools:layout="@layout/fragment_create_or_modify_contact" >
+        <argument
+            android:name="isEdit"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="contactDetails"
+            app:argType="com.example.mycontactsapp.Contact"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.mycontactsapp.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
 </navigation>
