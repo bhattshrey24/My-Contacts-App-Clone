@@ -48,7 +48,13 @@ class HomeFragment() : Fragment(),
         setUpViewModel()
         setUpRecyclerView()
         fetchAndLoadDataInRecyclerView()
+        setUpListeners()
 
+
+        return binding.root
+    }
+
+    private fun setUpListeners() {
         binding.addNewContactFloatingButton.setOnClickListener {
             var action = HomeFragmentDirections.actionHomeFragmentToCreateOrModifyContactFragment(
                 false,
@@ -56,8 +62,6 @@ class HomeFragment() : Fragment(),
             )
             findNavController().navigate(action)
         }
-
-        return binding.root
     }
 
     private fun fetchAndLoadDataInRecyclerView() {

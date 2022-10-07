@@ -12,10 +12,18 @@
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_contactDetailsFragment"
-            app:destination="@id/contactDetailsFragment" />
+            app:destination="@id/contactDetailsFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
         <action
             android:id="@+id/action_homeFragment_to_createOrModifyContactFragment"
-            app:destination="@id/createOrModifyContactFragment" />
+            app:destination="@id/createOrModifyContactFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
     </fragment>
     <fragment
         android:id="@+id/contactDetailsFragment"
@@ -24,7 +32,11 @@
         tools:layout="@layout/fragment_contact_details" >
         <action
             android:id="@+id/action_contactDetailsFragment_to_createOrModifyContactFragment"
-            app:destination="@id/createOrModifyContactFragment" />
+            app:destination="@id/createOrModifyContactFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
         <argument
             android:name="contactID"
             app:argType="integer"

@@ -33,9 +33,9 @@ class CreateOrModifyContactFragment : Fragment() {
     }
 
     private var hmOfNumbersEditTexts = mutableMapOf<PhoneTypes, EditText>() // This will hold the
-
     // reference to edit texts since I'm programmatically making them based on number of emails or phone numbers
     // user has for a particular contact
+
     private var hmOfEmailsEditTexts = mutableMapOf<EmailTypes, EditText>()
 
     private val args: CreateOrModifyContactFragmentArgs by navArgs()
@@ -52,6 +52,13 @@ class CreateOrModifyContactFragment : Fragment() {
 
         var contactDetails: Contact? = setUpUi(isEdit) // Will setup the Ui based
 
+        setUpListeners(isEdit, contactDetails)
+
+
+        return binding.root
+    }
+
+    private fun setUpListeners(isEdit: Boolean?, contactDetails: Contact?) {
         binding.eocSubmitButton.setOnClickListener {
             if (isEdit == true) {
                 updateValues(
@@ -64,8 +71,6 @@ class CreateOrModifyContactFragment : Fragment() {
                 )
             }
         }
-
-        return binding.root
     }
 
     private fun makeEditText(hint: String, fetchedData: String): EditText {
@@ -90,7 +95,7 @@ class CreateOrModifyContactFragment : Fragment() {
             var contactDetails = listOfContactsViewModel.listOfContact.value?.find {
                 it.contactId == args.contactID
             }
-            setUpUiForShowingEditScreen(contactDetails)
+            setUpUiForEditScreen(contactDetails)
             return contactDetails
         } else {
             setUpUiForCreateNewContact()
@@ -98,7 +103,7 @@ class CreateOrModifyContactFragment : Fragment() {
         return null
     }
 
-    private fun setUpUiForShowingEditScreen(contactDetails: Contact?) {
+    private fun setUpUiForEditScreen(contactDetails: Contact?) {
         binding.createOrEditTV.text = "Edit Contact"
         binding.nameOfPersonET.setText(contactDetails?.name)
         binding.eocSubmitButton.text = "Edit"

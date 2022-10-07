@@ -40,6 +40,13 @@ class ContactDetailsFragment : Fragment() {
         binding.nameOfPersonTV.text = contactDetails?.name ?: "No Name"
 
         setUpRecyclerView(convertNumAndEmailToList(contactDetails))
+
+        setUpListeners(contactDetails, contactId)
+
+        return binding.root
+    }
+
+    private fun setUpListeners(contactDetails: Contact?, contactId: Int) {
         binding.editContactFloatingButton.setOnClickListener {
             val action =
                 ContactDetailsFragmentDirections.actionContactDetailsFragmentToCreateOrModifyContactFragment(
@@ -51,8 +58,6 @@ class ContactDetailsFragment : Fragment() {
         binding.deleteContactFloatingButton.setOnClickListener {
             deleteContact(contactDetails)
         }
-
-        return binding.root
     }
 
     private fun convertNumAndEmailToList(contactDetails: Contact?): MutableList<Pair<String, String>> {
