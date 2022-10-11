@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.setMargins
@@ -24,6 +25,7 @@ import com.example.mycontactsapp.databinding.FragmentCreateOrModifyContactBindin
 import com.example.mycontactsapp.other.EmailTypes
 import com.example.mycontactsapp.other.PhoneTypes
 import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
+import com.google.android.material.textfield.TextInputLayout
 
 
 class CreateOrModifyContactFragment : Fragment() {
@@ -32,11 +34,11 @@ class CreateOrModifyContactFragment : Fragment() {
         FragmentCreateOrModifyContactBinding.inflate(layoutInflater, null, false)
     }
 
-    private var hmOfNumbersEditTexts = mutableMapOf<PhoneTypes, EditText>() // This will hold the
+    private var hmOfNumbersEditTexts = mutableMapOf<PhoneTypes, TextInputLayout>() // This will hold the
     // reference to edit texts since I'm programmatically making them based on number of emails or phone numbers
     // user has for a particular contact
 
-    private var hmOfEmailsEditTexts = mutableMapOf<EmailTypes, EditText>()
+    private var hmOfEmailsEditTexts = mutableMapOf<EmailTypes, TextInputLayout>()
 
     private val args: CreateOrModifyContactFragmentArgs by navArgs()
     private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
@@ -73,11 +75,14 @@ class CreateOrModifyContactFragment : Fragment() {
         }
     }
 
-    private fun makeEditText(hint: String, fetchedData: String): EditText {
+    private fun makeEditText(hint: String, fetchedData: String): TextInputLayout {
+        var textInputLayout = TextInputLayout(requireContext()) // this makes it possible
+        // to have floating hint in edit text . It is wrapper class that can wrap Edit text
+
         var editText = EditText(requireContext())
         editText.apply {
             setHint(hint)
-            layoutParams = ConstraintLayout.LayoutParams(
+            layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,// width
                 200// height
             ).also {
@@ -87,7 +92,9 @@ class CreateOrModifyContactFragment : Fragment() {
             setBackgroundResource(R.drawable.edit_text_border)
             setText(fetchedData)
         }
-        return editText
+        textInputLayout.addView(editText)
+
+        return textInputLayout
     }
 
     private fun setUpUi(isEdit: Boolean?): Contact? {
@@ -187,7 +194,7 @@ class CreateOrModifyContactFragment : Fragment() {
             } else {
                 type = PhoneTypes.Work.codeOfType.toString()
             }
-            updatedHashMapForNum.put(num.key, num.value.text.trim().toString())
+            updatedHashMapForNum.put(num.key, num.value.editText?.text?.trim().toString())
             cpbo.add(
                 ContentProviderOperation
                     .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -203,7 +210,7 @@ class CreateOrModifyContactFragment : Fragment() {
                     )
                     .withValue(
                         ContactsContract.CommonDataKinds.Phone.NUMBER,
-                        num.value.text.trim().toString()
+                        num.value.editText?.text?.trim().toString()
                     )
                     .build()
             )
@@ -215,7 +222,7 @@ class CreateOrModifyContactFragment : Fragment() {
             } else {
                 type = EmailTypes.Work.codeOfType.toString()
             }
-            updatedHashMapForEmail.put(email.key, email.value.text.trim().toString())
+            updatedHashMapForEmail.put(email.key, email.value.editText?.text?.trim().toString())
             cpbo.add(
                 ContentProviderOperation
                     .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -231,7 +238,7 @@ class CreateOrModifyContactFragment : Fragment() {
                     )
                     .withValue(
                         ContactsContract.CommonDataKinds.Email.ADDRESS,
-                        email.value.text.trim().toString()
+                        email.value.editText?.text?.trim().toString()
                     )
                     .build()
             )
@@ -305,7 +312,7 @@ class CreateOrModifyContactFragment : Fragment() {
         }
         if (hmOfNumbersEditTexts.isNullOrEmpty()) {
             for (numbersEt in hmOfNumbersEditTexts) {
-                if (numbersEt.value.text.toString().isBlank()) {
+                if (numbersEt.value.editText?.text?.toString()?.isBlank() == true) {
                     numbersEt.value.error = "Number cannot be empty"
                     return false
                 }
@@ -313,7 +320,7 @@ class CreateOrModifyContactFragment : Fragment() {
         }
         if (hmOfEmailsEditTexts.isNullOrEmpty()) {
             for (emailsEt in hmOfEmailsEditTexts) {
-                if (emailsEt.value.text.toString().isBlank()) {
+                if (emailsEt.value.editText?.text?.toString()?.isBlank() == true) {
                     emailsEt.value.error = "Email address cannot be empty"
                     return false
                 }
@@ -326,7 +333,7 @@ class CreateOrModifyContactFragment : Fragment() {
         if (!isValidated()) {
             return
         }
-        val number = hmOfNumbersEditTexts.get(PhoneTypes.Mobile)?.text.toString().trim()
+        val number = hmOfNumbersEditTexts.get(PhoneTypes.Mobile)?.editText?.text?.toString()?.trim()
 
         Log.i(Constants.debugTag, " Number passed : $number")
 
