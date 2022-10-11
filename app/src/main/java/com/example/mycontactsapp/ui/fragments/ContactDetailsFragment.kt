@@ -37,13 +37,20 @@ class ContactDetailsFragment : Fragment() {
             it.contactId == contactId
         }
 
-        binding.nameOfPersonTV.text = contactDetails?.name ?: "No Name"
-
-        setUpRecyclerView(convertNumAndEmailToList(contactDetails))
-
-        setUpListeners(contactDetails, contactId)
+        setUpUi(contactDetails,contactId)
 
         return binding.root
+    }
+
+    private fun setUpUi(contactDetails: Contact?, contactId: Int) {
+        val isContactDetailNull = contactDetails?.let {
+            binding.nameOfPersonTV.text = contactDetails.name
+            setUpRecyclerView(convertNumAndEmailToList(contactDetails))
+            setUpListeners(contactDetails, contactId)
+        } == null
+        if (isContactDetailNull) {
+            binding.nameOfPersonTV.text = "Contact doesn't Exist"
+        }
     }
 
     private fun setUpListeners(contactDetails: Contact?, contactId: Int) {
@@ -80,10 +87,9 @@ class ContactDetailsFragment : Fragment() {
     }
 
     private fun setUpRecyclerView(list: List<Pair<String, String>>) {
-        var layoutManager = LinearLayoutManager(context)
         var adapter = ContactDetailsListAdapter()
         binding.contactDetailRV.apply {
-            this.layoutManager = layoutManager
+            this.layoutManager = LinearLayoutManager(context)
             this.adapter = adapter
         }
         adapter?.setListItem(list)

@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -33,10 +34,10 @@ class HomeFragment() : Fragment(),
         FragmentHomeBinding.inflate(layoutInflater, null, false)
     }
 
-    private lateinit var viewModel: HomePageViewModel
+    private val viewModel: HomePageViewModel by viewModels()
+
     private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
 
-    private var layoutManager: RecyclerView.LayoutManager? = null
     private var adapter: AllContactsListAdapter? = null
 
     override fun onCreateView(
@@ -45,11 +46,9 @@ class HomeFragment() : Fragment(),
         savedInstanceState: Bundle?
     ): View {
 
-        setUpViewModel()
         setUpRecyclerView()
         fetchAndLoadDataInRecyclerView()
         setUpListeners()
-
 
         return binding.root
     }
@@ -74,15 +73,10 @@ class HomeFragment() : Fragment(),
         }
     }
 
-    private fun setUpViewModel() {
-        viewModel = ViewModelProvider(requireActivity())[HomePageViewModel::class.java]
-    }
-
     private fun setUpRecyclerView() {
-        layoutManager = LinearLayoutManager(context)
         adapter = AllContactsListAdapter(this)
         binding.homePageRecyclerView.apply {
-            this.layoutManager = this@HomeFragment.layoutManager // using
+            this.layoutManager = LinearLayoutManager(context)
             // "@" we can distinguish between properties of recyclerView and HomeFragment
             this.adapter = this@HomeFragment.adapter
         }
