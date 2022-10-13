@@ -2,18 +2,21 @@ package com.example.mycontactsapp.ui.fragments
 
 import android.content.ContentProviderOperation
 import android.content.OperationApplicationException
+import android.graphics.Outline
+import android.graphics.Paint
 import android.os.Bundle
 import android.os.RemoteException
 import android.provider.ContactsContract
 import android.util.Log
+import android.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.setMargins
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -26,6 +29,7 @@ import com.example.mycontactsapp.other.EmailTypes
 import com.example.mycontactsapp.other.PhoneTypes
 import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 import com.google.android.material.textfield.TextInputLayout
+import org.w3c.dom.Text
 
 
 class CreateOrModifyContactFragment : Fragment() {
@@ -34,7 +38,8 @@ class CreateOrModifyContactFragment : Fragment() {
         FragmentCreateOrModifyContactBinding.inflate(layoutInflater, null, false)
     }
 
-    private var hmOfNumbersEditTexts = mutableMapOf<PhoneTypes, TextInputLayout>() // This will hold the
+    private var hmOfNumbersEditTexts =
+        mutableMapOf<PhoneTypes, TextInputLayout>() // This will hold the
     // reference to edit texts since I'm programmatically making them based on number of emails or phone numbers
     // user has for a particular contact
 
@@ -78,7 +83,6 @@ class CreateOrModifyContactFragment : Fragment() {
     private fun makeEditText(hint: String, fetchedData: String): TextInputLayout {
         var textInputLayout = TextInputLayout(requireContext()) // this makes it possible
         // to have floating hint in edit text . It is wrapper class that can wrap Edit text
-
         var editText = EditText(requireContext())
         editText.apply {
             setHint(hint)
@@ -93,7 +97,6 @@ class CreateOrModifyContactFragment : Fragment() {
             setText(fetchedData)
         }
         textInputLayout.addView(editText)
-
         return textInputLayout
     }
 
@@ -269,6 +272,9 @@ class CreateOrModifyContactFragment : Fragment() {
             )
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
+        } catch (e: Exception) {
+            Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
+
         }
 
         // updating the list in shared viewModel
@@ -399,7 +405,10 @@ class CreateOrModifyContactFragment : Fragment() {
             )
         } catch (e: RemoteException) {
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
+        } catch (e: Exception) {
+            Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
         }
+
         findNavController().popBackStack()
     }
 

@@ -3,20 +3,17 @@ package com.example.mycontactsapp.ui.fragments
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.adapters.AllContactsListAdapter
@@ -55,7 +52,7 @@ class HomeFragment() : Fragment(),
 
     private fun setUpListeners() {
         binding.addNewContactFloatingButton.setOnClickListener {
-            var action = HomeFragmentDirections.actionHomeFragmentToCreateOrModifyContactFragment(
+            val action = HomeFragmentDirections.actionHomeFragmentToCreateOrModifyContactFragment(
                 false,
                 -1
             )
@@ -84,7 +81,7 @@ class HomeFragment() : Fragment(),
 
     override fun onContactClick(position: Int) {
         val filteredListFromAdapter = adapter?.getFilteredListOfContacts() ?: listOf<Contact>()
-        var action = HomeFragmentDirections.actionHomeFragmentToContactDetailsFragment(
+        val action = HomeFragmentDirections.actionHomeFragmentToContactDetailsFragment(
             filteredListFromAdapter[position].contactId ?: -1
         )
         findNavController().navigate(action)
@@ -112,7 +109,7 @@ class HomeFragment() : Fragment(),
         // I could retrieve it fast and then update email or number of that contact and then again
         // put it in that index
 
-        if (cursor != null && cursor.count > 0) {
+        if (cursor != null && cursor.isBeforeFirst) {
             while (cursor.moveToNext()) {
                 var cursorData = retrieveDataFromCursor(cursor)
                 if (cursorData.mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
@@ -203,7 +200,7 @@ class HomeFragment() : Fragment(),
                                 name = cursorData.name,
                                 contactId = cursorData.cId.toInt(),
                                 numbers = null,
-                                emails = hmOfEmail
+                                emails = hmOfEmail,
                             )
                         )
                         hmOfCiAndIndex.put(cursorData.cId, tempListOfContacts.lastIndex)

@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.adapters.ContactDetailsListAdapter
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding

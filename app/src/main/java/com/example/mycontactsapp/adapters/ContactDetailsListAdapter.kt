@@ -50,7 +50,7 @@ class ContactDetailsListAdapter() : RecyclerView.Adapter<ContactDetailsListAdapt
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         var listItem = listOfListItems.get(position)
 
-        if (listItem.second.contains(Regex("@"))) { // email
+        if (listItem.second.contains(Regex("@"))) { // email (todo fix : put full email regex)
 
             if (isFirstEmail) { // This makes sure that we show symbol only on start of 1st email
                 holder.iconImageView.setImageResource(R.drawable.ic_email)
