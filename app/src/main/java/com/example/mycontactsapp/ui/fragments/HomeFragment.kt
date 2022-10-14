@@ -74,7 +74,7 @@ class HomeFragment() : Fragment(),
     override fun onContactClick(position: Int) {
         val filteredListFromAdapter = adapter?.getFilteredListOfContacts() ?: listOf<Contact>()
         val action = HomeFragmentDirections.actionHomeFragmentToContactDetailsFragment(
-            filteredListFromAdapter[position].contactId ?: -1
+            filteredListFromAdapter[position].roomContactId
         )
         findNavController().navigate(action)
     }

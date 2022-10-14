@@ -24,7 +24,6 @@ class Repository(
     suspend fun deleteContact(contact: Contact?) {
         contact?.let {
             contactDao.deleteContact(it)
-
         }
     }
 

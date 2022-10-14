@@ -270,6 +270,8 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun updateContactInAndroidDB(contact: Contact) {
+
+
         val cpbo = ArrayList<ContentProviderOperation>()
 
         for (num in contact.numbers!!) {
@@ -295,6 +297,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
         }
 
         for (email in contact.emails!!) {
+
             cpbo.add(
                 ContentProviderOperation
                     .newUpdate(ContactsContract.Data.CONTENT_URI)
@@ -346,5 +349,4 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
 
         }
     }
-
 }

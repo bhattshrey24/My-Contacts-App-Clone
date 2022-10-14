@@ -38,7 +38,7 @@
             app:popEnterAnim="@anim/slide_in_from_left"
             app:popExitAnim="@anim/slide_out_to_right" />
         <argument
-            android:name="contactID"
+            android:name="roomContactId"
             app:argType="integer"
             android:defaultValue="-1" />
     </fragment>
@@ -52,7 +52,7 @@
             app:argType="boolean"
             android:defaultValue="true" />
         <argument
-            android:name="contactID"
+            android:name="roomId"
             app:argType="integer"
             android:defaultValue="-1" />
     </fragment>

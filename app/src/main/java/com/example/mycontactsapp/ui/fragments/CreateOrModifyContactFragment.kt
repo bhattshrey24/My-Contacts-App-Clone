@@ -103,7 +103,7 @@ class CreateOrModifyContactFragment : Fragment() {
     private fun setUpUi(isEdit: Boolean?): Contact? {
         if (isEdit == true) {
             var contactDetails = listOfContactsViewModel.listOfContact.value?.find {
-                it.contactId == args.contactID
+                it.roomContactId == args.roomId
             }
             setUpUiForEditScreen(contactDetails)
             return contactDetails
@@ -186,95 +186,11 @@ class CreateOrModifyContactFragment : Fragment() {
         var updatedHashMapForNum = mutableMapOf<PhoneTypes, String>()
         var updatedHashMapForEmail = mutableMapOf<EmailTypes, String>()
 
-        val cpbo = ArrayList<ContentProviderOperation>()
-
         for (num in hmOfNumbersEditTexts) {
-            var type: String
-            if (num.key == PhoneTypes.Mobile) {
-                type = PhoneTypes.Mobile.codeOfType.toString()
-            } else if (num.key == PhoneTypes.Home) {
-                type = PhoneTypes.Home.codeOfType.toString()
-            } else {
-                type = PhoneTypes.Work.codeOfType.toString()
-            }
             updatedHashMapForNum.put(num.key, num.value.editText?.text?.trim().toString())
-            cpbo.add(
-                ContentProviderOperation
-                    .newUpdate(ContactsContract.Data.CONTENT_URI)
-                    .withSelection(
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND "
-                                + ContactsContract.CommonDataKinds.Phone.MIMETYPE + " = ? AND "
-                                + ContactsContract.CommonDataKinds.Phone.TYPE + " = ? ",
-                        arrayOf(
-                            "${oldContactDetails?.contactId}",
-                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
-                            type
-                        )
-                    )
-                    .withValue(
-                        ContactsContract.CommonDataKinds.Phone.NUMBER,
-                        num.value.editText?.text?.trim().toString()
-                    )
-                    .build()
-            )
         }
         for (email in hmOfEmailsEditTexts) {
-            var type: String
-            if (email.key == EmailTypes.Home) {
-                type = EmailTypes.Home.codeOfType.toString()
-            } else {
-                type = EmailTypes.Work.codeOfType.toString()
-            }
             updatedHashMapForEmail.put(email.key, email.value.editText?.text?.trim().toString())
-            cpbo.add(
-                ContentProviderOperation
-                    .newUpdate(ContactsContract.Data.CONTENT_URI)
-                    .withSelection(
-                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ? AND "
-                                + ContactsContract.CommonDataKinds.Email.MIMETYPE + " = ? AND "
-                                + ContactsContract.CommonDataKinds.Email.TYPE + " = ? ",
-                        arrayOf(
-                            "${oldContactDetails?.contactId}",
-                            ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE,
-                            type
-                        )
-                    )
-                    .withValue(
-                        ContactsContract.CommonDataKinds.Email.ADDRESS,
-                        email.value.editText?.text?.trim().toString()
-                    )
-                    .build()
-            )
-        }
-
-        cpbo.add(
-            ContentProviderOperation.newUpdate(ContactsContract.RawContacts.CONTENT_URI)
-                .withSelection(
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? ",
-                    arrayOf("${oldContactDetails?.contactId}")
-                )
-                .withValue(
-                    ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY,
-                    updatedContactName
-                )
-                .build()
-        )
-
-        try {
-            val res = activity?.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
-            if (res != null) {
-                Toast.makeText(context, "Successfully Edited!", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: OperationApplicationException) {
-            Log.i(
-                Constants.debugTag,
-                "OperationApplicationException caught with message : ${e.message}"
-            )
-        } catch (e: RemoteException) {
-            Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
-        } catch (e: Exception) {
-            Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
-
         }
 
         // updating the list in shared viewModel
@@ -294,20 +210,20 @@ class CreateOrModifyContactFragment : Fragment() {
         updatedHashMapForNum: MutableMap<PhoneTypes, String>,
         updatedHashMapForEmail: MutableMap<EmailTypes, String>
     ) {
-
-        var list = listOfContactsViewModel.listOfContact.value?.toMutableList() ?: mutableListOf()
         var updatedContact = Contact(
             name = updatedContactName,
             contactId = oldContactDetails?.contactId,
             numbers = updatedHashMapForNum,
-            emails = updatedHashMapForEmail
+            emails = updatedHashMapForEmail,
         )
-        var idxOfOldEle = list.indexOfFirst {
-            it.contactId == oldContactDetails?.contactId
+        oldContactDetails?.let {
+            it.emails = updatedHashMapForEmail
+            it.numbers = updatedHashMapForNum
+            it.name = updatedContactName
+            listOfContactsViewModel.updateContactInSharedViewModel(it)
+            listOfContactsViewModel.updateContactInRoomDB(it)
         }
-        list.set(idxOfOldEle, updatedContact)
-        listOfContactsViewModel.setListOfContact(list)
-
+        // todo mark for isUpdated = true
     }
 
     private fun isValidated(): Boolean {
@@ -340,74 +256,19 @@ class CreateOrModifyContactFragment : Fragment() {
             return
         }
         val number = hmOfNumbersEditTexts.get(PhoneTypes.Mobile)?.editText?.text?.toString()?.trim()
-
-        Log.i(Constants.debugTag, " Number passed : $number")
-
-        val cpbo = ArrayList<ContentProviderOperation>()
-
-        // This is mandatory to do even if you don't specify an account with it
-        cpbo.add(
-            ContentProviderOperation.newInsert(
-                ContactsContract.RawContacts.CONTENT_URI
+        val newContact =
+            Contact(
+                null, // setting null because this
+                // will tell me whether the contact was there in Android DB or
+                // not when user presses sync button , because if it's null it means
+                // it was added later
+                nameOfContact,
+                mutableMapOf(PhoneTypes.Mobile to number!!),
+                null
             )
-                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
-                .build()
-        )
 
-        // Adding Name
-        cpbo.add(
-            ContentProviderOperation.newInsert(
-                ContactsContract.Data.CONTENT_URI
-            )
-                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                .withValue(
-                    ContactsContract.Data.MIMETYPE,
-                    ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE
-                )
-                .withValue(
-                    ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
-                    nameOfContact
-                )
-                .build()
-        )
-
-        // Adding Number
-        cpbo.add(
-            ContentProviderOperation.newInsert(
-                ContactsContract.Data.CONTENT_URI
-            ).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                .withValue(
-                    ContactsContract.Data.MIMETYPE,
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE
-                )
-                .withValue(
-                    ContactsContract.CommonDataKinds.Phone.NUMBER,
-                    number// todo fix
-                ).withValue(
-                    ContactsContract.CommonDataKinds.Phone.TYPE,
-                    ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE // Hard coding number type
-                    // later change it to user preference by showing a drop down menu
-                )
-                .build()
-        )
-
-        try {
-            val res = activity?.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
-            if (res != null) {
-                Toast.makeText(context, "Successfully Added New Contact!", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        } catch (e: OperationApplicationException) {
-            Log.i(
-                Constants.debugTag,
-                "OperationApplicationException caught with message : ${e.message}"
-            )
-        } catch (e: RemoteException) {
-            Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
-        } catch (e: Exception) {
-            Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
-        }
+        listOfContactsViewModel.insertContactToSharedViewModel(newContact)
+        listOfContactsViewModel.insertContactToRoomDb(newContact)
 
         findNavController().popBackStack()
     }

@@ -31,33 +31,33 @@ class ContactDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val contactId = args.contactID
+        val roomId = args.roomContactId
         val contactDetails = listOfContactsViewModel.listOfContact.value?.find {
-            it.contactId == contactId
+            it.roomContactId == roomId
         }
 
-        setUpUi(contactDetails, contactId)
+        setUpUi(contactDetails, roomId)
 
         return binding.root
     }
 
-    private fun setUpUi(contactDetails: Contact?, contactId: Int) {
+    private fun setUpUi(contactDetails: Contact?, roomId: Int) {
         val isContactDetailNull = contactDetails?.let {
             binding.nameOfPersonTV.text = contactDetails.name
             setUpRecyclerView(convertNumAndEmailToList(contactDetails))
-            setUpListeners(contactDetails, contactId)
+            setUpListeners(contactDetails, roomId)
         } == null
         if (isContactDetailNull) {
             binding.nameOfPersonTV.text = "Contact doesn't Exist"
         }
     }
 
-    private fun setUpListeners(contactDetails: Contact?, contactId: Int) {
+    private fun setUpListeners(contactDetails: Contact?, roomId: Int) {
         binding.editContactFloatingButton.setOnClickListener {
             val action =
                 ContactDetailsFragmentDirections.actionContactDetailsFragmentToCreateOrModifyContactFragment(
                     true,
-                    contactId
+                    roomId
                 )
             findNavController().navigate(action)
         }
@@ -95,18 +95,21 @@ class ContactDetailsFragment : Fragment() {
     }
 
     private fun deleteContact(contact: Contact?) {
-        //todo Under development
-// delete from sharedViewModel
-
-// remove from Room DB and save the cId in shared pref
-
-        saveCidInSharedPref()
-
+        if (contact != null) {// delete from sharedViewModel and Room DB
+            listOfContactsViewModel.deleteContactFromSharedViewModel(contact)
+            listOfContactsViewModel.deleteContactFromRoomDB(contact)
+            if (contact.contactId != null) {// because if it's null means it
+                // was added by room and not yet synced to Android DB so
+                // no need to do anything
+                saveCidInSharedPref(contact.contactId)
+            }
+        }
         findNavController().popBackStack()
     }
 
-    private fun saveCidInSharedPref() {
-
+    private fun saveCidInSharedPref(cId: Int?) { // todo finish
+        // fetch from shared pref
+        // put list back in shared pref
     }
 
 }
