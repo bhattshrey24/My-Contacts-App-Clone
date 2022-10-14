@@ -27,9 +27,9 @@ class ListOfContactsViewModel(application: Application) :
         mutableListOfContacts.value = list
     }
 
-    fun getRowCount() {
-        viewModelScope.launch {
-            repository.getRowCount()
+    fun deleteContactFromSharedViewModel(id: Int) {
+        mutableListOfContacts.value?.forEach {
+
         }
     }
 

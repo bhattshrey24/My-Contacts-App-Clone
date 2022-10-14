@@ -76,5 +76,4 @@ class SplashScreenFragment : Fragment() {
         binding.circularProgressBar.visibility =
             View.GONE // not necessary though since we are moving to next screen
     }
-
 }

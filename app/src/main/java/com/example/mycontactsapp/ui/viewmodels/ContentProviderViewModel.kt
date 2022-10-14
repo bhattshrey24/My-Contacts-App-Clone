@@ -1,10 +1,14 @@
 package com.example.mycontactsapp.ui.viewmodels
 
 import android.app.Application
+import android.content.ContentProviderOperation
+import android.content.OperationApplicationException
 import android.database.Cursor
 import android.net.Uri
+import android.os.RemoteException
 import android.provider.ContactsContract
 import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import com.example.mycontactsapp.data.models.Contact
@@ -19,6 +23,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
     var listOfRetrievedContacts = MutableLiveData<List<Contact>>()
 
     private val app: Application
+
     init {
         app = application
     }
@@ -41,7 +46,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
     )
 
     fun fetchDataFromAndroidDb() {
-         viewModelScope.launch {
+        viewModelScope.launch {
             var tempListOfContacts = mutableListOf<Contact>()
             var hmOfCiAndIndex = hashMapOf<String, Int>()
             var cursor = app.contentResolver.query(
@@ -175,6 +180,171 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             type = type,
             mimeType = mimeType
         )
+    }
+
+    fun deleteContactFromAndroidDB(cId: Int) {
+        viewModelScope.launch {
+            val whereClause =
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = $cId"
+            val res = app.contentResolver?.delete(
+                ContactsContract.RawContacts.CONTENT_URI,
+                whereClause,
+                null
+            )
+            if (res != null) {
+                if (res > 0) {
+                    Log.i(Constants.debugTag, "Successfully deleted contact")
+                } else {
+                    Log.i(Constants.debugTag, "Unable to delete")
+                }
+            }
+        }
+    }
+
+    fun insertContactToAndroidDB(contact: Contact) {
+        // todo , get the CID of contact and update it in ROOM db
+        val cpbo = ArrayList<ContentProviderOperation>()
+
+        // This is mandatory to do even if you don't specify an account with it
+        cpbo.add(
+            ContentProviderOperation.newInsert(
+                ContactsContract.RawContacts.CONTENT_URI
+            )
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build()
+        )
+
+        // Adding Name
+        cpbo.add(
+            ContentProviderOperation.newInsert(
+                ContactsContract.Data.CONTENT_URI
+            )
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                .withValue(
+                    ContactsContract.Data.MIMETYPE,
+                    ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE
+                )
+                .withValue(
+                    ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                    contact.name
+                )
+                .build()
+        )
+
+        if (contact.numbers != null) {
+            // Adding Numbers
+            for (num in contact.numbers!!) {
+                cpbo.add(
+                    ContentProviderOperation.newInsert(
+                        ContactsContract.Data.CONTENT_URI
+                    ).withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(
+                            ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE
+                        )
+                        .withValue(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER,
+                            num.value// todo fix
+                        ).withValue(
+                            ContactsContract.CommonDataKinds.Phone.TYPE,
+                            num.key.codeOfType
+                        )
+                        .build()
+                )
+            }
+        }
+
+        try {
+            val res = app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
+        } catch (e: OperationApplicationException) {
+            Log.i(
+                Constants.debugTag,
+                "OperationApplicationException caught with message : ${e.message}"
+            )
+        } catch (e: RemoteException) {
+            Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
+        } catch (e: Exception) {
+            Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
+        }
+    }
+
+    fun updateContactInAndroidDB(contact: Contact) {
+        val cpbo = ArrayList<ContentProviderOperation>()
+
+        for (num in contact.numbers!!) {
+            cpbo.add(
+                ContentProviderOperation
+                    .newUpdate(ContactsContract.Data.CONTENT_URI)
+                    .withSelection(
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND "
+                                + ContactsContract.CommonDataKinds.Phone.MIMETYPE + " = ? AND "
+                                + ContactsContract.CommonDataKinds.Phone.TYPE + " = ? ",
+                        arrayOf(
+                            "${contact.contactId}",
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
+                            num.key.codeOfType.toString()
+                        )
+                    )
+                    .withValue(
+                        ContactsContract.CommonDataKinds.Phone.NUMBER,
+                        num.value
+                    )
+                    .build()
+            )
+        }
+
+        for (email in contact.emails!!) {
+            cpbo.add(
+                ContentProviderOperation
+                    .newUpdate(ContactsContract.Data.CONTENT_URI)
+                    .withSelection(
+                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ? AND "
+                                + ContactsContract.CommonDataKinds.Email.MIMETYPE + " = ? AND "
+                                + ContactsContract.CommonDataKinds.Email.TYPE + " = ? ",
+                        arrayOf(
+                            "${contact.contactId}",
+                            ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE,
+                            email.key.codeOfType.toString()
+                        )
+                    )
+                    .withValue(
+                        ContactsContract.CommonDataKinds.Email.ADDRESS,
+                        email.value
+                    )
+                    .build()
+            )
+        }
+
+        cpbo.add(
+            ContentProviderOperation.newUpdate(ContactsContract.RawContacts.CONTENT_URI)
+                .withSelection(
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? ",
+                    arrayOf("${contact.contactId}")
+                )
+                .withValue(
+                    ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY,
+                    contact.name
+                )
+                .build()
+        )
+
+        try {
+            val res = app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
+            if (res != null) {
+                Log.i(Constants.debugTag, "Successfully Edited!")
+            }
+        } catch (e: OperationApplicationException) {
+            Log.i(
+                Constants.debugTag,
+                "OperationApplicationException caught with message : ${e.message}"
+            )
+        } catch (e: RemoteException) {
+            Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
+        } catch (e: Exception) {
+            Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
+
+        }
     }
 
 }

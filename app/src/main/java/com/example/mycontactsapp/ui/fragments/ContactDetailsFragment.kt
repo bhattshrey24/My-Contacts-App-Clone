@@ -36,7 +36,7 @@ class ContactDetailsFragment : Fragment() {
             it.contactId == contactId
         }
 
-        setUpUi(contactDetails,contactId)
+        setUpUi(contactDetails, contactId)
 
         return binding.root
     }
@@ -95,22 +95,18 @@ class ContactDetailsFragment : Fragment() {
     }
 
     private fun deleteContact(contact: Contact?) {
-        val whereClause =
-            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ${contact?.contactId}"
-        val res = activity?.contentResolver?.delete(
-            ContactsContract.RawContacts.CONTENT_URI,
-            whereClause,
-            null
-        )
+        //todo Under development
+// delete from sharedViewModel
 
-        if (res != null) {
-            if (res > 0) {
-                Toast.makeText(context, "Successfully deleted contact", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Unable to delete", Toast.LENGTH_SHORT).show()
-            }
-        }
+// remove from Room DB and save the cId in shared pref
+
+        saveCidInSharedPref()
+
         findNavController().popBackStack()
+    }
+
+    private fun saveCidInSharedPref() {
+
     }
 
 }
