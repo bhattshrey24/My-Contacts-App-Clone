@@ -38,4 +38,8 @@ class Repository(
         return contactDao.getAllContacts()
     }
 
+    suspend fun getRowCount(): Int {
+        return contactDao.getRowCount()
+    }
+
 }

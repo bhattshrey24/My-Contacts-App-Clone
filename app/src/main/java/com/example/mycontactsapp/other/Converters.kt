@@ -38,16 +38,28 @@ class Converters { // Since Room can only store limited types of data like TEXT,
     }
 
     @TypeConverter
-    fun fromMapOfEmailTypesToJson(mapOfEmailTypes: Map<EmailTypes, String>): String {
+    fun fromMapOfEmailTypesToJson(mapOfEmailTypes: Map<EmailTypes, String>?): String {
         val gson = Gson()
         return gson.toJson(mapOfEmailTypes)
     }
 
     @TypeConverter
-    fun fromJsonToMapOfEmailTypes(json: String): Map<EmailTypes, String> {
+    fun fromJsonToMapOfEmailTypes(json: String): Map<EmailTypes, String>? {
         var gson = Gson()
-        val type = object : TypeToken<Map<EmailTypes, String>>() {}.type
+        val type = object : TypeToken<Map<EmailTypes, String>?>() {}.type
         return gson.fromJson(json, type)
+    }
+
+    @TypeConverter
+    fun fromJsonToList(json: String): List<Contact>{
+        var gson = Gson()
+        val type = object : TypeToken<List<Contact>>() {}.type
+        return gson.fromJson(json, type)
+    }
+    @TypeConverter
+    fun fromListTypesToJson(listOfContact:List<Contact>): String {
+        val gson = Gson()
+        return gson.toJson(listOfContact)
     }
 
 }
