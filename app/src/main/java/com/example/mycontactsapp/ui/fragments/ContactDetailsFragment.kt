@@ -1,19 +1,20 @@
 package com.example.mycontactsapp.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
-import android.provider.ContactsContract
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.adapters.ContactDetailsListAdapter
+import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
+import com.example.mycontactsapp.other.Constants
 import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 
 
@@ -48,7 +49,7 @@ class ContactDetailsFragment : Fragment() {
             setUpListeners(contactDetails, roomId)
         } == null
         if (isContactDetailNull) {
-            binding.nameOfPersonTV.text = "Contact doesn't Exist"
+            "Contact doesn't Exist".also { binding.nameOfPersonTV.text = it }
         }
     }
 
@@ -91,17 +92,17 @@ class ContactDetailsFragment : Fragment() {
             this.layoutManager = LinearLayoutManager(context)
             this.adapter = adapter
         }
-        adapter?.setListItem(list)
+        adapter.setListItem(list)
     }
 
     private fun deleteContact(contact: Contact?) {
         if (contact != null) {// delete from sharedViewModel and Room DB
-            listOfContactsViewModel.deleteContactFromSharedViewModel(contact)
-            listOfContactsViewModel.deleteContactFromRoomDB(contact)
+             listOfContactsViewModel.deleteContactFromSharedViewModel(contact)
+             listOfContactsViewModel.deleteContactFromRoomDB(contact)
             if (contact.contactId != null) {// because if it's null means it
                 // was added by room and not yet synced to Android DB so
                 // no need to do anything
-                saveCidInSharedPref(contact.contactId)
+               saveCidInSharedPref(contact.contactId)
             }
         }
         findNavController().popBackStack()
@@ -110,6 +111,38 @@ class ContactDetailsFragment : Fragment() {
     private fun saveCidInSharedPref(cId: Int?) { // todo finish
         // fetch from shared pref
         // put list back in shared pref
+        val sharedPref = requireActivity().getSharedPreferences(
+            Constants.deletedCidSharedPrefKey,
+            Context.MODE_PRIVATE // private means that the shared preference data will
+            // be private which means no other app can access it
+        )
+        val editor = sharedPref.edit()
+
+        var setOfDeletedCid =
+            sharedPref.getStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf())
+                ?: mutableSetOf<String>()
+
+        Log.i(Constants.debugTag, "List Of Deleted Cid $setOfDeletedCid")
+
+        val copyOfSet = hashSetOf<String>() // I have to create a duplicate of the returned set
+        // because shared preference returns the "Reference" of the HashSet which is stored in shared pref
+        // now when we modify it and again try to store it in shared pref using .putStringSet()
+        // then it will compare the reference that we passed with the one that it has and
+        // it will realize that both are same so it won't update anything therefore we make a
+        // copy so that reference changes because now it will point to a new object and then
+        // when we do putString() it will know that we are passing new object so it will simply
+        // drop previous reference and store this new duplicate one
+
+        copyOfSet.add(cId.toString())
+        copyOfSet.addAll(setOfDeletedCid)
+
+        editor.apply {
+            putStringSet(Constants.setOfDeletedContactCidSPKey, copyOfSet)
+            apply() // difference between apply and commit is that apply will save data
+            // asynchronously
+        }
+
+
     }
 
 }

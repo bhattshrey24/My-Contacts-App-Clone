@@ -210,16 +210,11 @@ class CreateOrModifyContactFragment : Fragment() {
         updatedHashMapForNum: MutableMap<PhoneTypes, String>,
         updatedHashMapForEmail: MutableMap<EmailTypes, String>
     ) {
-        var updatedContact = Contact(
-            name = updatedContactName,
-            contactId = oldContactDetails?.contactId,
-            numbers = updatedHashMapForNum,
-            emails = updatedHashMapForEmail,
-        )
         oldContactDetails?.let {
             it.emails = updatedHashMapForEmail
             it.numbers = updatedHashMapForNum
             it.name = updatedContactName
+            it.isUpdated = true
             listOfContactsViewModel.updateContactInSharedViewModel(it)
             listOfContactsViewModel.updateContactInRoomDB(it)
         }
