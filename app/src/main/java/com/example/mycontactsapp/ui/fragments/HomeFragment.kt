@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.loader.app.LoaderManager
@@ -33,6 +34,7 @@ class HomeFragment() : Fragment(),
     }
 
     private var adapter: AllContactsListAdapter? = null
+    private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +56,19 @@ class HomeFragment() : Fragment(),
             )
             findNavController().navigate(action)
         }
+        val contentProviderViewModel: ContentProviderViewModel by viewModels()
+        binding.syncContactsFloatingButton.setOnClickListener {
+            binding.homeFragmentCircularProgressBar.visibility = View.VISIBLE
+            // observe to isFinished liveData boolean in order to remove progress bar
+            // send list to functions
+            contentProviderViewModel.syncData(listOfContactsViewModel.listOfContact.value?.toList())
+            contentProviderViewModel.isSyncFinished.observe(viewLifecycleOwner) {
+                if (it) {
+                    binding.homeFragmentCircularProgressBar.visibility = View.GONE
+                    Toast.makeText(context, "Successfully synced!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun setUpRecyclerView() {
@@ -64,11 +79,12 @@ class HomeFragment() : Fragment(),
             this.adapter = this@HomeFragment.adapter
         }
 
-        val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
+
         listOfContactsViewModel.listOfContact.value?.let {
             adapter?.setContact(it)
             Constants.listOfAllContacts
         }
+
     }
 
     override fun onContactClick(position: Int) {

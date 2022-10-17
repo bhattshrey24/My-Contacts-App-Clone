@@ -2,6 +2,7 @@ package com.example.mycontactsapp.ui.viewmodels
 
 import android.app.Application
 import android.content.ContentProviderOperation
+import android.content.Context
 import android.content.OperationApplicationException
 import android.database.Cursor
 import android.net.Uri
@@ -20,7 +21,10 @@ import kotlinx.coroutines.*
 
 class ContentProviderViewModel(application: Application) : AndroidViewModel(application) {
 
+
     var listOfRetrievedContacts = MutableLiveData<List<Contact>>()
+
+    var isSyncFinished = MutableLiveData<Boolean>(false)
 
     private val app: Application
 
@@ -182,27 +186,95 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
         )
     }
 
-    fun deleteContactFromAndroidDB(cId: Int) {
-        viewModelScope.launch {
-            val whereClause =
-                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = $cId"
-            val res = app.contentResolver?.delete(
-                ContactsContract.RawContacts.CONTENT_URI,
-                whereClause,
-                null
-            )
-            if (res != null) {
-                if (res > 0) {
-                    Log.i(Constants.debugTag, "Successfully deleted contact")
-                } else {
-                    Log.i(Constants.debugTag, "Unable to delete")
-                }
+    fun syncData(listOfContacts: List<Contact>?) {
+        // Delete
+        val sharedPref =
+            app.getSharedPreferences(Constants.deletedCidSharedPrefKey, Context.MODE_PRIVATE)
+        var setOfDeletedCid =
+            sharedPref.getStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf())
+                ?: mutableSetOf<String>()
+        Log.i(Constants.debugTag, "set of deleted cID : $setOfDeletedCid")
+
+        for (ele in setOfDeletedCid) {
+            Log.i(Constants.debugTag, "**inside for loop")
+            deleteContactFromAndroidDB(ele.toInt())
+        }
+        val editor = sharedPref.edit()
+        editor.apply {
+            putStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf<String>()) // since
+            // we deleted all contacts so I'm simply putting empty set in share pref
+            apply()
+        }
+        // Insert // todo later : simply combine all this forEach into one
+        val listOfContactsToAddInAndroidRoom = mutableListOf<Contact>()
+        listOfContacts?.forEach { contact ->
+            if (contact.contactId == null) {
+                listOfContactsToAddInAndroidRoom.add(contact)
             }
         }
+        for (contact in listOfContactsToAddInAndroidRoom) {
+            insertContactToAndroidDB(contact)
+        }
+        // update
+        val listOfContactsToUpdate = mutableListOf<Contact>()
+        listOfContacts?.forEach { contact ->
+            if (contact.isUpdated) {
+                listOfContactsToUpdate.add(contact)
+            }
+        }
+        for (contact in listOfContactsToUpdate) {
+            updateContactInAndroidDB(contact)
+        }
+        isSyncFinished.value = true
     }
 
-    fun insertContactToAndroidDB(contact: Contact) {
-        // todo , get the CID of contact and update it in ROOM db
+    private fun deleteContactFromAndroidDB(cId: Int) {
+        Log.i(Constants.debugTag, "inside delete with cID: ${cId}")
+        //viewModelScope.launch {
+        val cpbo = ArrayList<ContentProviderOperation>()
+        val whereClause =
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?"
+        cpbo.add(
+            ContentProviderOperation
+                .newDelete(ContactsContract.RawContacts.CONTENT_URI)
+                .withSelection(
+                    whereClause,
+                    arrayOf(
+                        "$cId",
+                    )
+                ).build()
+        )
+
+        try {
+            val res = app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
+        } catch (e: OperationApplicationException) {
+            Log.i(
+                Constants.debugTag,
+                "OperationApplicationException caught with message : ${e.message}"
+            )
+        } catch (e: RemoteException) {
+            Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
+        } catch (e: Exception) {
+            Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
+        }
+
+//        val res = app.contentResolver?.delete(
+//            ContactsContract.RawContacts.CONTENT_URI,
+//            whereClause,
+//            null
+//        )
+//        if (res != null) {
+//            if (res > 0) {
+//                Log.i(Constants.debugTag, "Successfully deleted contact")
+//            } else {
+//                Log.i(Constants.debugTag, "Unable to delete")
+//            }
+//            // }
+//        }
+    }
+
+    private fun insertContactToAndroidDB(contact: Contact) {
+        // todo , get the CID of contact and update it in ROOM db as well
         val cpbo = ArrayList<ContentProviderOperation>()
 
         // This is mandatory to do even if you don't specify an account with it
@@ -269,7 +341,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
         }
     }
 
-    fun updateContactInAndroidDB(contact: Contact) {
+    private fun updateContactInAndroidDB(contact: Contact) {
 
 
         val cpbo = ArrayList<ContentProviderOperation>()

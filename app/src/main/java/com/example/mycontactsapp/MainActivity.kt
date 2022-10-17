@@ -26,6 +26,10 @@ class MainActivity : AppCompatActivity() {
 
     //Todo
     // add sync
+    // Clean the code
+    // Try to perform all sync in background and appropriately update data
+    // Learn about sync adapter
+
     // Handle the case when user doesn't grant permission like show user a dialog box showing that it's necessary to accept the permission and if he she again rejects then close app
     // apply diffUtil for updating recyclerView
     // fix Warnings

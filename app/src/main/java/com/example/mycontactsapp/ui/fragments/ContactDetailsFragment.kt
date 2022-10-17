@@ -124,7 +124,7 @@ class ContactDetailsFragment : Fragment() {
 
         Log.i(Constants.debugTag, "List Of Deleted Cid $setOfDeletedCid")
 
-        val copyOfSet = hashSetOf<String>() // I have to create a duplicate of the returned set
+        val copyOfSet = mutableSetOf<String>() // I have to create a duplicate of the returned set
         // because shared preference returns the "Reference" of the HashSet which is stored in shared pref
         // now when we modify it and again try to store it in shared pref using .putStringSet()
         // then it will compare the reference that we passed with the one that it has and
