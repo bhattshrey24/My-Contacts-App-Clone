@@ -25,7 +25,6 @@
         android:layout_marginTop="90dp"
         android:foreground="@drawable/ic_person_icon"
         android:src="@color/grey"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,21 +36,21 @@
         android:layout_marginTop="40dp"
         android:text="Stuti Bhatt"
         android:textColor="@color/black"
-        android:textStyle="bold"
         android:textSize="28sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topView" />
 
-    <TextView
-        android:id="@+id/numberOfPersonTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/contactDetailRV"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="30dp"
-        android:text="9643217418"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameOfPersonTV" />
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nameOfPersonTV" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/editContactFloatingButton"
@@ -75,6 +74,16 @@
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!--<TextView-->
+    <!--android:id="@+id/numberOfPersonTV"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginStart="40dp"-->
+    <!--android:layout_marginTop="30dp"-->
+    <!--android:text="9643217418"-->
+    <!--android:textSize="18sp"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--app:layout_constraintTop_toBottomOf="@+id/nameOfPersonTV" />-->
 
     <!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
     <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->

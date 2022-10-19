@@ -1,18 +1,21 @@
 package com.example.mycontactsapp.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
-import com.example.mycontactsapp.Constants
-import com.example.mycontactsapp.Contact
-import com.example.mycontactsapp.R
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mycontactsapp.adapters.ContactDetailsListAdapter
+import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.databinding.FragmentContactDetailsBinding
+import com.example.mycontactsapp.other.Constants
+import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 
 
 class ContactDetailsFragment : Fragment() {
@@ -20,6 +23,8 @@ class ContactDetailsFragment : Fragment() {
     private val binding: FragmentContactDetailsBinding by lazy {
         FragmentContactDetailsBinding.inflate(layoutInflater, null, false)
     }
+    private val args: ContactDetailsFragmentArgs by navArgs()
+    private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,53 +32,118 @@ class ContactDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val bundle = this.arguments
-        val contactDetails = bundle?.getParcelable<Contact>(Constants.contactDetailsKey)
-        binding.nameOfPersonTV.text = contactDetails?.name
-        binding.numberOfPersonTV.text = contactDetails?.number
+        val roomId = args.roomContactId
 
-        binding.editContactFloatingButton.setOnClickListener {
-            val fragment = CreateOrModifyContactFragment()
-            val bundle = Bundle()
-            bundle.putBoolean(Constants.booleanIsEditKey, true)
-            fragment.arguments = bundle
-            bundle.putParcelable(Constants.contactDetailsKey, contactDetails)
-            replaceFragment(fragment)
+        val contactDetails = listOfContactsViewModel.listOfContact.value?.find { // checking
+            // using room id and not cid because if user added contact from our app then
+            // it won't have cid but all contacts have roomId
+            it.roomContactId == roomId
         }
 
-        binding.deleteContactFloatingButton.setOnClickListener {
-            deleteContact(contactDetails)
-        }
+        setUpUi(contactDetails, roomId)
 
         return binding.root
     }
 
-
-    private fun deleteContact(contact: Contact?) {
-        val whereClause =
-            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ${contact?.contactId}"
-        val res = activity?.contentResolver?.delete(
-            ContactsContract.RawContacts.CONTENT_URI,
-            whereClause,
-            null
-        )
-
-        if (res != null) {
-            if (res > 0) {
-                Toast.makeText(context, "Successfully deleted contact", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Unable to delete", Toast.LENGTH_SHORT).show()
-            }
+    private fun setUpUi(contactDetails: Contact?, roomId: Int) {
+        val isContactDetailNull = contactDetails?.let {
+            binding.nameOfPersonTV.text = contactDetails.name
+            setUpRecyclerView(convertNumAndEmailToList(contactDetails))
+            setUpListeners(contactDetails, roomId)
+        } == null
+        if (isContactDetailNull) {
+            "Contact doesn't Exist".also { binding.nameOfPersonTV.text = it }
         }
     }
 
-    private fun replaceFragment(myFragment: Fragment) {
-        val fragmentManager = parentFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.mainActivityFragmentContainer, myFragment)
-        fragmentTransaction.addToBackStack(ContactDetailsFragment::class.java.name)// Giving name so that we
-        // can refer to it and pop later
-        fragmentTransaction.commit()
+    private fun setUpListeners(contactDetails: Contact?, roomId: Int) {
+        binding.editContactFloatingButton.setOnClickListener {
+            val action =
+                ContactDetailsFragmentDirections.actionContactDetailsFragmentToCreateOrModifyContactFragment(
+                    true,
+                    roomId
+                ) // using safeargs sine it gives us compile time safety when doing
+            // navigation which is not the case in bundle
+            findNavController().navigate(action)
+        }
+        binding.deleteContactFloatingButton.setOnClickListener {
+            deleteContact(contactDetails)
+        }
+    }
+
+    private fun convertNumAndEmailToList(contactDetails: Contact?): List<Pair<String, String>> {
+        // combining numbers and emails in a single list so that recycler view can show it
+        val numbers = contactDetails?.numbers
+        val emails = contactDetails?.emails
+        val list = mutableListOf<Pair<String, String>>()
+
+        if (numbers != null) {
+            for (number in numbers) {
+                list.add(number.key.codeOfType.toString() to number.value)
+            }
+        }
+        if (emails != null) {
+            for (email in emails) {
+                list.add(email.key.codeOfType.toString() to email.value)
+            }
+        }
+        return list
+    }
+
+    private fun setUpRecyclerView(list: List<Pair<String, String>>) {
+        val adapter = ContactDetailsListAdapter()
+        binding.contactDetailRV.apply {
+            this.layoutManager = LinearLayoutManager(context)
+            this.adapter = adapter
+        }
+        adapter.setListItem(list)
+    }
+
+    private fun deleteContact(contact: Contact?) {
+        contact?.let { // delete from sharedViewModel and Room DB
+            listOfContactsViewModel.deleteContact(contact)
+            if (contact.contactId != null) {// because if it's null means it
+                // was added by room and not yet synced to Android DB so
+                // no need to do anything
+                saveCidInSharedPref(contact.contactId)
+            }
+        }
+        findNavController().popBackStack()
+    }
+
+    private fun saveCidInSharedPref(cId: Int?) {
+        // fetch from shared pref
+        // put list back in shared pref
+        val sharedPref = requireActivity().getSharedPreferences(
+            Constants.deletedCidSharedPrefKey,
+            Context.MODE_PRIVATE // private means that the shared preference data will
+            // be private which means no other app can access it
+        )
+        val editor = sharedPref.edit()
+
+        val setOfDeletedCid =
+            sharedPref.getStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf())
+                ?: mutableSetOf<String>()
+
+        Log.i(Constants.debugTag, "List Of Deleted Cid $setOfDeletedCid")
+
+        val copyOfSet = mutableSetOf<String>() // I have to create a duplicate of the returned set
+        // because shared preference returns the "Reference" of the HashSet which is stored in shared pref
+        // now when we modify it and again try to store it in shared pref using .putStringSet()
+        // then it will compare the reference that we passed with the one that it has and
+        // it will realize that both are same so it won't update anything therefore we make a
+        // copy so that reference changes because now it will point to a new object and then
+        // when we do putString() it will know that we are passing new object so it will simply
+        // drop previous reference and store this new duplicate one
+
+        copyOfSet.add(cId.toString())
+        copyOfSet.addAll(setOfDeletedCid)
+
+        editor.apply {
+            putStringSet(Constants.setOfDeletedContactCidSPKey, copyOfSet)
+            apply() // difference between apply and commit is that apply will save data
+            // asynchronously
+        }
     }
 
 }

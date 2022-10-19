@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav_graph"
+    app:startDestination="@id/splashScreenFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.mycontactsapp.ui.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_contactDetailsFragment"
+            app:destination="@id/contactDetailsFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
+        <action
+            android:id="@+id/action_homeFragment_to_createOrModifyContactFragment"
+            app:destination="@id/createOrModifyContactFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/contactDetailsFragment"
+        android:name="com.example.mycontactsapp.ui.fragments.ContactDetailsFragment"
+        android:label="fragment_contact_details"
+        tools:layout="@layout/fragment_contact_details">
+        <action
+            android:id="@+id/action_contactDetailsFragment_to_createOrModifyContactFragment"
+            app:destination="@id/createOrModifyContactFragment"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
+        <argument
+            android:name="roomContactId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/createOrModifyContactFragment"
+        android:name="com.example.mycontactsapp.ui.fragments.CreateOrModifyContactFragment"
+        android:label="fragment_create_or_modify_contact"
+        tools:layout="@layout/fragment_create_or_modify_contact">
+        <argument
+            android:name="isEdit"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="roomId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.mycontactsapp.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
+    <fragment
+        android:id="@+id/splashScreenFragment"
+        android:name="com.example.mycontactsapp.ui.fragments.SplashScreenFragment"
+        android:label="fragment_splash_screen"
+        tools:layout="@layout/fragment_splash_screen">
+        <action
+            android:id="@+id/action_splashScreenFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/splashScreenFragment"
+            app:popUpToInclusive="true" />
+        <!-- popUpToInclusive means janha tk pop kra usse bhi pop krdo
+        i.e. we popped till splash screen so now pop splash screen too -->
+    </fragment>
+</navigation>
