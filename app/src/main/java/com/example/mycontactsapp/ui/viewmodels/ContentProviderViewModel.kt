@@ -2,7 +2,6 @@ package com.example.mycontactsapp.ui.viewmodels
 
 import android.app.Application
 import android.content.ContentProviderOperation
-import android.content.ContentProviderResult
 import android.content.Context
 import android.content.OperationApplicationException
 import android.database.Cursor
@@ -10,8 +9,7 @@ import android.net.Uri
 import android.os.RemoteException
 import android.provider.ContactsContract
 import android.util.Log
-import android.widget.Toast
-import androidx.fragment.app.FragmentActivity
+
 import androidx.lifecycle.*
 import com.example.mycontactsapp.data.models.Contact
 import com.example.mycontactsapp.data.models.CursorData
@@ -51,10 +49,10 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
     )
 
     fun fetchDataFromAndroidDb() {
-        viewModelScope.launch { // viewModelscope.launch runs on main thread
-            var tempListOfContacts = mutableListOf<Contact>()
-            var hmOfCiAndIndex = hashMapOf<String, Int>()
-            var cursor = app.contentResolver.query(
+        viewModelScope.launch { // viewModelScope.launch runs on main thread
+            val tempListOfContacts = mutableListOf<Contact>()
+            val hmOfCiAndIndex = hashMapOf<String, Int>()
+            val cursor = app.contentResolver.query(
                 uri,
                 mColProjection,
                 mSelection,
@@ -63,9 +61,9 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             )
             if (cursor != null && cursor.isBeforeFirst) {
                 while (cursor.moveToNext()) {
-                    var cursorData = retrieveDataFromCursor(cursor)
+                    val cursorData = retrieveDataFromCursor(cursor)
                     if (cursorData.mimeType == ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE) {
-                        var typeEnum = when (cursorData.type) {
+                        val typeEnum = when (cursorData.type) {
                             PhoneTypes.Home.codeOfType.toString() -> {
                                 PhoneTypes.Home
                             }
@@ -83,9 +81,9 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                         }
                         if (hmOfCiAndIndex.containsKey(cursorData.cId)) {
 
-                            var idxOfContact = hmOfCiAndIndex.get(cursorData.cId)
-                            var retrievedContact = tempListOfContacts.get(idxOfContact!!)
-                            var hmForNum = retrievedContact.numbers ?: mutableMapOf()
+                            val idxOfContact = hmOfCiAndIndex.get(cursorData.cId)
+                            val retrievedContact = tempListOfContacts.get(idxOfContact!!)
+                            val hmForNum = retrievedContact.numbers ?: mutableMapOf()
 
                             hmForNum.put(typeEnum, cursorData.numberOrEmail)
 
@@ -99,7 +97,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                                 )
                             )
                         } else {
-                            var hmOfPhoneNumbers = mutableMapOf<PhoneTypes, String>()
+                            val hmOfPhoneNumbers = mutableMapOf<PhoneTypes, String>()
                             hmOfPhoneNumbers.put(typeEnum, cursorData.numberOrEmail)
 
                             tempListOfContacts.add(
@@ -115,7 +113,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                     }
                     if (cursorData.mimeType == ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE) {
 
-                        var typeEnum = when (cursorData.type) {
+                        val typeEnum = when (cursorData.type) {
                             EmailTypes.Home.codeOfType.toString() -> {
                                 EmailTypes.Home
                             }
@@ -129,9 +127,9 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                         }
 
                         if (hmOfCiAndIndex.containsKey(cursorData.cId)) {
-                            var idxOfContact = hmOfCiAndIndex.get(cursorData.cId)
-                            var contact = tempListOfContacts.get(idxOfContact!!)
-                            var hmForEmail = contact.emails ?: mutableMapOf<EmailTypes, String>()
+                            val idxOfContact = hmOfCiAndIndex.get(cursorData.cId)
+                            val contact = tempListOfContacts.get(idxOfContact!!)
+                            val hmForEmail = contact.emails ?: mutableMapOf()
 
                             hmForEmail.put(typeEnum, cursorData.numberOrEmail)
 
@@ -145,7 +143,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                                 )
                             )
                         } else {
-                            var hmOfEmail = mutableMapOf<EmailTypes, String>()
+                            val hmOfEmail = mutableMapOf<EmailTypes, String>()
                             hmOfEmail.put(typeEnum, cursorData.numberOrEmail)
                             tempListOfContacts.add(
                                 Contact(
@@ -165,19 +163,19 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
     }
 
     private fun retrieveDataFromCursor(cursor: Cursor): CursorData {
-        var nameIdx = cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)
-        var numberOrEmailIdx = cursor.getColumnIndex(ContactsContract.Data.DATA1)
-        var cIdIdx = cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)
-        var typeIdx = cursor.getColumnIndex(ContactsContract.Data.DATA2)
-        var mimeTypeIdx = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)
+        val nameIdx = cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)
+        val numberOrEmailIdx = cursor.getColumnIndex(ContactsContract.Data.DATA1)
+        val cIdIdx = cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID)
+        val typeIdx = cursor.getColumnIndex(ContactsContract.Data.DATA2)
+        val mimeTypeIdx = cursor.getColumnIndex(ContactsContract.Data.MIMETYPE)
 
-        var name = cursor.getString(nameIdx)
-        var numberOrEmail =
+        val name = cursor.getString(nameIdx)
+        val numberOrEmail =
             cursor.getString(numberOrEmailIdx) // it could hold either number
         // or email it depends on mimetype of that row
-        var cId = cursor.getString(cIdIdx)
-        var type = cursor.getString(typeIdx)
-        var mimeType = cursor.getString(mimeTypeIdx)
+        val cId = cursor.getString(cIdIdx)
+        val type = cursor.getString(typeIdx)
+        val mimeType = cursor.getString(mimeTypeIdx)
         return CursorData(
             name = name,
             numberOrEmail = numberOrEmail,
@@ -187,10 +185,8 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
         )
     }
 
-    private suspend fun deleteContactFromAndroidDB(cId: Int) {
-        delay(2000)
-        Log.i(Constants.debugTag, "inside delete with cID: ${cId}")
-        //viewModelScope.launch {
+    private fun deleteContactFromAndroidDB(cId: Int) {
+
         val cpbo = ArrayList<ContentProviderOperation>()
         val whereClause =
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?"
@@ -204,9 +200,8 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                     )
                 ).build()
         )
-
         try {
-            val res = app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
+           app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
         } catch (e: OperationApplicationException) {
             Log.i(
                 Constants.debugTag,
@@ -217,28 +212,10 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
         } catch (e: Exception) {
             Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
         }
-
-//        val res = app.contentResolver?.delete(
-//            ContactsContract.RawContacts.CONTENT_URI,
-//            whereClause,
-//            null
-//        )
-//        if (res != null) {
-//            if (res > 0) {
-//                Log.i(Constants.debugTag, "Successfully deleted contact")
-//            } else {
-//                Log.i(Constants.debugTag, "Unable to delete")
-//            }
-//            // }
-//        }
     }
 
-    private suspend fun insertContactToAndroidDB(contact: Contact): Int? {
-        //delay(1000)
-        Log.i(Constants.debugTag, "Start of insertContactToAndroidDB")
-
+    private fun insertContactToAndroidDB(contact: Contact): Int? {
         var cID: Int? = null
-
         val cpbo = ArrayList<ContentProviderOperation>()
 
         // This is mandatory to do even if you don't specify an account with it
@@ -267,7 +244,6 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                 )
                 .build()
         )
-        Log.i(Constants.debugTag, "Middle of insertContactToAndroidDB")
 
         if (contact.numbers != null) {
             // Adding Numbers
@@ -292,26 +268,10 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             }
         }
 
-        Log.i(Constants.debugTag, "Before 'try' of insertContactToAndroidDB")
-
         try {
-            Log.i(Constants.debugTag, "Reached Inside try of insert")
-
             val result = app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
-
-            Log.i(
-                Constants.debugTag,
-                "Inside try after call with cID : ${result?.get(0)?.uri?.lastPathSegment?.toInt()}"
-            )
-
             cID = result?.get(0)?.uri?.lastPathSegment?.toInt()
-
-            contact.contactId = cID
-
-            Log.i(Constants.debugTag, "contact after adding new cID : $contact")
-
             return cID
-
         } catch (e: OperationApplicationException) {
             Log.i(
                 Constants.debugTag,
@@ -321,15 +281,11 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         } catch (e: Exception) {
             Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
-        } finally {
-            Log.i(Constants.debugTag, "Inside finally block")
         }
-        Log.i(Constants.debugTag, "Reached End of Insert fun with cID : $cID")
         return cID
     }
 
-    private suspend fun updateContactInAndroidDB(contact: Contact) {
-        delay(2000)
+    private fun updateContactInAndroidDB(contact: Contact) {
         val cpbo = ArrayList<ContentProviderOperation>()
 
         for (num in contact.numbers!!) {
@@ -409,8 +365,10 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun syncData(listOfContacts: List<Contact>?) {
-        listOfContactsWithUpdatedContactID.value = listOf() // basically clearing
+        listOfContactsWithUpdatedContactID.value = listOf() // basically clearing it
+
         viewModelScope.launch(Dispatchers.IO) { // by default viewModelScope.launch works on UI thread
+          delay(2500)// just a small delay so user can see that sync is actually happening
             val jobA = launch {
                 // Delete
                 val sharedPref =
@@ -418,7 +376,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                         Constants.deletedCidSharedPrefKey,
                         Context.MODE_PRIVATE
                     )
-                var setOfDeletedCid =
+                val setOfDeletedCid =
                     sharedPref.getStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf())
                         ?: mutableSetOf<String>()
                 for (ele in setOfDeletedCid) {
@@ -433,6 +391,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                     // we deleted all contacts so I'm simply putting empty set in share pref
                     apply()
                 }
+
                 // Update
                 val listOfContactsToUpdate = mutableListOf<Contact>()
                 listOfContacts?.forEach { contact ->
@@ -446,16 +405,16 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             }
 
             // Insert
-            val listOfContactsToAddInAndroidRoom = mutableListOf<Contact>()
+            val listOfContactsToAddInAndroidDB = mutableListOf<Contact>()
             val listOfContactsWithUpdatedId = mutableListOf<Contact>()
 
             listOfContacts?.forEach { contact ->
                 if (contact.contactId == null) {
-                    listOfContactsToAddInAndroidRoom.add(contact)
+                    listOfContactsToAddInAndroidDB.add(contact)
                 }
             }
 
-            for (contact in listOfContactsToAddInAndroidRoom) {
+            for (contact in listOfContactsToAddInAndroidDB) {
                 val cID = insertContactToAndroidDB(contact)
                 Log.i(Constants.debugTag, " cID returned by insert fun in syncData =  $cID")
                 cID?.let {
@@ -466,9 +425,8 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             jobA.join()
             withContext(Dispatchers.Main) {
                 isSyncFinished.value = true
-                listOfContactsWithUpdatedContactID.value = listOfContactsWithUpdatedId
+                listOfContactsWithUpdatedContactID.value = listOfContactsWithUpdatedId.toList()
             }
-
         }
     }
 

@@ -1,10 +1,8 @@
 package com.example.mycontactsapp.other
 
 
-import androidx.lifecycle.LiveData
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import com.example.mycontactsapp.data.models.Contact
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -32,7 +30,7 @@ class Converters { // Since Room can only store limited types of data like TEXT,
 
     @TypeConverter
     fun fromJsonToMapOfPhoneTypes(json: String): Map<PhoneTypes, String> {
-        var gson = Gson()
+        val gson = Gson()
         val type = object : TypeToken<Map<PhoneTypes, String>>() {}.type
         return gson.fromJson(json, type)
     }
@@ -45,21 +43,9 @@ class Converters { // Since Room can only store limited types of data like TEXT,
 
     @TypeConverter
     fun fromJsonToMapOfEmailTypes(json: String): Map<EmailTypes, String>? {
-        var gson = Gson()
+        val gson = Gson()
         val type = object : TypeToken<Map<EmailTypes, String>?>() {}.type
         return gson.fromJson(json, type)
-    }
-
-    @TypeConverter
-    fun fromJsonToList(json: String): List<Contact>{
-        var gson = Gson()
-        val type = object : TypeToken<List<Contact>>() {}.type
-        return gson.fromJson(json, type)
-    }
-    @TypeConverter
-    fun fromListTypesToJson(listOfContact:List<Contact>): String {
-        val gson = Gson()
-        return gson.toJson(listOfContact)
     }
 
 }

@@ -17,7 +17,7 @@ class Repository(
 
     suspend fun insertListOfContacts(listOfContacts: List<Contact>?) {
         listOfContacts?.let {
-            contactDao.insertListOfAllContacts(listOfContacts)
+            contactDao.insertListOfAllContacts(it)
         }
     }
 
@@ -35,10 +35,6 @@ class Repository(
 
     fun getListOfAllContacts(): LiveData<List<Contact>> {
         return contactDao.getAllContacts()
-    }
-
-    suspend fun getRowCount(): Int {
-        return contactDao.getRowCount()
     }
 
 }

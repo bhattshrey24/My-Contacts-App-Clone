@@ -1,12 +1,11 @@
 package com.example.mycontactsapp.data.models
 
-import android.os.Parcel
-import android.os.Parcelable
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.mycontactsapp.other.EmailTypes
 import com.example.mycontactsapp.other.PhoneTypes
-import java.util.ArrayList
+
 
 @Entity(tableName = "contacts_table")
 data class Contact(
@@ -17,7 +16,6 @@ data class Contact(
 ) {
     @PrimaryKey(autoGenerate = true)
     var roomContactId: Int = 0 // We have it inside because
-
     // now it's not necessary to pass this when creating object of this class since it is
     // not a primary constructor argument. Also If it's nullable then it should be null
     // if it's not then it should be 0 otherwise room won't increment it. Like if it is nullable
@@ -32,5 +30,5 @@ data class Contact(
     //  using room. Then i'll simply add it to Android DB and update cID
     // but for Update I have to add a new variable in model because we can
     // it is possible that user might have updated the new contact which was inserted
-    // in Room or the one which was retrieved from Anroid DB
+    // in Room or the one which was retrieved from Android DB
 }

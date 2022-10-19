@@ -1,28 +1,16 @@
 package com.example.mycontactsapp
 
 import android.content.pm.PackageManager
-import android.os.Build
+
 import android.os.Bundle
-import android.os.ProxyFileDescriptorCallback
+
 import android.util.Log
-import android.view.View
+
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import com.example.mycontactsapp.data.local.ContactDatabase
-import com.example.mycontactsapp.data.models.Contact
+
 import com.example.mycontactsapp.databinding.ActivityMainBinding
 import com.example.mycontactsapp.other.Constants
-import com.example.mycontactsapp.other.EmailTypes
-import com.example.mycontactsapp.other.PhoneTypes
-import com.example.mycontactsapp.ui.fragments.HomeFragment
-import com.example.mycontactsapp.ui.fragments.SplashScreenFragment
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -58,12 +46,12 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == Constants.myRequestCode && grantResults.isNotEmpty()) {
             for (i in grantResults.indices) {
-                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                isGranted = if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     Log.i("PermissionRequests", "${permissions[i]} granted!!")
-                    isGranted = true
+                    true
                 } else {
                     Log.i("PermissionRequests", "${permissions[i]} Not granted!!")
-                    isGranted = false
+                    false
                 }
             }
         }

@@ -1,6 +1,6 @@
 package com.example.mycontactsapp.data.local.daos
 
-import androidx.annotation.NonNull
+
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.mycontactsapp.data.models.Contact
@@ -9,8 +9,7 @@ import com.example.mycontactsapp.data.models.Contact
 interface ContactDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertContact(contact: Contact)// Long because
-    // insert function returns the id of the saved contact that room generated
+    suspend fun insertContact(contact: Contact)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertListOfAllContacts(listOfAllContacts: List<Contact>)

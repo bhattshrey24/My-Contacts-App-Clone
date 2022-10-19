@@ -4,7 +4,7 @@ import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +35,7 @@ class SplashScreenFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.i(Constants.debugTag, "Inside OnCreateView")
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!hasReadPermission() || !hasWritePermission()) {
                 showDialogueBox()
@@ -69,9 +69,12 @@ class SplashScreenFragment : Fragment() {
 
     private fun setUpUi() {
         viewModel.getListOfContactsFromRoomDB().observe(viewLifecycleOwner) {
-            if (it.isEmpty()) { // Load from Content provider and store it in room
+            if (it.isEmpty()) { //It means user has opened the app for the 1st time
+                // so load from Content provider and store it in room
                 loadDataFromContentProvider()
-            } else { // pass this list to shared viewModel
+            } else { // Means user has opened the app before which
+                // means room is not empty so simply give the list retrieved
+                // from room to shared view model
                 loadToSharedViewModel(it)
             }
         }
@@ -130,16 +133,16 @@ class SplashScreenFragment : Fragment() {
 
     private fun loadDataFromContentProvider() {
         val contentProviderViewModel: ContentProviderViewModel by viewModels()
+
         contentProviderViewModel.fetchDataFromAndroidDb() // This will fetch data from
         // content provider
+
         contentProviderViewModel.listOfRetrievedContacts
             .observe(viewLifecycleOwner) { listFromContentProvider ->
-              Log.i(Constants.debugTag," Inside observe , got list from content provider $listFromContentProvider")
                 listFromContentProvider.let {
                     viewModel.saveListOfContactInRoomDB(it) // will be done in background thread
                     viewModel.getListOfContactsFromRoomDB()
                         .observe(viewLifecycleOwner) { listReturnedByRoom ->
-                            Log.i(Constants.debugTag," Inside observe observe, got list from Room $listFromContentProvider")
                             if (!listReturnedByRoom.isNullOrEmpty()) {
                                 viewModel.setListOfContact(listReturnedByRoom) // saving list in shared viewModel
                                 findNavController().navigate(R.id.action_splashScreenFragment_to_homeFragment)
@@ -152,7 +155,6 @@ class SplashScreenFragment : Fragment() {
     }
 
     private fun loadToSharedViewModel(listOfContact: List<Contact>) {
-        Log.i(Constants.debugTag, "Inside load from shared View")
         viewModel.setListOfContact(listOfContact)// Saving list retrieved from Room to shared view Model
         findNavController().navigate(R.id.action_splashScreenFragment_to_homeFragment)
         binding.circularProgressBar.visibility =

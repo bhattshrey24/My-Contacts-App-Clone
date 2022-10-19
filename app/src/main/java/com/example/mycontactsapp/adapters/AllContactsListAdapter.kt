@@ -24,20 +24,25 @@ class AllContactsListAdapter(
 
     fun setContact(filteredContactList: List<Contact>) { // Updates the recyclerview
         this.listOfContacts = filteredContactList
-        Constants.listOfAllContacts=filteredContactList.toMutableList()
+
+        Constants.listOfAllContacts =
+            filteredContactList.toMutableList() // this list is used to filter
+        // list when user enters something in search bar so therefore whenever recycler view updates then
+        // this should also update
+
         notifyDataSetChanged() // We are changing whole data set
         // cause theres no option like we could have removed all elements and
         // added the once that are in list but its better to just update instead
     }
 
     inner class MyViewHolderForSearchBar(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var searchBarET: EditText
+        private var searchBarET: EditText
 
         init {
             searchBarET = itemView.findViewById(R.id.searchBarEditText)
             searchBarET.addTextChangedListener {
-                var query = it.toString().trim()
-                var listOfContactsFilteredFromQuery =
+                val query = it.toString().trim()
+                val listOfContactsFilteredFromQuery =
                     Constants.listOfAllContacts.filter { contact ->
                         contact.name?.contains(query, true) ?: false
                     }
@@ -81,14 +86,13 @@ class AllContactsListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (getItemViewType(position) == CONTACTS_LIST_ITEM) {
-            var contactHolder =
+            val contactHolder =
                 holder as MyViewHolderForContacts // type casting holder to correct ViewHolder
             contactHolder.contactName.text =
-                listOfContacts?.get(position - 1)?.name ?: "No Name Provided"// -1 because
+                listOfContacts[position - 1].name// -1 because
             // there's 1 default item
             // which is always present and that item is search bar so we made changes accordingly
             // in getItemCount due to which if we don't do -1 then we will get index out of bound exception
-
         } else {
             // var searchBarHolder = holder as MyViewHolderForSearchBar // we do nothing
             // right now but we could have bound something

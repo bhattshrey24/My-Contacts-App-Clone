@@ -33,10 +33,12 @@ class ContactDetailsFragment : Fragment() {
     ): View {
 
         val roomId = args.roomContactId
-        val contactDetails = listOfContactsViewModel.listOfContact.value?.find {
+
+        val contactDetails = listOfContactsViewModel.listOfContact.value?.find { // checking
+            // using room id and not cid because if user added contact from our app then
+            // it won't have cid but all contacts have roomId
             it.roomContactId == roomId
         }
-        Log.i(Constants.debugTag, "Room id and Contact Detail in ContactDetailScreen are :$contactDetails , $roomId")
 
         setUpUi(contactDetails, roomId)
 
@@ -60,7 +62,8 @@ class ContactDetailsFragment : Fragment() {
                 ContactDetailsFragmentDirections.actionContactDetailsFragmentToCreateOrModifyContactFragment(
                     true,
                     roomId
-                )
+                ) // using safeargs sine it gives us compile time safety when doing
+            // navigation which is not the case in bundle
             findNavController().navigate(action)
         }
         binding.deleteContactFloatingButton.setOnClickListener {
@@ -68,11 +71,11 @@ class ContactDetailsFragment : Fragment() {
         }
     }
 
-    private fun convertNumAndEmailToList(contactDetails: Contact?): MutableList<Pair<String, String>> {
+    private fun convertNumAndEmailToList(contactDetails: Contact?): List<Pair<String, String>> {
         // combining numbers and emails in a single list so that recycler view can show it
-        var numbers = contactDetails?.numbers
-        var emails = contactDetails?.emails
-        var list = mutableListOf<Pair<String, String>>()
+        val numbers = contactDetails?.numbers
+        val emails = contactDetails?.emails
+        val list = mutableListOf<Pair<String, String>>()
 
         if (numbers != null) {
             for (number in numbers) {
@@ -88,7 +91,7 @@ class ContactDetailsFragment : Fragment() {
     }
 
     private fun setUpRecyclerView(list: List<Pair<String, String>>) {
-        var adapter = ContactDetailsListAdapter()
+        val adapter = ContactDetailsListAdapter()
         binding.contactDetailRV.apply {
             this.layoutManager = LinearLayoutManager(context)
             this.adapter = adapter
@@ -97,19 +100,18 @@ class ContactDetailsFragment : Fragment() {
     }
 
     private fun deleteContact(contact: Contact?) {
-        if (contact != null) {// delete from sharedViewModel and Room DB
-             listOfContactsViewModel.deleteContactFromSharedViewModel(contact)
-             listOfContactsViewModel.deleteContactFromRoomDB(contact)
+        contact?.let { // delete from sharedViewModel and Room DB
+            listOfContactsViewModel.deleteContact(contact)
             if (contact.contactId != null) {// because if it's null means it
                 // was added by room and not yet synced to Android DB so
                 // no need to do anything
-               saveCidInSharedPref(contact.contactId)
+                saveCidInSharedPref(contact.contactId)
             }
         }
         findNavController().popBackStack()
     }
 
-    private fun saveCidInSharedPref(cId: Int?) { // todo finish
+    private fun saveCidInSharedPref(cId: Int?) {
         // fetch from shared pref
         // put list back in shared pref
         val sharedPref = requireActivity().getSharedPreferences(
@@ -119,7 +121,7 @@ class ContactDetailsFragment : Fragment() {
         )
         val editor = sharedPref.edit()
 
-        var setOfDeletedCid =
+        val setOfDeletedCid =
             sharedPref.getStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf())
                 ?: mutableSetOf<String>()
 
@@ -142,8 +144,6 @@ class ContactDetailsFragment : Fragment() {
             apply() // difference between apply and commit is that apply will save data
             // asynchronously
         }
-
-
     }
 
 }

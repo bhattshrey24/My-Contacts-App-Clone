@@ -29,8 +29,11 @@ class ListOfContactsViewModel(application: Application) :
         mutableListOfContacts.value = list.toMutableList()
     }
 
-    fun deleteContactFromSharedViewModel(contact: Contact) {
-        mutableListOfContacts.value?.remove(contact)
+    fun deleteContact(contact: Contact) {
+        mutableListOfContacts.value?.remove(contact)// deleting from shared viewModel
+        viewModelScope.launch {
+            repository.deleteContact(contact)
+        }
     }
 
     fun getListOfContactsFromRoomDB(): LiveData<List<Contact>> {
@@ -43,25 +46,16 @@ class ListOfContactsViewModel(application: Application) :
         }
     }
 
-    fun deleteContactFromRoomDB(contact: Contact) {
-        viewModelScope.launch {
-            repository.deleteContact(contact)
-        }
-    }
-
-    fun insertContactToSharedViewModel(contact: Contact) {
-        mutableListOfContacts.value?.add(contact)
-    }
-
-    fun insertContactToRoomDb(contact: Contact) {
-        viewModelScope.launch {
+    fun insertContact(contact: Contact) {
+        mutableListOfContacts.value?.add(contact) // insert contact to shared viewModel
+        viewModelScope.launch {// inserting contact to room
             repository.insertContact(contact)
         }
     }
 
-    fun updateContactInSharedViewModel(contact: Contact) {
+    private fun updateContactInSharedViewModel(contact: Contact) {
         // Find index of element in list so that we can update it
-        var idxOfOldEle = mutableListOfContacts.value?.indexOfFirst {
+        val idxOfOldEle = mutableListOfContacts.value?.indexOfFirst {
             it.roomContactId == contact.roomContactId
         }
         if (idxOfOldEle != null) {
@@ -69,7 +63,8 @@ class ListOfContactsViewModel(application: Application) :
         }
     }
 
-    fun updateContactInRoomDB(contact: Contact) {
+    fun updateContact(contact: Contact) {
+        updateContactInSharedViewModel(contact)
         viewModelScope.launch {
             repository.updateContact(contact)
         }

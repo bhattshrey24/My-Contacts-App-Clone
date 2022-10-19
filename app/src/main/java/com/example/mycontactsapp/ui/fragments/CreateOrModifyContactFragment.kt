@@ -1,20 +1,15 @@
 package com.example.mycontactsapp.ui.fragments
 
-import android.content.ContentProviderOperation
-import android.content.OperationApplicationException
-import android.graphics.Outline
-import android.graphics.Paint
+
 import android.os.Bundle
-import android.os.RemoteException
-import android.provider.ContactsContract
+
 import android.text.InputType
-import android.util.Log
+
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+
 import androidx.core.view.setMargins
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -25,7 +20,7 @@ import com.example.mycontactsapp.databinding.FragmentCreateOrModifyContactBindin
 import com.example.mycontactsapp.other.*
 import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 import com.google.android.material.textfield.TextInputLayout
-import org.w3c.dom.Text
+
 
 
 class CreateOrModifyContactFragment : Fragment() {
@@ -53,7 +48,7 @@ class CreateOrModifyContactFragment : Fragment() {
 
         val isEdit = args.isEdit
 
-        var contactDetails: Contact? = setUpUi(isEdit) // Will setup the Ui based
+        val contactDetails: Contact? = setUpUi(isEdit) // Will setup the Ui based
 
         setUpListeners(isEdit, contactDetails)
 
@@ -77,9 +72,9 @@ class CreateOrModifyContactFragment : Fragment() {
     }
 
     private fun makeEditText(hint: String, fetchedData: String, type: Type): TextInputLayout {
-        var textInputLayout = TextInputLayout(requireContext()) // this makes it possible
+        val textInputLayout = TextInputLayout(requireContext()) // this makes it possible
         // to have floating hint in edit text . It is wrapper class that can wrap Edit text
-        var editText = EditText(requireContext())
+        val editText = EditText(requireContext())
         editText.apply {
             setHint(hint)
             layoutParams = LinearLayout.LayoutParams(
@@ -106,7 +101,7 @@ class CreateOrModifyContactFragment : Fragment() {
 
     private fun setUpUi(isEdit: Boolean?): Contact? {
         if (isEdit == true) {
-            var contactDetails = listOfContactsViewModel.listOfContact.value?.find {
+            val contactDetails = listOfContactsViewModel.listOfContact.value?.find {
                 it.roomContactId == args.roomId
             }
             setUpUiForEditScreen(contactDetails)
@@ -121,8 +116,8 @@ class CreateOrModifyContactFragment : Fragment() {
         binding.createOrEditTV.text = "Edit Contact"
         binding.nameOfPersonET.setText(contactDetails?.name)
         binding.eocSubmitButton.text = "Edit"
-        if (contactDetails?.numbers != null) {
-            for (number in contactDetails?.numbers!!) {
+        contactDetails?.numbers?.let { numbers->
+            for (number in numbers) {
                 var hint: String
                 var type: PhoneTypes
                 when (number.key.codeOfType) {
@@ -143,14 +138,14 @@ class CreateOrModifyContactFragment : Fragment() {
                         type = PhoneTypes.Mobile
                     }
                 }
-                var et = makeEditText(hint, number.value, Type.Phone)
+                val et = makeEditText(hint, number.value, Type.Phone)
                 binding.linearLayoutCoM.addView(et)
 
                 hmOfNumbersEditTexts.put(type, et)
             }
         }
-        if (contactDetails?.emails != null) {
-            for (email in contactDetails?.emails!!) {
+        contactDetails?.emails?.let { emails->
+            for (email in emails) {
                 var hint: String
                 var type: EmailTypes
                 when (email.key.codeOfType) {
@@ -167,7 +162,7 @@ class CreateOrModifyContactFragment : Fragment() {
                         type = EmailTypes.Home
                     }
                 }
-                var et = makeEditText(hint, email.value, Type.Email)
+                val et = makeEditText(hint, email.value, Type.Email)
                 binding.linearLayoutCoM.addView(et)
                 hmOfEmailsEditTexts.put(type, et)
             }
@@ -177,7 +172,7 @@ class CreateOrModifyContactFragment : Fragment() {
     private fun setUpUiForCreateNewContact() {
         binding.createOrEditTV.text = "Create New Contact"
         binding.eocSubmitButton.text = "Add Contact"
-        var et = makeEditText("Mobile", "", Type.Phone)
+        val et = makeEditText("Mobile", "", Type.Phone)
         hmOfNumbersEditTexts.put(PhoneTypes.Mobile, et)
         binding.linearLayoutCoM.addView(et)
     }
@@ -187,8 +182,8 @@ class CreateOrModifyContactFragment : Fragment() {
             return
         }
 
-        var updatedHashMapForNum = mutableMapOf<PhoneTypes, String>()
-        var updatedHashMapForEmail = mutableMapOf<EmailTypes, String>()
+        val updatedHashMapForNum = mutableMapOf<PhoneTypes, String>()
+        val updatedHashMapForEmail = mutableMapOf<EmailTypes, String>()
 
         for (num in hmOfNumbersEditTexts) {
             updatedHashMapForNum.put(num.key, num.value.editText?.text?.trim().toString())
@@ -219,20 +214,18 @@ class CreateOrModifyContactFragment : Fragment() {
             it.numbers = updatedHashMapForNum
             it.name = updatedContactName
             it.isUpdated = true
-            listOfContactsViewModel.updateContactInSharedViewModel(it)
-            listOfContactsViewModel.updateContactInRoomDB(it)
-            listOfContactsViewModel.listOfContact.value?.sortWith(ListSortComparatorNull()) // sorting because it's possible that user might changed the name of contact
+            listOfContactsViewModel.updateContact(it)
+            listOfContactsViewModel.listOfContact.value?.sortWith(ListSortComparator()) // sorting because it's possible that user might changed the name of contact
         }
-        // todo mark for isUpdated = true
     }
 
     private fun isValidated(): Boolean {
-        var nameEt = binding.nameOfPersonET
+        val nameEt = binding.nameOfPersonET
         if (nameEt.text.isBlank()) {
             nameEt.error = "Name cannot be empty"
             return false
         }
-        if (hmOfNumbersEditTexts.isNullOrEmpty()) {
+        if (hmOfNumbersEditTexts.isEmpty()) {
             for (numbersEt in hmOfNumbersEditTexts) {
                 if (numbersEt.value.editText?.text?.toString()?.isBlank() == true) {
                     numbersEt.value.error = "Number cannot be empty"
@@ -240,7 +233,7 @@ class CreateOrModifyContactFragment : Fragment() {
                 }
             }
         }
-        if (hmOfEmailsEditTexts.isNullOrEmpty()) {
+        if (hmOfEmailsEditTexts.isEmpty()) {
             for (emailsEt in hmOfEmailsEditTexts) {
                 if (emailsEt.value.editText?.text?.toString()?.isBlank() == true) {
                     emailsEt.value.error = "Email address cannot be empty"
@@ -267,9 +260,8 @@ class CreateOrModifyContactFragment : Fragment() {
                 null
             )
 
-        listOfContactsViewModel.insertContactToSharedViewModel(newContact)
-        listOfContactsViewModel.insertContactToRoomDb(newContact)
-        listOfContactsViewModel.listOfContact.value?.sortWith(ListSortComparatorNull())
+        listOfContactsViewModel.insertContact(newContact)
+        listOfContactsViewModel.listOfContact.value?.sortWith(ListSortComparator())
         findNavController().popBackStack()
     }
 
