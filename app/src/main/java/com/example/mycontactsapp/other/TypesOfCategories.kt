@@ -13,3 +13,8 @@ enum class EmailTypes(var nameOfType: String, var codeOfType: Int) {
     Work("Work", ContactsContract.CommonDataKinds.Email.TYPE_WORK),
 }
 
+enum class Type {
+    Phone,
+    Email
+}
+

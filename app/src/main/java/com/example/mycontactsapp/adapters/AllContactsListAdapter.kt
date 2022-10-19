@@ -24,6 +24,7 @@ class AllContactsListAdapter(
 
     fun setContact(filteredContactList: List<Contact>) { // Updates the recyclerview
         this.listOfContacts = filteredContactList
+        Constants.listOfAllContacts=filteredContactList.toMutableList()
         notifyDataSetChanged() // We are changing whole data set
         // cause theres no option like we could have removed all elements and
         // added the once that are in list but its better to just update instead
@@ -34,7 +35,6 @@ class AllContactsListAdapter(
 
         init {
             searchBarET = itemView.findViewById(R.id.searchBarEditText)
-
             searchBarET.addTextChangedListener {
                 var query = it.toString().trim()
                 var listOfContactsFilteredFromQuery =

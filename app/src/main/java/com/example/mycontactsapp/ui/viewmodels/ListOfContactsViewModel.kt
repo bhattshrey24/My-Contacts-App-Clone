@@ -6,6 +6,7 @@ import com.example.mycontactsapp.data.Repository
 import com.example.mycontactsapp.data.local.ContactDatabase
 import com.example.mycontactsapp.data.local.daos.ContactDao
 import com.example.mycontactsapp.data.models.Contact
+import com.example.mycontactsapp.other.Constants
 import kotlinx.coroutines.launch
 
 class ListOfContactsViewModel(application: Application) :
@@ -24,6 +25,7 @@ class ListOfContactsViewModel(application: Application) :
     val listOfContact: LiveData<MutableList<Contact>> get() = mutableListOfContacts
 
     fun setListOfContact(list: List<Contact>) {
+        Constants.listOfAllContacts = list.toMutableList()
         mutableListOfContacts.value = list.toMutableList()
     }
 

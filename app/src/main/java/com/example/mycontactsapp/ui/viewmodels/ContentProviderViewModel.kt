@@ -2,6 +2,7 @@ package com.example.mycontactsapp.ui.viewmodels
 
 import android.app.Application
 import android.content.ContentProviderOperation
+import android.content.ContentProviderResult
 import android.content.Context
 import android.content.OperationApplicationException
 import android.database.Cursor
@@ -21,10 +22,11 @@ import kotlinx.coroutines.*
 
 class ContentProviderViewModel(application: Application) : AndroidViewModel(application) {
 
-
     var listOfRetrievedContacts = MutableLiveData<List<Contact>>()
 
-    var isSyncFinished = MutableLiveData<Boolean>(false)
+    var listOfContactsWithUpdatedContactID = MutableLiveData<List<Contact>>()
+
+    var isSyncFinished = MutableLiveData(false)
 
     private val app: Application
 
@@ -32,7 +34,6 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
         app = application
     }
 
-    //var isFirstTimeLoaded: Boolean = false
     private val mColProjection: Array<String> = arrayOf(
         ContactsContract.Data.CONTACT_ID,
         ContactsContract.Data.DISPLAY_NAME,
@@ -50,7 +51,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
     )
 
     fun fetchDataFromAndroidDb() {
-        viewModelScope.launch {
+        viewModelScope.launch { // viewModelscope.launch runs on main thread
             var tempListOfContacts = mutableListOf<Contact>()
             var hmOfCiAndIndex = hashMapOf<String, Int>()
             var cursor = app.contentResolver.query(
@@ -186,49 +187,8 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
         )
     }
 
-    fun syncData(listOfContacts: List<Contact>?) {
-        // Delete
-        val sharedPref =
-            app.getSharedPreferences(Constants.deletedCidSharedPrefKey, Context.MODE_PRIVATE)
-        var setOfDeletedCid =
-            sharedPref.getStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf())
-                ?: mutableSetOf<String>()
-        Log.i(Constants.debugTag, "set of deleted cID : $setOfDeletedCid")
-
-        for (ele in setOfDeletedCid) {
-            Log.i(Constants.debugTag, "**inside for loop")
-            deleteContactFromAndroidDB(ele.toInt())
-        }
-        val editor = sharedPref.edit()
-        editor.apply {
-            putStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf<String>()) // since
-            // we deleted all contacts so I'm simply putting empty set in share pref
-            apply()
-        }
-        // Insert // todo later : simply combine all this forEach into one
-        val listOfContactsToAddInAndroidRoom = mutableListOf<Contact>()
-        listOfContacts?.forEach { contact ->
-            if (contact.contactId == null) {
-                listOfContactsToAddInAndroidRoom.add(contact)
-            }
-        }
-        for (contact in listOfContactsToAddInAndroidRoom) {
-            insertContactToAndroidDB(contact)
-        }
-        // update
-        val listOfContactsToUpdate = mutableListOf<Contact>()
-        listOfContacts?.forEach { contact ->
-            if (contact.isUpdated) {
-                listOfContactsToUpdate.add(contact)
-            }
-        }
-        for (contact in listOfContactsToUpdate) {
-            updateContactInAndroidDB(contact)
-        }
-        isSyncFinished.value = true
-    }
-
-    private fun deleteContactFromAndroidDB(cId: Int) {
+    private suspend fun deleteContactFromAndroidDB(cId: Int) {
+        delay(2000)
         Log.i(Constants.debugTag, "inside delete with cID: ${cId}")
         //viewModelScope.launch {
         val cpbo = ArrayList<ContentProviderOperation>()
@@ -273,8 +233,12 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
 //        }
     }
 
-    private fun insertContactToAndroidDB(contact: Contact) {
-        // todo , get the CID of contact and update it in ROOM db as well
+    private suspend fun insertContactToAndroidDB(contact: Contact): Int? {
+        //delay(1000)
+        Log.i(Constants.debugTag, "Start of insertContactToAndroidDB")
+
+        var cID: Int? = null
+
         val cpbo = ArrayList<ContentProviderOperation>()
 
         // This is mandatory to do even if you don't specify an account with it
@@ -303,6 +267,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                 )
                 .build()
         )
+        Log.i(Constants.debugTag, "Middle of insertContactToAndroidDB")
 
         if (contact.numbers != null) {
             // Adding Numbers
@@ -317,7 +282,7 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
                         )
                         .withValue(
                             ContactsContract.CommonDataKinds.Phone.NUMBER,
-                            num.value// todo fix
+                            num.value
                         ).withValue(
                             ContactsContract.CommonDataKinds.Phone.TYPE,
                             num.key.codeOfType
@@ -327,8 +292,26 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             }
         }
 
+        Log.i(Constants.debugTag, "Before 'try' of insertContactToAndroidDB")
+
         try {
-            val res = app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
+            Log.i(Constants.debugTag, "Reached Inside try of insert")
+
+            val result = app.contentResolver?.applyBatch(ContactsContract.AUTHORITY, cpbo)
+
+            Log.i(
+                Constants.debugTag,
+                "Inside try after call with cID : ${result?.get(0)?.uri?.lastPathSegment?.toInt()}"
+            )
+
+            cID = result?.get(0)?.uri?.lastPathSegment?.toInt()
+
+            contact.contactId = cID
+
+            Log.i(Constants.debugTag, "contact after adding new cID : $contact")
+
+            return cID
+
         } catch (e: OperationApplicationException) {
             Log.i(
                 Constants.debugTag,
@@ -338,12 +321,15 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
             Log.i(Constants.debugTag, "Remote Exception caught with message : ${e.message}")
         } catch (e: Exception) {
             Log.i(Constants.debugTag, " Exception caught with message : ${e.message}")
+        } finally {
+            Log.i(Constants.debugTag, "Inside finally block")
         }
+        Log.i(Constants.debugTag, "Reached End of Insert fun with cID : $cID")
+        return cID
     }
 
-    private fun updateContactInAndroidDB(contact: Contact) {
-
-
+    private suspend fun updateContactInAndroidDB(contact: Contact) {
+        delay(2000)
         val cpbo = ArrayList<ContentProviderOperation>()
 
         for (num in contact.numbers!!) {
@@ -421,4 +407,70 @@ class ContentProviderViewModel(application: Application) : AndroidViewModel(appl
 
         }
     }
+
+    fun syncData(listOfContacts: List<Contact>?) {
+        listOfContactsWithUpdatedContactID.value = listOf() // basically clearing
+        viewModelScope.launch(Dispatchers.IO) { // by default viewModelScope.launch works on UI thread
+            val jobA = launch {
+                // Delete
+                val sharedPref =
+                    app.getSharedPreferences(
+                        Constants.deletedCidSharedPrefKey,
+                        Context.MODE_PRIVATE
+                    )
+                var setOfDeletedCid =
+                    sharedPref.getStringSet(Constants.setOfDeletedContactCidSPKey, mutableSetOf())
+                        ?: mutableSetOf<String>()
+                for (ele in setOfDeletedCid) {
+                    deleteContactFromAndroidDB(ele.toInt())
+                }
+                val editor = sharedPref.edit()
+                editor.apply {
+                    putStringSet(
+                        Constants.setOfDeletedContactCidSPKey,
+                        mutableSetOf<String>()
+                    ) // since
+                    // we deleted all contacts so I'm simply putting empty set in share pref
+                    apply()
+                }
+                // Update
+                val listOfContactsToUpdate = mutableListOf<Contact>()
+                listOfContacts?.forEach { contact ->
+                    if (contact.isUpdated) {
+                        listOfContactsToUpdate.add(contact)
+                    }
+                }
+                for (contact in listOfContactsToUpdate) {
+                    updateContactInAndroidDB(contact)
+                }
+            }
+
+            // Insert
+            val listOfContactsToAddInAndroidRoom = mutableListOf<Contact>()
+            val listOfContactsWithUpdatedId = mutableListOf<Contact>()
+
+            listOfContacts?.forEach { contact ->
+                if (contact.contactId == null) {
+                    listOfContactsToAddInAndroidRoom.add(contact)
+                }
+            }
+
+            for (contact in listOfContactsToAddInAndroidRoom) {
+                val cID = insertContactToAndroidDB(contact)
+                Log.i(Constants.debugTag, " cID returned by insert fun in syncData =  $cID")
+                cID?.let {
+                    contact.contactId = it
+                    listOfContactsWithUpdatedId.add(contact)
+                }
+            }
+            jobA.join()
+            withContext(Dispatchers.Main) {
+                isSyncFinished.value = true
+                listOfContactsWithUpdatedContactID.value = listOfContactsWithUpdatedId
+            }
+
+        }
+    }
+
+
 }

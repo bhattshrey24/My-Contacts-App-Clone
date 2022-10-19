@@ -36,6 +36,7 @@ class ContactDetailsFragment : Fragment() {
         val contactDetails = listOfContactsViewModel.listOfContact.value?.find {
             it.roomContactId == roomId
         }
+        Log.i(Constants.debugTag, "Room id and Contact Detail in ContactDetailScreen are :$contactDetails , $roomId")
 
         setUpUi(contactDetails, roomId)
 
