@@ -29,7 +29,7 @@ class SplashScreenFragment : Fragment() {
         FragmentSplashScreenBinding.inflate(layoutInflater, null, false)
     }
 
-    private val viewModel: ListOfContactsViewModel by activityViewModels()
+    private val sharedViewModel: ListOfContactsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +40,7 @@ class SplashScreenFragment : Fragment() {
             if (!hasReadPermission() || !hasWritePermission()) {
                 showDialogueBox()
             } else {
-                setUpUi()
+                setUpUi() // means I have both permissions
             }
         } else {// Before Version M i.e. api 23 (Android 6) ,
             // It was not necessary to ask for permission at
@@ -68,7 +68,7 @@ class SplashScreenFragment : Fragment() {
     }
 
     private fun setUpUi() {
-        viewModel.getListOfContactsFromRoomDB().observe(viewLifecycleOwner) {
+        sharedViewModel.getListOfContactsFromRoomDB().observe(viewLifecycleOwner) {
             if (it.isEmpty()) { //It means user has opened the app for the 1st time
                 // so load from Content provider and store it in room
                 loadDataFromContentProvider()
@@ -119,16 +119,16 @@ class SplashScreenFragment : Fragment() {
     }
 
     override fun onResume() {// Doing the isGrantedCheck
-        // in onResume because when user closes the android
+        // in onResume because when user closes the android dialogue
         // box asking for permission then onResume of
         // fragment is called
         super.onResume()
-
-        val isPermissionGranted = (activity as MainActivity).isPermissionGranted()
-        if (isPermissionGranted) {
-            setUpUi()
+        activity.let {
+            val isPermissionGranted = (it as MainActivity).isPermissionGranted()
+            if (isPermissionGranted) {
+                setUpUi()
+            }
         }
-
     }
 
     private fun loadDataFromContentProvider() {
@@ -140,14 +140,14 @@ class SplashScreenFragment : Fragment() {
         contentProviderViewModel.listOfRetrievedContacts
             .observe(viewLifecycleOwner) { listFromContentProvider ->
                 listFromContentProvider.let {
-                    viewModel.saveListOfContactInRoomDB(it) // will be done in background thread
-                    viewModel.getListOfContactsFromRoomDB()
+                    sharedViewModel.saveListOfContactInRoomDB(it) // will be done in background thread
+                    sharedViewModel.getListOfContactsFromRoomDB()
                         .observe(viewLifecycleOwner) { listReturnedByRoom ->
                             if (!listReturnedByRoom.isNullOrEmpty()) {
-                                viewModel.setListOfContact(listReturnedByRoom) // saving list in shared viewModel
+                                sharedViewModel.setListOfContact(listReturnedByRoom) // saving list in shared viewModel
                                 findNavController().navigate(R.id.action_splashScreenFragment_to_homeFragment)
                                 binding.circularProgressBar.visibility =
-                                    View.GONE // not necessary though since we are moving to next screen
+                                    View.GONE
                             }
                         }
                 }
@@ -155,10 +155,10 @@ class SplashScreenFragment : Fragment() {
     }
 
     private fun loadToSharedViewModel(listOfContact: List<Contact>) {
-        viewModel.setListOfContact(listOfContact)// Saving list retrieved from Room to shared view Model
+        sharedViewModel.setListOfContact(listOfContact)// Saving list retrieved from Room to shared view Model
         findNavController().navigate(R.id.action_splashScreenFragment_to_homeFragment)
         binding.circularProgressBar.visibility =
-            View.GONE // not necessary though since we are moving to next screen
+            View.GONE
     }
 
 }

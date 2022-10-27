@@ -1,5 +1,6 @@
 package com.example.mycontactsapp.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,21 +19,24 @@ class AllContactsListAdapter(
     var onContactClickListenerVariable: OnContactClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var masterListOfContacts: List<Contact> = listOf()// using master list because
+    // listOfContact will get filtered since it is actually being used to show items on
+    // recyclerView so I needed a master copy on which I can filter contacts and get a new list
+    // which I will assign to "listOfContacts"
+
     private var listOfContacts: List<Contact> = listOf()
 
     fun getFilteredListOfContacts() = listOfContacts
 
     fun setContact(filteredContactList: List<Contact>) { // Updates the recyclerview
         this.listOfContacts = filteredContactList
-
-        Constants.listOfAllContacts =
-            filteredContactList.toMutableList() // this list is used to filter
-        // list when user enters something in search bar so therefore whenever recycler view updates then
-        // this should also update
-
         notifyDataSetChanged() // We are changing whole data set
         // cause theres no option like we could have removed all elements and
         // added the once that are in list but its better to just update instead
+    }
+
+    fun setMasterListOfContact(list: List<Contact>) {
+        masterListOfContacts = list
     }
 
     inner class MyViewHolderForSearchBar(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -43,12 +47,13 @@ class AllContactsListAdapter(
             searchBarET.addTextChangedListener {
                 val query = it.toString().trim()
                 val listOfContactsFilteredFromQuery =
-                    Constants.listOfAllContacts.filter { contact ->
+                    masterListOfContacts.filter { contact ->
                         contact.name?.contains(query, true) ?: false
                     }
                 setContact(listOfContactsFilteredFromQuery)
             }
         }
+
     }
 
     inner class MyViewHolderForContacts(itemView: View) : RecyclerView.ViewHolder(itemView) {

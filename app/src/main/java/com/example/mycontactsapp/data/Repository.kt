@@ -37,4 +37,8 @@ class Repository(
         return contactDao.getAllContacts()
     }
 
+    suspend fun deleteTableData() {
+        return contactDao.deleteTableData()
+    }
+
 }

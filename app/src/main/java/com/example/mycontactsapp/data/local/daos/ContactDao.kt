@@ -23,7 +23,7 @@ interface ContactDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateContact(updatedContact: Contact)
 
-    @Query("SELECT COUNT(*) FROM contacts_table")
-    suspend fun getRowCount(): Int
+    @Query("DELETE FROM contacts_table")
+    suspend fun deleteTableData()
 
 }

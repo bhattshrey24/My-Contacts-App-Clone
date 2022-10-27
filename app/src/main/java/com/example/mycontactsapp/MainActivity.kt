@@ -15,13 +15,6 @@ import com.example.mycontactsapp.other.Constants
 
 class MainActivity : AppCompatActivity() {
 
-    //Todo
-    // Clean the code
-    // apply diffUtil for updating recyclerView
-    // fix Warnings
-    // fix app floating hint make it the way Zeel showed
-
-
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)
     }
@@ -45,15 +38,13 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == Constants.myRequestCode && grantResults.isNotEmpty()) {
-            for (i in grantResults.indices) {
-                isGranted = if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i("PermissionRequests", "${permissions[i]} granted!!")
+                isGranted = if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i("PermissionRequests", "${permissions[0]} granted!!")
                     true
                 } else {
-                    Log.i("PermissionRequests", "${permissions[i]} Not granted!!")
+                    Log.i("PermissionRequests", "${permissions[0]} Not granted!!")
                     false
                 }
-            }
         }
     }
 

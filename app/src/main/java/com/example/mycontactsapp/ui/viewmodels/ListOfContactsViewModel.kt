@@ -15,18 +15,22 @@ class ListOfContactsViewModel(application: Application) :
     private val contactDao: ContactDao
     private val repository: Repository
     private var mutableListOfContacts = MutableLiveData<MutableList<Contact>>()
+    val listOfContact: LiveData<MutableList<Contact>> get() = mutableListOfContacts
 
     init {
         contactDao = ContactDatabase.getDatabase(application).savedContactDao()
         repository = Repository(contactDao)
-        // mutableListOfContacts = repository.getListOfAllContacts()// Do this later
     }
 
-    val listOfContact: LiveData<MutableList<Contact>> get() = mutableListOfContacts
 
     fun setListOfContact(list: List<Contact>) {
-        Constants.listOfAllContacts = list.toMutableList()
         mutableListOfContacts.value = list.toMutableList()
+    }
+
+    fun deleteTableData() { // Delete all the data in table but not the table itself
+        viewModelScope.launch {
+            repository.deleteTableData()
+        }
     }
 
     fun deleteContact(contact: Contact) {

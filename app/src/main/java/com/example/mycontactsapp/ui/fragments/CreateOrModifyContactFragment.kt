@@ -37,7 +37,7 @@ class CreateOrModifyContactFragment : Fragment() {
     private var hmOfEmailsEditTexts = mutableMapOf<EmailTypes, TextInputLayout>()
 
     private val args: CreateOrModifyContactFragmentArgs by navArgs()
-    private val listOfContactsViewModel: ListOfContactsViewModel by activityViewModels()
+    private val sharedViewModel: ListOfContactsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,7 +48,9 @@ class CreateOrModifyContactFragment : Fragment() {
 
         val isEdit = args.isEdit
 
-        val contactDetails: Contact? = setUpUi(isEdit) // Will setup the Ui based
+        val contactDetails: Contact? = setUpUi(isEdit) // Will setup the Ui
+        // based on whether we came here from contact detail screen or
+        // from home screen
 
         setUpListeners(isEdit, contactDetails)
 
@@ -101,7 +103,7 @@ class CreateOrModifyContactFragment : Fragment() {
 
     private fun setUpUi(isEdit: Boolean?): Contact? {
         if (isEdit == true) {
-            val contactDetails = listOfContactsViewModel.listOfContact.value?.find {
+            val contactDetails = sharedViewModel.listOfContact.value?.find {
                 it.roomContactId == args.roomId
             }
             setUpUiForEditScreen(contactDetails)
@@ -213,10 +215,30 @@ class CreateOrModifyContactFragment : Fragment() {
             it.emails = updatedHashMapForEmail
             it.numbers = updatedHashMapForNum
             it.name = updatedContactName
-            it.isUpdated = true
-            listOfContactsViewModel.updateContact(it)
-            listOfContactsViewModel.listOfContact.value?.sortWith(ListSortComparator()) // sorting because it's possible that user might changed the name of contact
+            sharedViewModel.updateContact(it)
+            sharedViewModel.listOfContact.value?.sortWith(ListSortComparator()) // sorting because it's
+            // possible that user might changed the name of contact
         }
+    }
+
+    private fun createNewContact(nameOfContact: String) {
+        if (!isValidated()) {
+            return
+        }
+        val number = hmOfNumbersEditTexts.get(PhoneTypes.Mobile)?.editText?.text?.toString()?.trim()
+        val newContact =
+            Contact(
+                null, // setting null because this
+                // will tell me whether the contact was there in Android DB or
+                // not
+                nameOfContact,
+                mutableMapOf(PhoneTypes.Mobile to number!!),
+                null
+            )
+
+        sharedViewModel.insertContact(newContact)
+        sharedViewModel.listOfContact.value?.sortWith(ListSortComparator())
+        findNavController().popBackStack()
     }
 
     private fun isValidated(): Boolean {
@@ -242,27 +264,6 @@ class CreateOrModifyContactFragment : Fragment() {
             }
         }
         return true
-    }
-
-    private fun createNewContact(nameOfContact: String) {
-        if (!isValidated()) {
-            return
-        }
-        val number = hmOfNumbersEditTexts.get(PhoneTypes.Mobile)?.editText?.text?.toString()?.trim()
-        val newContact =
-            Contact(
-                null, // setting null because this
-                // will tell me whether the contact was there in Android DB or
-                // not when user presses sync button , because if it's null it means
-                // it was added later
-                nameOfContact,
-                mutableMapOf(PhoneTypes.Mobile to number!!),
-                null
-            )
-
-        listOfContactsViewModel.insertContact(newContact)
-        listOfContactsViewModel.listOfContact.value?.sortWith(ListSortComparator())
-        findNavController().popBackStack()
     }
 
 }
