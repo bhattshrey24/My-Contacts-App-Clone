@@ -46,10 +46,7 @@ class AllContactsListAdapter(
             searchBarET = itemView.findViewById(R.id.searchBarEditText)
             searchBarET.addTextChangedListener {
                 val query = it.toString().trim()
-                val listOfContactsFilteredFromQuery =
-                    masterListOfContacts.filter { contact ->
-                        contact.name?.contains(query, true) ?: false
-                    }
+                val listOfContactsFilteredFromQuery = filterRecord(query, masterListOfContacts)
                 setContact(listOfContactsFilteredFromQuery)
             }
         }
@@ -118,6 +115,85 @@ class AllContactsListAdapter(
         }
     }
 
+    private fun removeAdditionalCharacters(query: String): String {// removes +, ( or ) and -
+        var filteredQuery = query.filterNot {
+            it == '+' || it == ')' || it == '(' || it == '-' || it == ' ' || it == '*' || it == '#'
+        }
+        return filteredQuery
+    }
+
+    fun filterRecord(query: String, listOfContacts: List<Contact>): List<Contact> {
+        val emptyListForHoldingFilteredContacts = mutableListOf<Contact>()
+        return if (query.isEmpty()) {
+            listOfContacts
+        } else {
+            val containsJustNum = !query.contains(regex = Regex("[a-zA-Z]+"))
+
+            return if (containsJustNum) {
+                justNumberInQuery(query.trim(), listOfContacts, emptyListForHoldingFilteredContacts)
+            } else { // can be just letters or alphanumeric
+                alphanumericQuery(query.trim(), listOfContacts, emptyListForHoldingFilteredContacts)
+            }
+        }
+    }
+
+    private fun justNumberInQuery(
+        query: String,
+        listOfContacts: List<Contact>,
+        filteredList: MutableList<Contact>
+    ): List<Contact> {
+        listOfContacts.forEach { contact ->
+            contact.numbers?.let { numbers ->
+                var foundMatch = false
+                for (phoneType in numbers.keys) {
+                    val number = numbers[phoneType]
+                    number?.let {
+                        val filteredNum = removeAdditionalCharacters(it)
+                        if (filteredNum.startsWith(query)) {
+                            filteredList.add(contact)
+                            foundMatch =
+                                true // so that we don't add a contact again and again because it might be possible that 2 or more numbers in a contact have same starting
+                        }
+                    }
+                    if (foundMatch) {
+                        break
+                    }
+                }
+            }
+        }
+        return filteredList
+    }
+
+    private fun alphanumericQuery(
+        query: String,
+        listOfContacts: List<Contact>,
+        filteredList: MutableList<Contact>
+    ): List<Contact> { // can be either name (like dummy 2) or email
+        listOfContacts.forEach { contact ->
+            contact.emails?.let { emailsMap ->
+                var foundMatch = false
+                for (emailType in emailsMap.keys) {
+                    val email = emailsMap[emailType]
+                    email?.let {
+                        if (it.contains(query, true)) {
+                            filteredList.add(contact)
+                            foundMatch = true
+                        }
+                    }
+                    if (foundMatch) {
+                        break
+                    }
+                }
+            }
+            contact.name?.let { name ->
+                if (name.contains(query, true)) {
+                    if (!filteredList.contains(contact))
+                    filteredList.add(contact)
+                }
+            }
+        }
+        return filteredList
+    }
 
 }
 

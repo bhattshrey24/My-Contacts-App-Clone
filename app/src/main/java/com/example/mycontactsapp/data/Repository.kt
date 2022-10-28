@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.example.mycontactsapp.data.local.daos.ContactDao
 import com.example.mycontactsapp.data.models.Contact
 
-
+// todo fix create an interface and implement it because we need abstraction
 class Repository(
     private val contactDao: ContactDao
 ) {

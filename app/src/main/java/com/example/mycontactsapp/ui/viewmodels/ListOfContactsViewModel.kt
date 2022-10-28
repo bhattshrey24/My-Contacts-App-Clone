@@ -28,7 +28,7 @@ class ListOfContactsViewModel(application: Application) :
     }
 
     fun deleteTableData() { // Delete all the data in table but not the table itself
-        viewModelScope.launch {
+        viewModelScope.launch { // todo change to IO with withContext
             repository.deleteTableData()
         }
     }
