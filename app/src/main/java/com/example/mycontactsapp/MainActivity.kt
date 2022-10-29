@@ -14,6 +14,19 @@ import com.example.mycontactsapp.other.Constants
 
 
 class MainActivity : AppCompatActivity() {
+    //todo must
+    // change linear to relative or constraint layout and remove those 3 extra layouts
+    // add drop down menu with every edit text so that user can choose
+    //   which type he/she wants
+    // add a "-" fab so that user can remove unwanted fab
+    // always check whether newly added et was filled or not cause maybe
+    //  user add it and forget to remove it
+    // add feature where in new contact user can add email too
+
+    //todo optional
+    // if time then add a feature where user can even delete previously added numbers or emails
+    // if time then maybe add more types since I'm not using content provider anymore so we can always increase types
+
 
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater, null, false)

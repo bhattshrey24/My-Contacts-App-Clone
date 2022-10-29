@@ -52,13 +52,37 @@ tools:context=".ui.fragments.CreateOrModifyContactFragment">
 
 
     <LinearLayout
-        android:id="@+id/linearLayoutCoM"
+        android:id="@+id/linearLayoutNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameOfPersonET" />
+    <LinearLayout
+        android:id="@+id/linearLayoutNumberFab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutNumber" />
+    <LinearLayout
+        android:id="@+id/linearLayoutEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutNumberFab" />
+    <LinearLayout
+        android:id="@+id/linearLayoutEmailFab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutEmail" />
 
     <Button
         android:id="@+id/eocSubmitButton"
@@ -70,7 +94,7 @@ tools:context=".ui.fragments.CreateOrModifyContactFragment">
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayoutCoM" />
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutEmailFab" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
