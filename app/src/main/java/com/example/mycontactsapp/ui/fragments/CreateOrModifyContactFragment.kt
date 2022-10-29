@@ -11,6 +11,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Spinner
 import androidx.core.content.ContextCompat
 
 import androidx.core.view.setMargins
@@ -25,6 +26,7 @@ import com.example.mycontactsapp.ui.viewmodels.ListOfContactsViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import java.util.*
 
 
 class CreateOrModifyContactFragment : Fragment() {
@@ -35,12 +37,18 @@ class CreateOrModifyContactFragment : Fragment() {
 
     private var hmOfNumbersEditTexts =
         mutableMapOf<PhoneTypes, TextInputLayout>() // This will hold the
+
+//todo Must
+// must check if et is empty then discard it
+
     // reference to edit texts since I'm programmatically making them based on number of emails or phone numbers
     // user has for a particular contact
     private var hmOfEmailsEditTexts = mutableMapOf<EmailTypes, TextInputLayout>()
 
     private val args: CreateOrModifyContactFragmentArgs by navArgs()
     private val sharedViewModel: ListOfContactsViewModel by activityViewModels()
+
+    private var isEdit = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +57,7 @@ class CreateOrModifyContactFragment : Fragment() {
     ): View {
         // we reached here after clicking on add new contact button or edit button
 
-        val isEdit = args.isEdit
+        isEdit = args.isEdit
 
         val contactDetails: Contact? = setUpUi(isEdit) // Will setup the Ui
         // based on whether we came here from contact detail screen or
@@ -57,8 +65,18 @@ class CreateOrModifyContactFragment : Fragment() {
 
         setUpListeners(isEdit, contactDetails)
 
+        setUpNewListeners()
 
         return binding.root
+    }
+
+    private fun setUpNewListeners() {
+        binding.myBtnForAddingNumber.setOnClickListener {
+            addViewToPhoneLL()
+        }
+        binding.myBtnForAddingEmail.setOnClickListener {
+            addViewToEmailLL()
+        }
     }
 
     private fun setUpListeners(isEdit: Boolean?, contactDetails: Contact?) {
@@ -89,71 +107,75 @@ class CreateOrModifyContactFragment : Fragment() {
         return null
     }
 
-    private fun setUpUiForEditScreen(contactDetails: Contact?) {
-        binding.createOrEditTV.text = "Edit Contact"
-        binding.nameOfPersonET.setText(contactDetails?.name)
-        binding.eocSubmitButton.text = "Edit"
-        contactDetails?.numbers?.let { numbers ->
-            for (number in numbers) {
-                var hint: String
-                var type: PhoneTypes
-                when (number.key.codeOfType) {
-                    PhoneTypes.Mobile.codeOfType -> {
-                        hint = PhoneTypes.Mobile.nameOfType
-                        type = PhoneTypes.Mobile
-                    }
-                    PhoneTypes.Home.codeOfType -> {
-                        hint = PhoneTypes.Home.nameOfType
-                        type = PhoneTypes.Home
-                    }
-                    PhoneTypes.Work.codeOfType -> {
-                        hint = PhoneTypes.Work.nameOfType
-                        type = PhoneTypes.Work
-                    }
-                    else -> {
-                        hint = PhoneTypes.Mobile.nameOfType
-                        type = PhoneTypes.Mobile
-                    }
-                }
-               // val et = makeEditText(hint, number.value, Type.Phone)
-               // binding.linearLayoutNumber.addView(et)
-
-               // hmOfNumbersEditTexts.put(type, et)
+    private fun getCategoryIndexInSpinner(spinner: Spinner, category: String): Int {
+        for (i in 0 until spinner.count) {
+            if (spinner.getItemAtPosition(i).toString().equals(category)) {
+                return i
             }
         }
-
-        contactDetails?.emails?.let { emails ->
-            for (email in emails) {
-                var hint: String
-                var type: EmailTypes
-                when (email.key.codeOfType) {
-                    EmailTypes.Work.codeOfType -> {
-                        hint = EmailTypes.Work.nameOfType
-                        type = EmailTypes.Work
-                    }
-                    EmailTypes.Home.codeOfType -> {
-                        hint = EmailTypes.Home.nameOfType
-                        type = EmailTypes.Home
-                    }
-                    else -> {
-                        hint = EmailTypes.Home.nameOfType
-                        type = EmailTypes.Home
-                    }
-                }
-              //  val et = makeEditText(hint, email.value, Type.Email)
-//                binding.linearLayoutEmail.addView(et)
-//                hmOfEmailsEditTexts.put(type, et)
-            }
-        }
-
+        return 0
     }
 
     private fun setUpUiForCreateNewContact() {
         binding.createOrEditTV.text = "Create New Contact"
         binding.eocSubmitButton.text = "Add Contact"
-//        val et = makeEditText("Mobile", "", Type.Phone)
-//        hmOfNumbersEditTexts.put(PhoneTypes.Mobile, et)
-//        binding.linearLayoutNumber.addView(et)
+        addViewToPhoneLL()
+        addViewToEmailLL()
+    }
+
+    private fun setUpUiForEditScreen(contactDetails: Contact?) {
+        binding.createOrEditTV.text = "Edit Contact"
+        binding.nameOfPersonET.setText(contactDetails?.name)
+        binding.eocSubmitButton.text = "Edit"
+
+        contactDetails?.numbers?.let { numbers ->
+            for (number in numbers) {
+                var category = number.key.nameOfType
+                setViewWithDataToPhoneLL(category, number.value)
+            }
+        }
+        contactDetails?.emails?.let { emails ->
+            for (email in emails) {
+                var category = email.key.nameOfType
+                setViewWithDataToEmailLL(category, email.value)
+            }
+        }
+    }
+
+    private fun setViewWithDataToPhoneLL(category: String, number: String) {
+        addViewToPhoneLL()
+        val countForNum = binding.parentLLayoutForNumber.childCount
+        var view: View? = binding.parentLLayoutForNumber.getChildAt(countForNum - 1)
+        view?.let {
+            val phoneNumber: EditText = view.findViewById(R.id.et_phone)
+            phoneNumber.setText(number)
+            val phoneType: Spinner = it.findViewById(R.id.phoneTypeSpinner)
+            val selectionIdx = getCategoryIndexInSpinner(phoneType, category)
+            phoneType.setSelection(selectionIdx)
+        }
+    }
+
+    private fun setViewWithDataToEmailLL(category: String, emailAddress: String) {
+        addViewToEmailLL()
+        val countForNum = binding.parentLLayoutForEmail.childCount
+        var view: View? = binding.parentLLayoutForEmail.getChildAt(countForNum - 1)
+        view?.let {
+            val email: EditText = view.findViewById(R.id.et_email)
+            email.setText(emailAddress)
+            val emailType: Spinner = it.findViewById(R.id.emailTypeSpinner)
+            val selectionIdx = getCategoryIndexInSpinner(emailType, category)
+            emailType.setSelection(selectionIdx)
+        }
+    }
+
+    private fun addViewToPhoneLL() {
+        val inflater = LayoutInflater.from(context).inflate(R.layout.child_layout_phone, null)
+        binding.parentLLayoutForNumber.addView(inflater, binding.parentLLayoutForNumber.childCount)
+    }
+
+    private fun addViewToEmailLL() {
+        val inflater = LayoutInflater.from(context).inflate(R.layout.child_layout_email, null)
+        binding.parentLLayoutForEmail.addView(inflater, binding.parentLLayoutForEmail.childCount)
     }
 
     private fun updateValues(oldContactDetails: Contact?, updatedContactName: String) {
@@ -197,7 +219,6 @@ class CreateOrModifyContactFragment : Fragment() {
             // possible that user might changed the name of contact
         }
     }
-
 
 
     private fun createNewContact(nameOfContact: String) {
@@ -307,4 +328,55 @@ class CreateOrModifyContactFragment : Fragment() {
 //    }
 //    textInputLayout.addView(editText)
 //    return textInputLayout
+//}
+
+//private fun setUpUiForEditScreen(contactDetails: Contact?) {
+//    binding.createOrEditTV.text = "Edit Contact"
+//    binding.nameOfPersonET.setText(contactDetails?.name)
+//    binding.eocSubmitButton.text = "Edit"
+//    contactDetails?.numbers?.let { numbers ->
+//        for (number in numbers) {
+//            var hint: String
+//            var type: PhoneTypes
+//            when (number.key.codeOfType) {
+//                PhoneTypes.Mobile.codeOfType -> {
+//                    hint = PhoneTypes.Mobile.nameOfType
+//                    type = PhoneTypes.Mobile
+//                }
+//                PhoneTypes.Home.codeOfType -> {
+//                    hint = PhoneTypes.Home.nameOfType
+//                    type = PhoneTypes.Home
+//                }
+//                PhoneTypes.Work.codeOfType -> {
+//                    hint = PhoneTypes.Work.nameOfType
+//                    type = PhoneTypes.Work
+//                }
+//                else -> {
+//                    hint = PhoneTypes.Mobile.nameOfType
+//                    type = PhoneTypes.Mobile
+//                }
+//            }
+//        }
+//    }
+//    contactDetails?.emails?.let { emails ->
+//        for (email in emails) {
+//            var hint: String
+//            var type: EmailTypes
+//            when (email.key.codeOfType) {
+//                EmailTypes.Work.codeOfType -> {
+//                    hint = EmailTypes.Work.nameOfType
+//                    type = EmailTypes.Work
+//                }
+//                EmailTypes.Home.codeOfType -> {
+//                    hint = EmailTypes.Home.nameOfType
+//                    type = EmailTypes.Home
+//                }
+//                else -> {
+//                    hint = EmailTypes.Home.nameOfType
+//                    type = EmailTypes.Home
+//                }
+//            }
+//
+//        }
+//    }
 //}
