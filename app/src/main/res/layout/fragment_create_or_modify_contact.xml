@@ -60,11 +60,12 @@
             app:layout_constraintTop_toBottomOf="@+id/nameOfPersonET" />
 
         <Button
+            android:backgroundTint="@color/teal_400"
             android:id="@+id/myBtnForAddingNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="8dp"
             android:text="Add contact"
             android:textSize="10sp"
             android:textStyle="bold"
@@ -82,11 +83,12 @@
             app:layout_constraintTop_toBottomOf="@+id/myBtnForAddingNumber" />
 
         <Button
+            android:backgroundTint="@color/teal_400"
             android:id="@+id/myBtnForAddingEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="8dp"
             android:text="Add Email"
             android:textSize="10sp"
             android:textStyle="bold"

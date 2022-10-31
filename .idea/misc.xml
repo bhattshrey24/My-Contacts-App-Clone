@@ -4,10 +4,12 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/drawable/edit_text_border.xml" value="0.1765" />
+        <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/drawable/edit_text_border_without_radius.xml" value="0.1585" />
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/drawable/ic_add.xml" value="0.1375" />
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/drawable/ic_email.xml" value="0.2105" />
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/drawable/ic_phone.xml" value="0.2105" />
+        <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/drawable/ic_remove.xml" value="0.1555" />
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/layout/activity_main.xml" value="0.24320652173913043" />
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/layout/activity_second.xml" value="0.2418478260869565" />
         <entry key="..\:/Projects/Android Projects/Android Studio Projects Folder 2/MyContactsApp/app/src/main/res/layout/child_layout_email.xml" value="0.2477355072463768" />

@@ -1,24 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
+
     <EditText
-        android:layout_marginStart="5dp"
+        android:layout_marginTop="4dp"
+        android:padding="8dp"
         android:id="@+id/et_email"
-        android:layout_width="220dp"
-        android:inputType="textEmailAddress"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/edit_text_border_2"
         android:hint="Enter Email"
-        app:layout_constraintLeft_toRightOf="@id/emailTypeSpinner"
+        android:inputType="textEmailAddress"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/deleteBtnEmail"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="0.7"
+        app:layout_constraintStart_toEndOf="@+id/emailTypeSpinner"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
+        android:layout_marginTop="4dp"
         android:id="@+id/emailTypeSpinner"
-        android:layout_width="150dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="5dp"
         android:entries="@array/email_types"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/et_email"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_marginTop="4dp"
+        android:id="@+id/deleteBtnEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:backgroundTint="@color/red"
+        android:src="@drawable/ic_remove"
+        app:fabCustomSize="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/et_email"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
