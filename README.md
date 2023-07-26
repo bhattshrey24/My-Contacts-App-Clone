@@ -1,4 +1,4 @@
-# Contacts-App
+# Contacts App
 ![1](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/bf6cbc4f-dc54-41fe-bc4f-6bcc4273ae1e)
 ![2](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/dd7f4bef-a1ab-4521-9891-343e061c985b)
 ![3](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/f6ab4bc6-fd8a-4a3c-a9c8-3e73095627ac)
