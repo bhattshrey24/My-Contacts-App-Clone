@@ -1,0 +1,10 @@
+# Contacts-App
+![1](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/24568f58-0ca3-4a54-9006-da3aa415ea7e)
+![2](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/73d71a92-5df3-4179-8072-6634ae2a49a0)
+![3](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/78e06306-3c17-48de-960e-4aaafb6ce5d3)
+![4](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/695d3b6a-ee4c-43d8-9d93-a26f32b32888)
+![5](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/46f16eac-fae6-48cb-86ee-f1127acc2f4d)  
+![6](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/4e46cf99-9ff1-4c8f-918d-86c5fbb6ea8b)
+![7](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/1826681c-e474-4474-8ad0-2a8c9eaddba4)
+![8](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/2bd5b2cd-1313-4c64-85b6-07996013ad1f)
+![9](https://github.com/bhattshrey24/My-Contacts-App-Clone/assets/53301200/9c624be0-608d-412e-a5bd-54167a754dbb)
